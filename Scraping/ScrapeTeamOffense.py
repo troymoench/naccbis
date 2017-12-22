@@ -5,7 +5,7 @@ import ScrapeFunctions as sf
 
 YEAR = "2016-17"
 SPLIT = "overall"
-OUTPUT = "csv"
+OUTPUT = "sql"
 # TODO: Add support for in-season scraping
 
 
@@ -28,6 +28,7 @@ class TeamOffenseScraper:
         'Rockford': 'ROCK',
         'Wisconsin Lutheran': 'WLC'
     }
+    TABLES = {"overall": "raw_team_offense_overall", "conference": "raw_team_offense_conference"}
 
     def __init__(self, year, split, output, verbose=False):
         self._year = year
@@ -110,8 +111,8 @@ class TeamOffenseScraper:
             print("Cannot export. Scraper has not been run yet. Use run() to do so.")
             sys.exit(1)
         else:
-            tables = {"overall": "raw_teams_overall", "conference": "raw_teams_conference"}
-            tableName = tables[self._split]
+
+            tableName = self.TABLES[self._split]
 
             if self._output == "csv":
                 self._data.to_csv("{}{}.csv".format(tableName, self._year), index=False)

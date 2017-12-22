@@ -37,6 +37,7 @@ class IndividualOffenseScraper:
         'Rockford': 'ROCK',
         'Wisconsin Lutheran': 'WLC'
     }
+    TABLES = {"overall": "raw_batters_overall", "conference": "raw_batters_conference"}
 
     def __init__(self, year, split, output, verbose=False):
         self._year = year
@@ -165,8 +166,7 @@ class IndividualOffenseScraper:
             print("Cannot export. Scraper has not been run yet. Use run() to do so.")
             sys.exit(1)
         else:
-            tables = {"overall": "raw_batters_overall", "conference": "raw_batters_conference"}
-            tableName = tables[self._split]
+            tableName = self.TABLES[self._split]
 
             if self._output == "csv":
                 self._data.to_csv("{}{}.csv".format(tableName, self._year), index=False)
