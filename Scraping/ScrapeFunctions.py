@@ -32,6 +32,7 @@ def get_href(html_tag):
 
 def find_table(soup_obj, header_values):
     # find the indices of tables that contain specific values in header
+    # returns empty list if table not found
     indices = []
     tables = soup_obj.find_all('table')
     i = 0
@@ -39,10 +40,7 @@ def find_table(soup_obj, header_values):
         table = tables[i]
         header = table.find_all('th')
         columns = [x.text.strip().lower() for x in header]
-        count = 0
-        for col in header_values:
-            count += int(col in columns)
-        if count == len(header_values):
+        if set(header_values).issubset(set(columns)):
             indices.append(i)
         i += 1
     return indices
