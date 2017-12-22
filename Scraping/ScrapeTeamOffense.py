@@ -2,27 +2,18 @@ import pandas as pd
 import psycopg2
 import sys
 import ScrapeFunctions as sf
-'''
-This script scrapes individual offense for a given year
-Script args: <period> ...
-Will need to run this script twice if
-you wish to scrape Overall and Conference stats
 
-1. Scrape
-2. Clean
-3. Export
-'''
-YEAR = "2013-14"
+YEAR = "2016-17"
 SPLIT = "overall"
-OUTPUT = "sql"
+OUTPUT = "csv"
 # TODO: Add support for in-season scraping
 
 
-class IndividualOffenseScraper:
+class TeamOffenseScraper:
     BASE_URL = "http://naccsports.org/sports/bsb/"  # add constants to ScrapeFunctions.py?
-    HITTING_COLS = ['no.', 'name', 'yr', 'pos', 'g', 'ab', 'r', 'h', '2b', 'hr', 'avg', 'obp',
+    HITTING_COLS = ['name', 'gp', 'ab', 'r', 'h', '2b', 'hr', 'avg', 'obp',
                     'slg']
-    EXTENDED_HITTING_COLS = ['no.', 'name', 'yr', 'pos', 'g', 'hbp', 'sf', 'pa']
+    EXTENDED_HITTING_COLS = ['name', 'gp', 'hbp', 'sf', 'sh', 'pa']
     TEAM_IDS = {
         'Aurora': 'AUR',
         'Benedictine': 'BEN',
@@ -60,84 +51,41 @@ class IndividualOffenseScraper:
     def run(self):
         # run the scraper
         # TODO: add argument export=True
-
-        soup = sf.get_soup(self.BASE_URL + self._year + "/leaders")
-
-        # search the page for the target element
-        target = soup.find_all("table", {"class": "teamSummary"})
-        if not len(target) == 1:
-            print("Could not find exactly one target element")
-            exit(1)
-
-        # create a list of links that are children of the target element
-        links = [link for link in target[0].find_all('a') if 'href' in link.attrs]
-
-        # create list of dicts
-        # including team name, abbreviation, and url
-        teamList = []
-        for link in links:
-            teamList.append({
-                'team': sf.get_text(link),
-                'id': self.TEAM_IDS[sf.get_text(link)],
-                'url': sf.get_href(link)
-            })
-
-        # iterate over the teams
-        for team in teamList:
-            print(team)
-
-            teamSoup = sf.get_soup(self.BASE_URL + self._year + '/' + team['url'], verbose=True)
-            df = self._scrape(teamSoup)
-            # print(df.info())
-            df = self._clean(df, team['id'])
-            # print(df.info())
-            self._data = pd.concat([self._data, df], ignore_index=True)
-
+        soup = sf.get_soup(self.BASE_URL + self._year + "/teams", verbose=self._verbose)
+        df = self._scrape(soup)
+        self._data = self._clean(df)
         self._runnable = False
 
-    def _scrape(self, team_soup):
-        # TODO: Finding the links for overall vs conference probably isn't necessary
-        # TODO: because the html doesn't change based on the url choice
-
+    def _scrape(self, soup):
         if self._split == "overall":
-            link = team_soup.find("a", {"class": "t_overall"})
-            index = 0  # overall is first item in list returned by find_table()
+            index = 0
         elif self._split == "conference":
-            link = team_soup.find("a", {"class": "t_conf"})
-            index = 1  # conference is the second item in list returned by find_table()
+            index = 1
         else:
             print("Invalid split:", self._split)
             sys.exit(1)
 
-        # get the union of the BASE_URL and the link
-        url = sf.url_union(self.BASE_URL, sf.get_href(link))
-
-        # get the soup of the page
-        pageSoup = sf.get_soup(url, verbose=self._verbose)
-
         # find index of hitting table
-        tableNum1 = sf.find_table(pageSoup, self.HITTING_COLS)[index]
-        hitting = sf.scrape_table(pageSoup, tableNum1 + 1, skip_rows=2)
+        tableNum1 = sf.find_table(soup, self.HITTING_COLS)[index]
+        hitting = sf.scrape_table(soup, tableNum1 + 1, skip_rows=0)
         # find index of extended_hitting table
-        tableNum2 = sf.find_table(pageSoup, self.EXTENDED_HITTING_COLS)[index]
-        extendedHitting = sf.scrape_table(pageSoup, tableNum2 + 1, skip_rows=2)
+        tableNum2 = sf.find_table(soup, self.EXTENDED_HITTING_COLS)[index]
+        extendedHitting = sf.scrape_table(soup, tableNum2 + 1, skip_rows=0)
 
-        return pd.merge(hitting, extendedHitting, on=["No.", "Name", "Yr", "Pos", "g"])
+        # may want to normalize the column names before merging, eg, tolower(), gp to g
+        return pd.merge(hitting, extendedHitting, on=["Rk", "Name", "gp"])
 
-    def _clean(self, data, team_id):
-        # add TeamId, Season, convert '-' to 0, convert to int
-        # column names cannot start with a digit in PostgreSQL!!!!!
-        # disallowed column names: no., 2b, 3b, go/fo
-
-        intCols = ["No.", "g", "ab", "r", "h", "2b", "3b", "hr", "rbi", "bb", "k",
+    def _clean(self, data):
+        intCols = ["gp", "ab", "r", "h", "2b", "3b", "hr", "rbi", "bb", "k",
                    "sb", "cs", "hbp", "sf", "sh", "tb", "xbh", "hdp", "go", "fo", "pa"]
         floatCols = ["avg", "obp", "slg", "go/fo"]
-        newColNames = ["No", "Name", "Yr", "Pos", "G", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB", "SO", "SB", "CS",
+        newColNames = ["Name", "GP", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB", "SO", "SB", "CS",
                        "AVG", "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH", "GDP", "GO", "FO", "GO_FO", "PA"]
 
-        finalColNames = ["No", "Name", "Team", "Season", "Yr", "Pos", "G", "PA", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB",
+        finalColNames = ["Name", "Season", "GP", "PA", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB",
                          "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH", "GDP", "GO", "FO",
                          "GO_FO"]
+        del data["Rk"]
 
         # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
         for col in intCols:
@@ -150,10 +98,7 @@ class IndividualOffenseScraper:
         # convert column names to a friendlier format
         data.columns = newColNames
 
-        data["Team"] = team_id
         data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
-        data["Yr"] = data["Yr"].apply(sf.strip_dots)
-        data["Pos"] = data["Pos"].apply(sf.to_none)
         # data = data.sort_values(ascending=False, by=["PA"])  # This doesn't work currently
 
         return data[finalColNames]
@@ -165,7 +110,7 @@ class IndividualOffenseScraper:
             print("Cannot export. Scraper has not been run yet. Use run() to do so.")
             sys.exit(1)
         else:
-            tables = {"overall": "raw_batters_overall", "conference": "raw_batters_conference"}
+            tables = {"overall": "raw_teams_overall", "conference": "raw_teams_conference"}
             tableName = tables[self._split]
 
             if self._output == "csv":
@@ -185,7 +130,8 @@ class IndividualOffenseScraper:
 # ****** BEGINNING OF SCRIPT ********
 # ***********************************
 if __name__ == "__main__":
-    scraper = IndividualOffenseScraper(YEAR, SPLIT, OUTPUT, verbose=True)
-    scraper.info()
+    scraper = TeamOffenseScraper(YEAR, SPLIT, OUTPUT, verbose=True)
+    # scraper.info()
     scraper.run()
+    scraper.info()
     scraper.export()
