@@ -49,6 +49,7 @@ class IndividualPitchingScraper:
         # run the scraper
         # TODO: add argument export=True
 
+        teamList = sf.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
 
     def _scrape(self):
         print("Scrape")

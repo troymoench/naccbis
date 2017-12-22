@@ -74,6 +74,30 @@ def scrape_table(soup, tbl_num, first_row=2, skip_rows=0):
     return df
 
 
+def get_team_list(base_url, year, team_ids):
+    # gets the list of teams and their respective links from the leaders page
+    soup = get_soup("{}{}/leaders".format(base_url, year))
+
+    # search the page for the target element
+    target = soup.find_all("table", {"class": "teamSummary"})
+    if not len(target) == 1:
+        print("Could not find exactly one target element")  # throw an exception?
+        exit(1)
+
+    # create a list of links that are children of the target element
+    links = [link for link in target[0].find_all('a') if 'href' in link.attrs]
+
+    # create list of dicts
+    # including team name, abbreviation, and url
+    teamList = []
+    for link in links:
+        teamList.append({
+            'team': get_text(link),
+            'id': team_ids[get_text(link)],
+            'url': get_href(link)
+        })
+    return teamList
+
 # ****************************
 # ***** Helper Functions *****
 # ****************************

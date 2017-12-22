@@ -62,26 +62,7 @@ class IndividualOffenseScraper:
         # run the scraper
         # TODO: add argument export=True
 
-        soup = sf.get_soup(self.BASE_URL + self._year + "/leaders")
-
-        # search the page for the target element
-        target = soup.find_all("table", {"class": "teamSummary"})
-        if not len(target) == 1:
-            print("Could not find exactly one target element")
-            exit(1)
-
-        # create a list of links that are children of the target element
-        links = [link for link in target[0].find_all('a') if 'href' in link.attrs]
-
-        # create list of dicts
-        # including team name, abbreviation, and url
-        teamList = []
-        for link in links:
-            teamList.append({
-                'team': sf.get_text(link),
-                'id': self.TEAM_IDS[sf.get_text(link)],
-                'url': sf.get_href(link)
-            })
+        teamList = sf.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
 
         # iterate over the teams
         for team in teamList:
