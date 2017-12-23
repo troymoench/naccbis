@@ -36,7 +36,7 @@ def find_table(soup_obj, header_values):
     indices = []
     tables = soup_obj.find_all('table')
     i = 0
-    while i < len(tables):
+    while i < len(tables):  # enumerate?
         table = tables[i]
         header = table.find_all('th')
         columns = [x.text.strip().lower() for x in header]
@@ -97,6 +97,17 @@ def get_team_list(base_url, year, team_ids):
             'url': get_href(link)
         })
     return teamList
+
+'''
+def get_nav_links(team_soup):
+    VALUES = [""]
+    target = team_soup.select("div.tab-nav ul")
+    for tag in target:
+        list_items = tag.find_all("li")
+        list_items = [get_text(item) for item in list_items]
+        print(list_items)
+'''
+
 
 # ****************************
 # ***** Helper Functions *****
@@ -160,6 +171,18 @@ def replace_dash(x, replacement):
 
 def strip_dots(x):
     return x.rstrip('.')
+
+
+def convert_ip(x):
+    """
+    Converts IP notation into a float
+    """
+    split = x.split('.')
+    print(split)
+    whole = int(split[0])
+    fraction = int(split[1])*(1/3)
+    return whole + fraction
+
 
 
 def build_value_str(num_cols):

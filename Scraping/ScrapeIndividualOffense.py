@@ -14,7 +14,7 @@ you wish to scrape Overall and Conference stats
 '''
 YEAR = "2013-14"
 SPLIT = "overall"
-OUTPUT = "sql"
+OUTPUT = "csv"
 # TODO: Add support for in-season scraping
 
 
@@ -66,9 +66,9 @@ class IndividualOffenseScraper:
 
         # iterate over the teams
         for team in teamList:
-            print(team)
+            print("Fetching", team['team'])
 
-            teamSoup = sf.get_soup(self.BASE_URL + self._year + '/' + team['url'], verbose=True)
+            teamSoup = sf.get_soup("{}{}/{}".format(self.BASE_URL, self._year, team['url']), verbose=True)
             df = self._scrape(teamSoup)
             # print(df.info())
             df = self._clean(df, team['id'])
@@ -82,27 +82,27 @@ class IndividualOffenseScraper:
         # TODO: because the html doesn't change based on the url choice
 
         if self._split == "overall":
-            link = team_soup.find("a", {"class": "t_overall"})
+            # link = team_soup.find("a", {"class": "t_overall"})
             index = 0  # overall is first item in list returned by find_table()
         elif self._split == "conference":
-            link = team_soup.find("a", {"class": "t_conf"})
+            # link = team_soup.find("a", {"class": "t_conf"})
             index = 1  # conference is the second item in list returned by find_table()
         else:
             print("Invalid split:", self._split)
             sys.exit(1)
 
         # get the union of the BASE_URL and the link
-        url = sf.url_union(self.BASE_URL, sf.get_href(link))
+        # url = sf.url_union(self.BASE_URL, sf.get_href(link))
 
         # get the soup of the page
-        pageSoup = sf.get_soup(url, verbose=self._verbose)
+        # pageSoup = sf.get_soup(url, verbose=self._verbose)
 
         # find index of hitting table
-        tableNum1 = sf.find_table(pageSoup, self.HITTING_COLS)[index]
-        hitting = sf.scrape_table(pageSoup, tableNum1 + 1, skip_rows=2)
+        tableNum1 = sf.find_table(team_soup, self.HITTING_COLS)[index]
+        hitting = sf.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
         # find index of extended_hitting table
-        tableNum2 = sf.find_table(pageSoup, self.EXTENDED_HITTING_COLS)[index]
-        extendedHitting = sf.scrape_table(pageSoup, tableNum2 + 1, skip_rows=2)
+        tableNum2 = sf.find_table(team_soup, self.EXTENDED_HITTING_COLS)[index]
+        extendedHitting = sf.scrape_table(team_soup, tableNum2 + 1, skip_rows=2)
 
         return pd.merge(hitting, extendedHitting, on=["No.", "Name", "Yr", "Pos", "g"])
 
@@ -136,6 +136,8 @@ class IndividualOffenseScraper:
         data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
         data["Yr"] = data["Yr"].apply(sf.strip_dots)
         data["Pos"] = data["Pos"].apply(sf.to_none)
+        data["IP"] = data["IP"].apply()  # converts to str for now, should be numpy.int64
+
         # data = data.sort_values(ascending=False, by=["PA"])  # This doesn't work currently
 
         return data[finalColNames]
