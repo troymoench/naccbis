@@ -90,7 +90,7 @@ class IndividualPitchingScraper:
         unnecessaryCols = ['app', 'gs', 'w', 'l', 'sv', 'cg', 'ip', 'h', 'r', 'er', 'bb', 'k', 'hr', 'era']
         intCols = ['No', 'Yr', 'G', 'GS', 'W', 'L', 'SV', 'CG', 'SHO', 'IP', 'H', 'R', 'ER', 'BB', 'SO',
                    'x2B', 'x3B', 'HR', 'AB', 'WP', 'HBP', 'BK', 'SF', 'SH']
-        floatCols = ['AVG', 'SO_9']
+        floatCols = ['ERA', 'AVG', 'SO_9']
         newColNames = ['No', 'Name', 'ERA', 'W', 'L', 'G', 'GS', 'CG', 'SHO', 'SV', 'IP', 'H', 'R', 'ER', 'BB', 'SO',
                        'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP', 'HBP', 'BK', 'SF', 'SH', 'Yr', 'Pos', 'SO_9']
         finalColNames = ['No', 'Name', 'Team', 'Season', 'Yr', 'Pos', 'G', 'GS', 'W', 'L', 'SV', 'CG', 'SHO', 'IP',
@@ -108,6 +108,7 @@ class IndividualPitchingScraper:
             data[col] = data[col].apply(sf.replace_dash, replacement=0)
         for col in floatCols:
             data[col] = data[col].apply(sf.replace_dash, replacement=None)
+            data[col] = data[col].apply(sf.replace_inf, replacement=None)
 
         data["Team"] = team_id
         data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64

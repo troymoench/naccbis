@@ -169,6 +169,13 @@ def replace_dash(x, replacement):
         return x
 
 
+def replace_inf(x, replacement):
+    if x and x.lower() == 'inf':
+        return replacement
+    else:
+        return x
+
+
 def strip_dots(x):
     return x.rstrip('.')
 
@@ -182,7 +189,6 @@ def convert_ip(x):
     whole = int(split[0])
     fraction = int(split[1])*(1/3)
     return whole + fraction
-
 
 
 def build_value_str(num_cols):
