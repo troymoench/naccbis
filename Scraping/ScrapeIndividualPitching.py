@@ -1,6 +1,7 @@
 import pandas as pd
 import psycopg2
 import sys
+import json
 import ScrapeFunctions as sf
 
 YEAR = "2016-17"
@@ -34,6 +35,9 @@ class IndividualPitchingScraper:
         self._verbose = verbose
         self._data = pd.DataFrame()
         self._runnable = True
+
+        with open('config.json') as f:
+            self._config = json.load(f)
 
     def info(self):
         print("Individual Pitching Scraper")
@@ -119,7 +123,6 @@ class IndividualPitchingScraper:
 
     def export(self):
         # export scraped and cleaned data to csv or database
-        # TODO: Use config.json to configure database connection and csv path
         if self._runnable:
             print("Cannot export. Scraper has not been run yet. Use run() to do so.")
             sys.exit(1)
@@ -127,9 +130,10 @@ class IndividualPitchingScraper:
             tableName = self.TABLES['overall']
 
             if self._output == "csv":
-                self._data.to_csv("{}{}.csv".format(tableName, self._year), index=False)
+                self._data.to_csv("{}{}{}.csv".format(self._config["csv_path"], tableName, self._year), index=False)
             elif self._output == "sql":
-                con = psycopg2.connect(host="192.168.0.101", database="naccbisdb", user="troy", password="baseballisfun")
+                con = psycopg2.connect(host=self._config["host"], database=self._config["database"],
+                                       user=self._config["user"], password=self._config["password"])
                 sf.df_to_sql(con, self._data, tableName, verbose=self._verbose)
                 con.close()
             else:

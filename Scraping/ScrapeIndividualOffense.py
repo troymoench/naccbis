@@ -1,6 +1,7 @@
 import pandas as pd
 import psycopg2
 import sys
+import json
 import ScrapeFunctions as sf
 '''
 This script scrapes individual offense for a given year
@@ -12,9 +13,9 @@ you wish to scrape Overall and Conference stats
 2. Clean
 3. Export
 '''
-YEAR = "2013-14"
-SPLIT = "overall"
-OUTPUT = "csv"
+YEAR = "2014-15"
+SPLIT = "conference"
+OUTPUT = "sql"
 # TODO: Add support for in-season scraping
 
 
@@ -46,6 +47,9 @@ class IndividualOffenseScraper:
         self._verbose = verbose
         self._data = pd.DataFrame()
         self._runnable = True
+
+        with open('config.json') as f:
+            self._config = json.load(f)
 
     def info(self):
         print("Individual Offense Scraper")
@@ -136,7 +140,6 @@ class IndividualOffenseScraper:
         data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
         data["Yr"] = data["Yr"].apply(sf.strip_dots)
         data["Pos"] = data["Pos"].apply(sf.to_none)
-        data["IP"] = data["IP"].apply()  # converts to str for now, should be numpy.int64
 
         # data = data.sort_values(ascending=False, by=["PA"])  # This doesn't work currently
 
@@ -144,7 +147,6 @@ class IndividualOffenseScraper:
 
     def export(self):
         # export scraped and cleaned data to csv or database
-        # TODO: Use config.json to configure database connection and csv path
         if self._runnable:
             print("Cannot export. Scraper has not been run yet. Use run() to do so.")
             sys.exit(1)
@@ -152,9 +154,10 @@ class IndividualOffenseScraper:
             tableName = self.TABLES[self._split]
 
             if self._output == "csv":
-                self._data.to_csv("{}{}.csv".format(tableName, self._year), index=False)
+                self._data.to_csv("{}{}{}.csv".format(self._config["csv_path"], tableName, self._year), index=False)
             elif self._output == "sql":
-                con = psycopg2.connect(host="192.168.0.101", database="naccbisdb", user="troy", password="baseballisfun")
+                con = psycopg2.connect(host=self._config["host"], database=self._config["database"],
+                                       user=self._config["user"], password=self._config["password"])
                 sf.df_to_sql(con, self._data, tableName, verbose=self._verbose)
                 con.close()
             else:
