@@ -10,7 +10,7 @@ OUTPUT = "csv"
 # TODO: Add support for conference stats
 
 
-class IndividualPitchingScraper:
+class TeamPitchingScraper:
     BASE_URL = "http://naccsports.org/sports/bsb/"  # add constants to ScrapeFunctions.py?
     PITCHING_COLS = ['no.', 'name', 'yr', 'pos', 'app', 'gs', 'w', 'l', 'ip', 'h', 'r', 'er',
                     'era']
@@ -29,7 +29,7 @@ class IndividualPitchingScraper:
         'Rockford': 'ROCK',
         'Wisconsin Lutheran': 'WLC'
     }
-    TABLES = {"overall": "raw_pitchers_overall", "conference": "raw_pitchers_conference"}
+    TABLES = {"overall": "raw_team_pitching_overall", "conference": "raw_team_pitching_conference"}
 
     def __init__(self, year, output, verbose=False):
         self._year = year
@@ -43,7 +43,7 @@ class IndividualPitchingScraper:
             self._config = json.load(f)
 
     def info(self):
-        print("Individual Pitching Scraper")
+        print("Team Pitching Scraper")
         print("Year:", self._year)
         print("Output format:", self._output)
         if self._runnable:
@@ -63,17 +63,28 @@ class IndividualPitchingScraper:
             print("Fetching", team['team'])
 
             teamSoup = sf.get_soup("{}{}/{}".format(self.BASE_URL, self._year, team['url']), verbose=self._verbose)
+
             df = self._scrape(teamSoup)
             # print(df.info())
-            df = self._clean(df, team['id'])
+            df = self._clean(df, team['team'])
 
             self._data = pd.concat([self._data, df], ignore_index=True)
+            # exit(0)
         self._runnable = False
 
     def _scrape(self, team_soup):
         # find index of pitching table
         tableNum1 = sf.find_table(team_soup, self.PITCHING_COLS)[0]
-        pitching = sf.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
+        pitching = sf.scrape_table(team_soup, tableNum1 + 1, skip_rows=1)
+        # select the totals row
+        pitching = pitching[(pitching.Name == "Totals") | (pitching.Name == "Total")]
+        pitching = pitching.reset_index(drop=True)
+        # make sure that only one row remains
+        # print(pitching.shape[0])
+
+        # make sure that the name is Totals
+        if pitching["Name"][0] != "Totals":
+            pitching["Name"][0] = "Totals"
 
         tags = team_soup.find_all('a', string="Coach's View")
         if len(tags) != 1:
@@ -83,24 +94,30 @@ class IndividualPitchingScraper:
         url = sf.url_union(self.BASE_URL, url)
         coach_soup = sf.get_soup(url, verbose=self._verbose)
         tableNum2 = sf.find_table(coach_soup, self.COACHES_VIEW_COLS)[0]
-        coach_view = sf.scrape_table(coach_soup, tableNum2 + 1, first_row=3, skip_rows=3)
+        coach_view = sf.scrape_table(coach_soup, tableNum2 + 1, first_row=3, skip_rows=1)
 
-        coach_view['Player'] = coach_view['Player'].apply(sf.strip_dots)
-        pitching['Name'] = [x.replace('  ', ' ') for x in pitching['Name']]
-        coach_view = coach_view.rename(columns={'Player': 'Name'})
+        if 'Player' in coach_view.columns:
+            coach_view = coach_view.rename(columns={'Player': 'Name'})
 
-        # print(coach_view.info())
-        # print(pitching.info())
+        coach_view["Name"] = coach_view["Name"].apply(sf.strip_dots)
+
+        coach_view = coach_view[(coach_view.Name == "Totals") | (coach_view.Name == "Total")]
+        coach_view = coach_view.reset_index(drop=True)
+
+        # make sure that the name is Totals
+        if coach_view["Name"][0] != "Totals":
+            coach_view["Name"][0] = "Totals"
+
         return pd.merge(coach_view, pitching, on=['No.', 'Name'])
 
-    def _clean(self, data, team_id):
-        unnecessaryCols = ['app', 'gs', 'w', 'l', 'sv', 'cg', 'ip', 'h', 'r', 'er', 'bb', 'k', 'hr', 'era']
-        intCols = ['No', 'Yr', 'G', 'GS', 'W', 'L', 'SV', 'CG', 'SHO', 'IP', 'H', 'R', 'ER', 'BB', 'SO',
+    def _clean(self, data, team):
+        unnecessaryCols = ['No.', 'Name', 'Pos', 'Yr', 'app', 'gs', 'GS', 'w', 'l', 'sv', 'cg', 'ip', 'h', 'r', 'er', 'bb', 'k', 'hr', 'era']
+        intCols = ['G', 'W', 'L', 'SV', 'CG', 'SHO', 'IP', 'H', 'R', 'ER', 'BB', 'SO',
                    'x2B', 'x3B', 'HR', 'AB', 'WP', 'HBP', 'BK', 'SF', 'SH']
         floatCols = ['ERA', 'AVG', 'SO_9']
-        newColNames = ['No', 'Name', 'ERA', 'W', 'L', 'G', 'GS', 'CG', 'SHO', 'SV', 'IP', 'H', 'R', 'ER', 'BB', 'SO',
-                       'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP', 'HBP', 'BK', 'SF', 'SH', 'Yr', 'Pos', 'SO_9']
-        finalColNames = ['No', 'Name', 'Team', 'Season', 'Yr', 'Pos', 'G', 'GS', 'W', 'L', 'SV', 'CG', 'SHO', 'IP',
+        newColNames = ['ERA', 'W', 'L', 'G', 'CG', 'SHO', 'SV', 'IP', 'H', 'R', 'ER', 'BB', 'SO',
+                       'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP', 'HBP', 'BK', 'SF', 'SH', 'SO_9']
+        finalColNames = ['Name', 'Season', 'G', 'W', 'L', 'SV', 'CG', 'SHO', 'IP',
                          'H', 'R', 'ER', 'BB', 'SO', 'ERA', 'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP', 'HBP',
                          'BK', 'SF', 'SH', 'SO_9']
 
@@ -108,7 +125,7 @@ class IndividualPitchingScraper:
         data = data.drop(columns=unnecessaryCols)
 
         data.columns = newColNames
-
+        # print(data.info())
         # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
         for col in intCols:
             data[col] = data[col].apply(sf.replace_dash, replacement=0)
@@ -116,14 +133,14 @@ class IndividualPitchingScraper:
             data[col] = data[col].apply(sf.replace_dash, replacement=None)
             data[col] = data[col].apply(sf.replace_inf, replacement=None)
 
-        data["Team"] = team_id
+        data["Name"] = team
         data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
-        data["Yr"] = data["Yr"].apply(sf.strip_dots)
-        data["Pos"] = data["Pos"].apply(sf.to_none)
 
         return data[finalColNames]
 
     def export(self):
+        print("Export")
+        print(self._data.info())
         # export scraped and cleaned data to csv or database
         if self._runnable:
             print("Cannot export. Scraper has not been run yet. Use run() to do so.")
@@ -149,7 +166,7 @@ class IndividualPitchingScraper:
 # ****** BEGINNING OF SCRIPT ********
 # ***********************************
 if __name__ == "__main__":
-    scraper = IndividualPitchingScraper(YEAR, OUTPUT, verbose=True)
+    scraper = TeamPitchingScraper(YEAR, OUTPUT, verbose=True)
     scraper.info()
     scraper.run()
     scraper.export()
