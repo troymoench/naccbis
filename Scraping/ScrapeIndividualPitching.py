@@ -6,7 +6,7 @@ import ScrapeFunctions as sf
 
 YEAR = "2016-17"
 SPLIT = "conference"
-OUTPUT = "csv"
+OUTPUT = "sql"
 # TODO: Add support for in-season scraping
 
 
@@ -141,7 +141,7 @@ class IndividualPitchingScraper:
         elif self._split == "conference":
             renameCols = {'No.': 'No', 'app': 'g', 'k': 'so', 'k/9': 'so_9'}
             intCols = ['No', 'g', 'gs', 'w', 'l', 'sv', 'cg', 'h', 'r', 'er', 'bb', 'so', 'hr']
-            floatCols = ['so_9']
+            floatCols = ['so_9', 'era']
 
             # rename columns
             data = data.rename(columns=renameCols)
