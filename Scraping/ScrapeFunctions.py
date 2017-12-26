@@ -30,7 +30,7 @@ def get_href(html_tag):
     return html_tag.attrs['href']
 
 
-def find_table(soup_obj, header_values):
+def find_table(soup_obj, header_values, verbose=False):
     # find the indices of tables that contain specific values in header
     # returns empty list if table not found
     indices = []
@@ -42,6 +42,9 @@ def find_table(soup_obj, header_values):
         columns = [x.text.strip().lower() for x in header]
         if set(header_values).issubset(set(columns)):
             indices.append(i)
+        else:
+            if verbose:  # this needs some work
+                print("Missing values in table {}: {}".format(i, set(header_values) - set(columns)))
         i += 1
     return indices
 

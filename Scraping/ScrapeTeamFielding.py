@@ -4,17 +4,15 @@ import sys
 import json
 import ScrapeFunctions as sf
 
-YEAR = "2011-12"
+YEAR = "2013-14"
 SPLIT = "overall"
 OUTPUT = "sql"
 # TODO: Add support for in-season scraping
 
 
-class TeamOffenseScraper:
+class TeamFieldingScraper:
     BASE_URL = "http://naccsports.org/sports/bsb/"  # add constants to ScrapeFunctions.py?
-    HITTING_COLS = ['name', 'gp', 'ab', 'r', 'h', '2b', 'hr', 'avg', 'obp',
-                    'slg']
-    EXTENDED_HITTING_COLS = ['name', 'gp', 'hbp', 'sf', 'sh', 'pa']
+    FIELDING_COLS = ['name', 'gp', 'tc', 'po', 'a', 'e', 'fpct', 'dp']
     TEAM_IDS = {
         'Aurora': 'AUR',
         'Benedictine': 'BEN',
@@ -29,7 +27,7 @@ class TeamOffenseScraper:
         'Rockford': 'ROCK',
         'Wisconsin Lutheran': 'WLC'
     }
-    TABLES = {"overall": "raw_team_offense_overall", "conference": "raw_team_offense_conference"}
+    TABLES = {"overall": "raw_team_fielding_overall", "conference": "raw_team_fielding_conference"}
 
     def __init__(self, year, split, output, verbose=False):
         self._year = year
@@ -44,7 +42,7 @@ class TeamOffenseScraper:
             self._config = json.load(f)
 
     def info(self):
-        print("Individual Offense Scraper")
+        print("Team Fielding Scraper")
         print("Year:", self._year)
         print("Split:", self._split)
         print("Output format:", self._output)
@@ -60,6 +58,9 @@ class TeamOffenseScraper:
         soup = sf.get_soup(self.BASE_URL + self._year + "/teams", verbose=self._verbose)
         df = self._scrape(soup)
         self._data = self._clean(df)
+        # print(self._data)
+        # print(self._data.info())
+
         self._runnable = False
 
     def _scrape(self, soup):
@@ -71,41 +72,37 @@ class TeamOffenseScraper:
             print("Invalid split:", self._split)
             sys.exit(1)
 
-        # find index of hitting table
-        tableNum1 = sf.find_table(soup, self.HITTING_COLS)[index]
-        hitting = sf.scrape_table(soup, tableNum1 + 1, skip_rows=0)
-        # find index of extended_hitting table
-        tableNum2 = sf.find_table(soup, self.EXTENDED_HITTING_COLS)[index]
-        extendedHitting = sf.scrape_table(soup, tableNum2 + 1, skip_rows=0)
+        # find index of fielding table
+        tableNum1 = sf.find_table(soup, self.FIELDING_COLS)[index]
+        fielding = sf.scrape_table(soup, tableNum1 + 1, skip_rows=0)
 
-        # may want to normalize the column names before merging, eg, lower(), gp to g
-        return pd.merge(hitting, extendedHitting, on=["Rk", "Name", "gp"])
+        # may want to normalize the column names eg, lower(), gp to g
+        return fielding
 
     def _clean(self, data):
-        intCols = ["gp", "ab", "r", "h", "2b", "3b", "hr", "rbi", "bb", "k",
-                   "sb", "cs", "hbp", "sf", "sh", "tb", "xbh", "hdp", "go", "fo", "pa"]
-        floatCols = ["avg", "obp", "slg", "go/fo"]
-        newColNames = ["Name", "GP", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB", "SO", "SB", "CS",
-                       "AVG", "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH", "GDP", "GO", "FO", "GO_FO", "PA"]
+        unnecessaryCols = ['Rk']
+        renameCols = {'gp': 'g', 'rcs': 'cs', 'rcs%': 'cspct'}
+        intCols = ['g', 'tc', 'po', 'a', 'e', 'dp', 'sba', 'cs', 'pb', 'ci']
+        floatCols = ['fpct', 'cspct']
 
-        finalColNames = ["Name", "Season", "GP", "PA", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB",
-                         "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH", "GDP", "GO", "FO",
-                         "GO_FO"]
-        del data["Rk"]
+        # remove unnecessary columns
+        data = data.drop(columns=unnecessaryCols)
+
+        # rename columns
+        data = data.rename(columns=renameCols)
 
         # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
         for col in intCols:
             data[col] = data[col].apply(sf.replace_dash, replacement='0')
-            # data[col] = data[col].apply(to_int)
         for col in floatCols:
             data[col] = data[col].apply(sf.replace_dash, replacement=None)
-            # data[col] = data[col].apply(to_float)
-
-        # convert column names to a friendlier format
-        data.columns = newColNames
+            data[col] = data[col].apply(sf.replace_inf, replacement=None)
 
         data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
-        # data = data.sort_values(ascending=False, by=["PA"])  # This doesn't work currently
+
+        finalColNames = data.columns.tolist()
+        finalColNames.remove("Season")
+        finalColNames.insert(1, "Season")
 
         return data[finalColNames]
 
@@ -136,8 +133,8 @@ class TeamOffenseScraper:
 # ****** BEGINNING OF SCRIPT ********
 # ***********************************
 if __name__ == "__main__":
-    scraper = TeamOffenseScraper(YEAR, SPLIT, OUTPUT, verbose=True)
-    # scraper.info()
-    scraper.run()
+    scraper = TeamFieldingScraper(YEAR, SPLIT, OUTPUT, verbose=True)
     scraper.info()
+    scraper.run()
     scraper.export()
+

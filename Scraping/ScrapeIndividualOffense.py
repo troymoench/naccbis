@@ -128,7 +128,7 @@ class IndividualOffenseScraper:
 
         # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
         for col in intCols:
-            data[col] = data[col].apply(sf.replace_dash, replacement=0)
+            data[col] = data[col].apply(sf.replace_dash, replacement='0')
             # data[col] = data[col].apply(to_int)
         for col in floatCols:
             data[col] = data[col].apply(sf.replace_dash, replacement=None)

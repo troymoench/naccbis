@@ -4,8 +4,8 @@ import sys
 import json
 import ScrapeFunctions as sf
 
-YEAR = "2016-17"
-OUTPUT = "csv"
+YEAR = "2015-16"
+OUTPUT = "sql"
 # TODO: Add support for in-season scraping
 # TODO: Add support for conference stats
 
@@ -128,7 +128,7 @@ class TeamPitchingScraper:
         # print(data.info())
         # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
         for col in intCols:
-            data[col] = data[col].apply(sf.replace_dash, replacement=0)
+            data[col] = data[col].apply(sf.replace_dash, replacement='0')
         for col in floatCols:
             data[col] = data[col].apply(sf.replace_dash, replacement=None)
             data[col] = data[col].apply(sf.replace_inf, replacement=None)
