@@ -8,7 +8,6 @@ YEAR = "2015-16"
 SPLIT = "conference"
 OUTPUT = "sql"
 # TODO: Add support for in-season scraping
-# TODO: Add support for conference stats
 
 
 class TeamPitchingScraper:
@@ -187,7 +186,7 @@ class TeamPitchingScraper:
 
             data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
 
-            finalColNames = data.columns.tolist()
+            finalColNames = data.axes[1].tolist()
             finalColNames.remove("Season")
             finalColNames.insert(1, "Season")
 

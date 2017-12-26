@@ -5,9 +5,9 @@ import json
 import ScrapeFunctions as sf
 
 YEAR = "2016-17"
+SPLIT = "conference"
 OUTPUT = "csv"
 # TODO: Add support for in-season scraping
-# TODO: Add support for conference stats
 
 
 class IndividualPitchingScraper:
@@ -31,8 +31,9 @@ class IndividualPitchingScraper:
     }
     TABLES = {"overall": "raw_pitchers_overall", "conference": "raw_pitchers_conference"}
 
-    def __init__(self, year, output, verbose=False):
+    def __init__(self, year, split, output, verbose=False):
         self._year = year
+        self._split = split
         self._output = output
         self._verbose = verbose
         self._data = pd.DataFrame()
@@ -64,64 +65,109 @@ class IndividualPitchingScraper:
 
             teamSoup = sf.get_soup("{}{}/{}".format(self.BASE_URL, self._year, team['url']), verbose=self._verbose)
             df = self._scrape(teamSoup)
-            # print(df.info())
             df = self._clean(df, team['id'])
+            # print(df)
+            # print(df.info())
 
             self._data = pd.concat([self._data, df], ignore_index=True)
         self._runnable = False
 
     def _scrape(self, team_soup):
-        # find index of pitching table
-        tableNum1 = sf.find_table(team_soup, self.PITCHING_COLS)[0]
-        pitching = sf.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
+        if self._split == "overall":
+            index = 0
+            # find index of pitching table
+            tableNum1 = sf.find_table(team_soup, self.PITCHING_COLS)[index]
+            pitching = sf.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
 
-        tags = team_soup.find_all('a', string="Coach's View")
-        if len(tags) != 1:
-            print("Can't find Coach's View")
-            exit(1)
-        url = tags[0].get('href')
-        url = sf.url_union(self.BASE_URL, url)
-        coach_soup = sf.get_soup(url, verbose=self._verbose)
-        tableNum2 = sf.find_table(coach_soup, self.COACHES_VIEW_COLS)[0]
-        coach_view = sf.scrape_table(coach_soup, tableNum2 + 1, first_row=3, skip_rows=3)
+            tags = team_soup.find_all('a', string="Coach's View")
+            if len(tags) != 1:
+                print("Can't find Coach's View")
+                exit(1)
+            url = tags[0].get('href')
+            url = sf.url_union(self.BASE_URL, url)
+            coach_soup = sf.get_soup(url, verbose=self._verbose)
+            tableNum2 = sf.find_table(coach_soup, self.COACHES_VIEW_COLS)[0]
+            coach_view = sf.scrape_table(coach_soup, tableNum2 + 1, first_row=3, skip_rows=3)
 
-        coach_view['Player'] = coach_view['Player'].apply(sf.strip_dots)
-        pitching['Name'] = [x.replace('  ', ' ') for x in pitching['Name']]
-        coach_view = coach_view.rename(columns={'Player': 'Name'})
+            coach_view['Player'] = coach_view['Player'].apply(sf.strip_dots)
+            pitching['Name'] = [x.replace('  ', ' ') for x in pitching['Name']]
+            coach_view = coach_view.rename(columns={'Player': 'Name'})
 
-        # print(coach_view.info())
-        # print(pitching.info())
-        return pd.merge(coach_view, pitching, on=['No.', 'Name'])
+            # print(coach_view.info())
+            # print(pitching.info())
+            return pd.merge(coach_view, pitching, on=['No.', 'Name'])
+        elif self._split == "conference":
+            index = 1
+            # find index of pitching table
+            tableNum1 = sf.find_table(team_soup, self.PITCHING_COLS)[index]
+            conference = sf.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
+
+            # may want to normalize the column names eg, lower(), gp to g
+            return conference
+        else:
+            print("Invalid split:", self._split)
+            sys.exit(1)
 
     def _clean(self, data, team_id):
-        unnecessaryCols = ['app', 'gs', 'w', 'l', 'sv', 'cg', 'ip', 'h', 'r', 'er', 'bb', 'k', 'hr', 'era']
-        intCols = ['No', 'Yr', 'G', 'GS', 'W', 'L', 'SV', 'CG', 'SHO', 'IP', 'H', 'R', 'ER', 'BB', 'SO',
-                   'x2B', 'x3B', 'HR', 'AB', 'WP', 'HBP', 'BK', 'SF', 'SH']
-        floatCols = ['ERA', 'AVG', 'SO_9']
-        newColNames = ['No', 'Name', 'ERA', 'W', 'L', 'G', 'GS', 'CG', 'SHO', 'SV', 'IP', 'H', 'R', 'ER', 'BB', 'SO',
-                       'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP', 'HBP', 'BK', 'SF', 'SH', 'Yr', 'Pos', 'SO_9']
-        finalColNames = ['No', 'Name', 'Team', 'Season', 'Yr', 'Pos', 'G', 'GS', 'W', 'L', 'SV', 'CG', 'SHO', 'IP',
-                         'H', 'R', 'ER', 'BB', 'SO', 'ERA', 'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP', 'HBP',
-                         'BK', 'SF', 'SH', 'SO_9']
+        if self._split == "overall":
+            unnecessaryCols = ['app', 'gs', 'w', 'l', 'sv', 'cg', 'ip', 'h', 'r', 'er', 'bb', 'k', 'hr', 'era']
+            intCols = ['No', 'Yr', 'G', 'GS', 'W', 'L', 'SV', 'CG', 'SHO', 'IP', 'H', 'R', 'ER', 'BB', 'SO',
+                       'x2B', 'x3B', 'HR', 'AB', 'WP', 'HBP', 'BK', 'SF', 'SH']
+            floatCols = ['ERA', 'AVG', 'SO_9']
+            newColNames = ['No', 'Name', 'ERA', 'W', 'L', 'G', 'GS', 'CG', 'SHO', 'SV', 'IP', 'H', 'R', 'ER', 'BB', 'SO',
+                           'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP', 'HBP', 'BK', 'SF', 'SH', 'Yr', 'Pos', 'SO_9']
+            finalColNames = ['No', 'Name', 'Team', 'Season', 'Yr', 'Pos', 'G', 'GS', 'W', 'L', 'SV', 'CG', 'SHO', 'IP',
+                             'H', 'R', 'ER', 'BB', 'SO', 'ERA', 'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP', 'HBP',
+                             'BK', 'SF', 'SH', 'SO_9']
 
-        # remove unnecessary columns
-        data = data.drop(columns=unnecessaryCols)
+            # remove unnecessary columns
+            data = data.drop(columns=unnecessaryCols)
 
-        data.columns = newColNames
+            data.columns = newColNames
 
-        # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
-        for col in intCols:
-            data[col] = data[col].apply(sf.replace_dash, replacement=0)
-        for col in floatCols:
-            data[col] = data[col].apply(sf.replace_dash, replacement=None)
-            data[col] = data[col].apply(sf.replace_inf, replacement=None)
+            # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
+            for col in intCols:
+                data[col] = data[col].apply(sf.replace_dash, replacement='0')
+            for col in floatCols:
+                data[col] = data[col].apply(sf.replace_dash, replacement=None)
+                data[col] = data[col].apply(sf.replace_inf, replacement=None)
 
-        data["Team"] = team_id
-        data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
-        data["Yr"] = data["Yr"].apply(sf.strip_dots)
-        data["Pos"] = data["Pos"].apply(sf.to_none)
+            data["Team"] = team_id
+            data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+            data["Yr"] = data["Yr"].apply(sf.strip_dots)
+            data["Pos"] = data["Pos"].apply(sf.to_none)
 
-        return data[finalColNames]
+            return data[finalColNames]
+        elif self._split == "conference":
+            renameCols = {'No.': 'No', 'app': 'g', 'k': 'so', 'k/9': 'so_9'}
+            intCols = ['No', 'g', 'gs', 'w', 'l', 'sv', 'cg', 'h', 'r', 'er', 'bb', 'so', 'hr']
+            floatCols = ['so_9']
+
+            # rename columns
+            data = data.rename(columns=renameCols)
+
+            # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
+            for col in intCols:
+                data[col] = data[col].apply(sf.replace_dash, replacement='0')
+            for col in floatCols:
+                data[col] = data[col].apply(sf.replace_dash, replacement=None)
+                data[col] = data[col].apply(sf.replace_inf, replacement=None)
+
+            data["Team"] = team_id
+            data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+            data["Yr"] = data["Yr"].apply(sf.strip_dots)
+            data["Pos"] = data["Pos"].apply(sf.to_none)
+
+            finalColNames = data.axes[1].tolist()
+            finalColNames.remove("Team")
+            finalColNames.remove("Season")
+            finalColNames.insert(2, "Team")
+            finalColNames.insert(3, "Season")
+
+            return data[finalColNames]
+        else:
+            print("Invalid split:", self._split)
+            sys.exit(1)
 
     def export(self):
         # export scraped and cleaned data to csv or database
@@ -129,7 +175,7 @@ class IndividualPitchingScraper:
             print("Cannot export. Scraper has not been run yet. Use run() to do so.")
             sys.exit(1)
         else:
-            tableName = self.TABLES['overall']
+            tableName = self.TABLES[self._split]
 
             if self._output == "csv":
                 self._data.to_csv("{}{}{}.csv".format(self._config["csv_path"], tableName, self._year), index=False)
@@ -149,7 +195,7 @@ class IndividualPitchingScraper:
 # ****** BEGINNING OF SCRIPT ********
 # ***********************************
 if __name__ == "__main__":
-    scraper = IndividualPitchingScraper(YEAR, OUTPUT, verbose=True)
+    scraper = IndividualPitchingScraper(YEAR, SPLIT, OUTPUT, verbose=True)
     scraper.info()
     scraper.run()
     scraper.export()
