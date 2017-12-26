@@ -4,9 +4,9 @@ import sys
 import json
 import ScrapeFunctions as sf
 
-YEAR = "2016-17"
+YEAR = "2015-16"
 SPLIT = "conference"
-OUTPUT = "csv"
+OUTPUT = "sql"
 # TODO: Add support for in-season scraping
 # TODO: Add support for conference stats
 
@@ -75,9 +75,7 @@ class TeamPitchingScraper:
         elif self._split == "conference":
             soup = sf.get_soup(self.BASE_URL + self._year + "/teams", verbose=self._verbose)
             df = self._scrape(soup)
-            print(df)
             self._data = self._clean(df, None)
-            # exit(0)
             # print(self._data)
             # print(self._data.info())
 
