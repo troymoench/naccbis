@@ -8,7 +8,7 @@ cur = conn.cursor()
 
 # might need to change numeric to double
 
-fname = "raw_pitchers_conference.sql"
+fname = "raw_game_log_fielding.sql"
 with open(fname, 'r') as f:
     query = f.read()
 
