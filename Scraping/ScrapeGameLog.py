@@ -143,6 +143,9 @@ class GameLogScraper:
         # strip excessive whitespace
         data["Opponent"] = [' '.join(x.split()) for x in data["Opponent"]]
 
+        # replace strange # in Date column (Maranatha 2012)
+        data["Date"] = [x.replace("#", "").strip() for x in data["Date"]]
+
         data["Name"] = team
         data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
 
