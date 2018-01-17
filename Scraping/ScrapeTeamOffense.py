@@ -4,9 +4,9 @@ import sys
 import json
 import ScrapeFunctions as sf
 
-YEAR = "2011-12"
+YEAR = "2016-17"
 SPLIT = "overall"
-OUTPUT = "sql"
+OUTPUT = "csv"
 # TODO: Add support for in-season scraping
 
 
@@ -82,6 +82,7 @@ class TeamOffenseScraper:
         return pd.merge(hitting, extendedHitting, on=["Rk", "Name", "gp"])
 
     def _clean(self, data):
+        unnecessaryCols = ['Rk']
         intCols = ["gp", "ab", "r", "h", "2b", "3b", "hr", "rbi", "bb", "k",
                    "sb", "cs", "hbp", "sf", "sh", "tb", "xbh", "hdp", "go", "fo", "pa"]
         floatCols = ["avg", "obp", "slg", "go/fo"]
@@ -91,15 +92,14 @@ class TeamOffenseScraper:
         finalColNames = ["Name", "Season", "GP", "PA", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB",
                          "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH", "GDP", "GO", "FO",
                          "GO_FO"]
-        del data["Rk"]
+
+        # remove unnecessary columns
+        data.drop(columns=unnecessaryCols, inplace=True)
 
         # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
-        for col in intCols:
-            data[col] = data[col].apply(sf.replace_dash, replacement='0')
-            # data[col] = data[col].apply(to_int)
-        for col in floatCols:
-            data[col] = data[col].apply(sf.replace_dash, replacement=None)
-            # data[col] = data[col].apply(to_float)
+
+        data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))  # replace '-' with '0'
+        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))  # replace '-' with None
 
         # convert column names to a friendlier format
         data.columns = newColNames

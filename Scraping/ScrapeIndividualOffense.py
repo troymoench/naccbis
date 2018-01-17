@@ -13,8 +13,8 @@ you wish to scrape Overall and Conference stats
 2. Clean
 3. Export
 '''
-YEAR = "2014-15"
-SPLIT = "conference"
+YEAR = "2016-17"
+SPLIT = "overall"
 OUTPUT = "sql"
 # TODO: Add support for in-season scraping
 
@@ -127,12 +127,9 @@ class IndividualOffenseScraper:
                          "GO_FO"]
 
         # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
-        for col in intCols:
-            data[col] = data[col].apply(sf.replace_dash, replacement='0')
-            # data[col] = data[col].apply(to_int)
-        for col in floatCols:
-            data[col] = data[col].apply(sf.replace_dash, replacement=None)
-            # data[col] = data[col].apply(to_float)
+
+        data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))  # replace '-' with '0'
+        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))  # replace '-' with None
 
         # convert column names to a friendlier format
         data.columns = newColNames
@@ -175,4 +172,4 @@ if __name__ == "__main__":
     scraper = IndividualOffenseScraper(YEAR, SPLIT, OUTPUT, verbose=True)
     scraper.info()
     scraper.run()
-    scraper.export()
+    # scraper.export()

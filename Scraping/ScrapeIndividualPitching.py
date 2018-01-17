@@ -6,7 +6,7 @@ import ScrapeFunctions as sf
 
 YEAR = "2016-17"
 SPLIT = "conference"
-OUTPUT = "sql"
+OUTPUT = "csv"
 # TODO: Add support for in-season scraping
 
 
@@ -121,16 +121,14 @@ class IndividualPitchingScraper:
                              'BK', 'SF', 'SH', 'SO_9']
 
             # remove unnecessary columns
-            data = data.drop(columns=unnecessaryCols)
+            data.drop(columns=unnecessaryCols, inplace=True)
 
             data.columns = newColNames
 
             # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
-            for col in intCols:
-                data[col] = data[col].apply(sf.replace_dash, replacement='0')
-            for col in floatCols:
-                data[col] = data[col].apply(sf.replace_dash, replacement=None)
-                data[col] = data[col].apply(sf.replace_inf, replacement=None)
+            data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))  # replace '-' with '0'
+            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))  # replace '-' with None
+            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))  # replace 'inf' with None
 
             data["Team"] = team_id
             data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
@@ -144,14 +142,12 @@ class IndividualPitchingScraper:
             floatCols = ['so_9', 'era']
 
             # rename columns
-            data = data.rename(columns=renameCols)
+            data.rename(columns=renameCols, inplace=True)
 
             # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
-            for col in intCols:
-                data[col] = data[col].apply(sf.replace_dash, replacement='0')
-            for col in floatCols:
-                data[col] = data[col].apply(sf.replace_dash, replacement=None)
-                data[col] = data[col].apply(sf.replace_inf, replacement=None)
+            data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))  # replace '-' with '0'
+            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))  # replace '-' with None
+            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))  # replace 'inf' with None
 
             data["Team"] = team_id
             data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
