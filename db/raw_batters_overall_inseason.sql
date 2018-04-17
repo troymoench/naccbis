@@ -1,6 +1,11 @@
-create table raw_team_offense_conference (
-  Name varchar(30),
+create table raw_batters_overall_inseason (
+  No integer,
+  Name varchar(35),
+  Team varchar(5),
   Season integer,
+  Date date,
+  Yr char(2),
+  Pos varchar(15),
   G integer,
   PA integer,
   AB integer,
@@ -26,5 +31,5 @@ create table raw_team_offense_conference (
   GO integer,
   FO integer,
   GO_FO numeric,
-  primary key (Name, Season)
+  primary key (Name, Team, Date)
 )
