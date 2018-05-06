@@ -2,12 +2,13 @@ import pandas as pd
 import psycopg2
 import sys
 import json
+from datetime import date
 import ScrapeFunctions as sf
 
-YEAR = "2016-17"
-SPLIT = "conference"
-OUTPUT = "csv"
-# TODO: Add support for in-season scraping
+YEAR = "2017-18"
+SPLIT = "overall"
+OUTPUT = "sql"
+INSEASON = True
 
 
 class IndividualPitchingScraper:
@@ -31,21 +32,24 @@ class IndividualPitchingScraper:
     }
     TABLES = {"overall": "raw_pitchers_overall", "conference": "raw_pitchers_conference"}
 
-    def __init__(self, year, split, output, verbose=False):
+    def __init__(self, year, split, output, inseason=False, verbose=False):
         self._year = year
         self._split = split
         self._output = output
+        self._inseason = inseason
         self._verbose = verbose
         self._data = pd.DataFrame()
         self._runnable = True
 
         # TODO: Add error handling
-        with open('config.json') as f:
+        with open('../config.json') as f:
             self._config = json.load(f)
 
     def info(self):
         print("Individual Pitching Scraper")
         print("Year:", self._year)
+        print("Split:", self._split)
+        print("In-Season:", self._inseason)
         print("Output format:", self._output)
         if self._runnable:
             print("Scraper has not been run yet. Use run() to do so.")
@@ -66,13 +70,14 @@ class IndividualPitchingScraper:
             teamSoup = sf.get_soup("{}{}/{}".format(self.BASE_URL, self._year, team['url']), verbose=self._verbose)
             df = self._scrape(teamSoup)
             df = self._clean(df, team['id'])
-            # print(df)
-            # print(df.info())
 
             self._data = pd.concat([self._data, df], ignore_index=True)
         self._runnable = False
 
     def _scrape(self, team_soup):
+        # more stats are available on coach's view
+        # but coach's view doesn't provide conference stats
+
         if self._split == "overall":
             index = 0
             # find index of pitching table
@@ -93,8 +98,6 @@ class IndividualPitchingScraper:
             pitching['Name'] = [x.replace('  ', ' ') for x in pitching['Name']]
             coach_view = coach_view.rename(columns={'Player': 'Name'})
 
-            # print(coach_view.info())
-            # print(pitching.info())
             return pd.merge(coach_view, pitching, on=['No.', 'Name'])
         elif self._split == "conference":
             index = 1
@@ -119,6 +122,10 @@ class IndividualPitchingScraper:
             finalColNames = ['No', 'Name', 'Team', 'Season', 'Yr', 'Pos', 'G', 'GS', 'W', 'L', 'SV', 'CG', 'SHO', 'IP',
                              'H', 'R', 'ER', 'BB', 'SO', 'ERA', 'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP', 'HBP',
                              'BK', 'SF', 'SH', 'SO_9']
+            if self._inseason:
+                finalColNames = ['No', 'Name', 'Team', 'Season', 'Date', 'Yr', 'Pos', 'G', 'GS', 'W', 'L', 'SV', 'CG',
+                                 'SHO', 'IP', 'H', 'R', 'ER', 'BB', 'SO', 'ERA', 'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP',
+                                 'HBP', 'BK', 'SF', 'SH', 'SO_9']
 
             # remove unnecessary columns
             data.drop(columns=unnecessaryCols, inplace=True)
@@ -132,6 +139,8 @@ class IndividualPitchingScraper:
 
             data["Team"] = team_id
             data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+            if self._inseason:
+                data["Date"] = str(date.today())
             data["Yr"] = data["Yr"].apply(sf.strip_dots)
             data["Pos"] = data["Pos"].apply(sf.to_none)
 
@@ -140,7 +149,12 @@ class IndividualPitchingScraper:
             renameCols = {'No.': 'No', 'app': 'g', 'k': 'so', 'k/9': 'so_9'}
             intCols = ['No', 'g', 'gs', 'w', 'l', 'sv', 'cg', 'h', 'r', 'er', 'bb', 'so', 'hr']
             floatCols = ['so_9', 'era']
+            finalColNames = ['No', 'Name', 'Team', 'Season', 'Yr', 'Pos', 'g', 'gs', 'w', 'l', 'sv', 'cg', 'ip', 'h',
+                             'r', 'er', 'bb', 'so', 'so_9', 'hr', 'era']
 
+            if self._inseason:
+                finalColNames = ['No', 'Name', 'Team', 'Season', 'Date', 'Yr', 'Pos', 'g', 'gs', 'w', 'l', 'sv', 'cg',
+                                 'ip', 'h', 'r', 'er', 'bb', 'so', 'so_9', 'hr', 'era']
             # rename columns
             data.rename(columns=renameCols, inplace=True)
 
@@ -151,14 +165,10 @@ class IndividualPitchingScraper:
 
             data["Team"] = team_id
             data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+            if self._inseason:
+                data["Date"] = str(date.today())
             data["Yr"] = data["Yr"].apply(sf.strip_dots)
             data["Pos"] = data["Pos"].apply(sf.to_none)
-
-            finalColNames = data.axes[1].tolist()
-            finalColNames.remove("Team")
-            finalColNames.remove("Season")
-            finalColNames.insert(2, "Team")
-            finalColNames.insert(3, "Season")
 
             return data[finalColNames]
         else:
@@ -174,10 +184,18 @@ class IndividualPitchingScraper:
             tableName = self.TABLES[self._split]
 
             if self._output == "csv":
-                self._data.to_csv("{}{}{}.csv".format(self._config["csv_path"], tableName, self._year), index=False)
+                if self._inseason:
+                    self._data.to_csv(
+                        "{}{}{}.csv".format(self._config["csv_path"], tableName, str(date.today())),
+                        index=False)
+                else:
+                    self._data.to_csv("{}{}{}.csv".format(self._config["csv_path"], tableName,
+                                                          sf.year_to_season(self._year)), index=False)
             elif self._output == "sql":
                 con = psycopg2.connect(host=self._config["host"], database=self._config["database"],
                                        user=self._config["user"], password=self._config["password"])
+                if self._inseason:
+                    tableName += "_inseason"
                 sf.df_to_sql(con, self._data, tableName, verbose=self._verbose)
                 con.close()
             else:
@@ -186,12 +204,15 @@ class IndividualPitchingScraper:
             if self._verbose:
                 print("Successfully exported")
 
+    def get_data(self):
+        return self._data
+
 
 # ***********************************
 # ****** BEGINNING OF SCRIPT ********
 # ***********************************
 if __name__ == "__main__":
-    scraper = IndividualPitchingScraper(YEAR, SPLIT, OUTPUT, verbose=True)
+    scraper = IndividualPitchingScraper(YEAR, SPLIT, OUTPUT, INSEASON, verbose=True)
     scraper.info()
     scraper.run()
     scraper.export()

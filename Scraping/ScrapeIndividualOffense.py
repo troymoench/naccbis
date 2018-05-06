@@ -56,7 +56,7 @@ class IndividualOffenseScraper:
         self._runnable = True
 
         # TODO: Add error handling
-        with open('config.json') as f:
+        with open('../config.json') as f:
             self._config = json.load(f)
 
     def info(self):
@@ -186,6 +186,7 @@ class IndividualOffenseScraper:
 
     def get_data(self):
         return self._data
+
 
 # ***********************************
 # ****** BEGINNING OF SCRIPT ********

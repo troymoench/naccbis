@@ -2,12 +2,13 @@ import pandas as pd
 import psycopg2
 import sys
 import json
+from datetime import date
 import ScrapeFunctions as sf
 
-YEAR = "2016-17"
-SPLIT = "overall"
-OUTPUT = "csv"
-# TODO: Add support for in-season scraping
+YEAR = "2017-18"
+SPLIT = "conference"
+OUTPUT = "sql"
+INSEASON = True
 
 
 class TeamOffenseScraper:
@@ -31,22 +32,24 @@ class TeamOffenseScraper:
     }
     TABLES = {"overall": "raw_team_offense_overall", "conference": "raw_team_offense_conference"}
 
-    def __init__(self, year, split, output, verbose=False):
+    def __init__(self, year, split, output, inseason=False, verbose=False):
         self._year = year
         self._split = split
         self._output = output
+        self._inseason = inseason
         self._verbose = verbose
         self._data = pd.DataFrame()
         self._runnable = True
 
         # TODO: Add error handling
-        with open('config.json') as f:
+        with open('../config.json') as f:
             self._config = json.load(f)
 
     def info(self):
         print("Individual Offense Scraper")
         print("Year:", self._year)
         print("Split:", self._split)
+        print("In-Season:", self._inseason)
         print("Output format:", self._output)
         if self._runnable:
             print("Scraper has not been run yet. Use run() to do so.")
@@ -63,6 +66,9 @@ class TeamOffenseScraper:
         self._runnable = False
 
     def _scrape(self, soup):
+        # Scrape both the hitting table and extended hitting table
+        # and merge
+
         if self._split == "overall":
             index = 0
         elif self._split == "conference":
@@ -92,6 +98,10 @@ class TeamOffenseScraper:
         finalColNames = ["Name", "Season", "GP", "PA", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB",
                          "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH", "GDP", "GO", "FO",
                          "GO_FO"]
+        if self._inseason:
+            finalColNames = ["Name", "Season", "Date", "GP", "PA", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB",
+                             "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH", "GDP", "GO", "FO",
+                             "GO_FO"]
 
         # remove unnecessary columns
         data.drop(columns=unnecessaryCols, inplace=True)
@@ -105,12 +115,16 @@ class TeamOffenseScraper:
         data.columns = newColNames
 
         data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+        if self._inseason:
+            data["Date"] = str(date.today())
         # data = data.sort_values(ascending=False, by=["PA"])  # This doesn't work currently
 
         return data[finalColNames]
 
     def export(self):
         # export scraped and cleaned data to csv or database
+        # NOTE: If exporting to database, the table must already be created.
+
         if self._runnable:
             print("Cannot export. Scraper has not been run yet. Use run() to do so.")
             sys.exit(1)
@@ -119,10 +133,19 @@ class TeamOffenseScraper:
             tableName = self.TABLES[self._split]
 
             if self._output == "csv":
-                self._data.to_csv("{}{}{}.csv".format(self._config["csv_path"], tableName, self._year), index=False)
+                if self._inseason:
+                    self._data.to_csv(
+                        "{}{}{}.csv".format(self._config["csv_path"], tableName, str(date.today())),
+                        index=False)
+                else:
+                    self._data.to_csv("{}{}{}.csv".format(self._config["csv_path"], tableName,
+                                                          sf.year_to_season(self._year)), index=False)
+
             elif self._output == "sql":
                 con = psycopg2.connect(host=self._config["host"], database=self._config["database"],
                                        user=self._config["user"], password=self._config["password"])
+                if self._inseason:
+                    tableName += "_inseason"
                 sf.df_to_sql(con, self._data, tableName, verbose=self._verbose)
                 con.close()
             else:
@@ -131,13 +154,16 @@ class TeamOffenseScraper:
             if self._verbose:
                 print("Successfully exported")
 
+    def get_data(self):
+        return self._data
+
 
 # ***********************************
 # ****** BEGINNING OF SCRIPT ********
 # ***********************************
 if __name__ == "__main__":
-    scraper = TeamOffenseScraper(YEAR, SPLIT, OUTPUT, verbose=True)
+    scraper = TeamOffenseScraper(YEAR, SPLIT, OUTPUT, INSEASON, verbose=True)
     # scraper.info()
     scraper.run()
-    scraper.info()
+    # scraper.info()
     scraper.export()

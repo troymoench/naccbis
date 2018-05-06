@@ -233,7 +233,7 @@ def df_to_sql(con, data, table, verbose=False):
             print("Total inserted rows:", 0)
             cur.close()
             con.close()
-            sys.exit(1)
+            sys.exit(1)  # probably shouldn't exit (depending on the exception)
         acc += 1
     print("Total inserted rows:", acc)
     con.commit()

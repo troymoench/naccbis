@@ -2,11 +2,13 @@ import pandas as pd
 import psycopg2
 import sys
 import json
+from datetime import date
 import ScrapeFunctions as sf
 
-YEAR = "2016-17"
+YEAR = "2017-18"
 SPLIT = "hitting"  # hitting/pitching/fielding
-OUTPUT = "csv"
+OUTPUT = "sql"
+INSEASON = True
 
 
 class GameLogScraper:
@@ -32,21 +34,23 @@ class GameLogScraper:
     TABLES = {"hitting": "raw_game_log_hitting", "pitching": "raw_game_log_pitching",
               "fielding": "raw_game_log_fielding"}
 
-    def __init__(self, year, split, output, verbose=False):
+    def __init__(self, year, split, output, inseason=False, verbose=False):
         self._year = year
         self._split = split
         self._output = output
+        self._inseason = inseason
         self._verbose = verbose
         self._data = pd.DataFrame()
         self._runnable = True
 
         # TODO: Add error handling
-        with open('config.json') as f:
+        with open('../config.json') as f:
             self._config = json.load(f)
 
     def info(self):
         print("Game Log Scraper")
         print("Year:", self._year)
+        print("In-Season:", self._inseason)
         print("Output format:", self._output)
         if self._runnable:
             print("Scraper has not been run yet. Use run() to do so.")
@@ -67,13 +71,13 @@ class GameLogScraper:
             teamSoup = sf.get_soup("{}{}/{}".format(self.BASE_URL, self._year, team['url']), verbose=self._verbose)
             df = self._scrape(teamSoup)
             df = self._clean(df, team['team'])
-            # print(df)
-            # print(df.info())
 
             self._data = pd.concat([self._data, df], ignore_index=True)
         self._runnable = False
 
     def _scrape(self, team_soup):
+        # scrape game logs for hitting, pitching, fielding
+
         tags = team_soup.find_all('a', string="Game Log")
         if len(tags) != 1:
             print("Can't find Game Log")
@@ -146,13 +150,19 @@ class GameLogScraper:
 
         data["Name"] = team
         data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+        if self._inseason:
+            data["ScrapeDate"] = str(date.today())
 
         finalColNames = data.axes[1].tolist()
         finalColNames.remove("Season")
         finalColNames.remove("Name")
+        if self._inseason:
+            finalColNames.remove("ScrapeDate")
 
         finalColNames.insert(1, "Season")
         finalColNames.insert(2, "Name")
+        if self._inseason:
+            finalColNames.insert(0, "ScrapeDate")
 
         return data[finalColNames]
 
@@ -165,10 +175,18 @@ class GameLogScraper:
             tableName = self.TABLES[self._split]
 
             if self._output == "csv":
-                self._data.to_csv("{}{}{}.csv".format(self._config["csv_path"], tableName, self._year), index=False)
+                if self._inseason:
+                    self._data.to_csv(
+                        "{}{}{}.csv".format(self._config["csv_path"], tableName, str(date.today())),
+                        index=False)
+                else:
+                    self._data.to_csv("{}{}{}.csv".format(self._config["csv_path"], tableName,
+                                                          sf.year_to_season(self._year)), index=False)
             elif self._output == "sql":
                 con = psycopg2.connect(host=self._config["host"], database=self._config["database"],
                                        user=self._config["user"], password=self._config["password"])
+                if self._inseason:
+                    tableName += "_inseason"
                 sf.df_to_sql(con, self._data, tableName, verbose=self._verbose)
                 con.close()
             else:
@@ -177,12 +195,15 @@ class GameLogScraper:
             if self._verbose:
                 print("Successfully exported")
 
+    def get_date(self):
+        return self._data
+
 
 # ***********************************
 # ****** BEGINNING OF SCRIPT ********
 # ***********************************
 if __name__ == "__main__":
-    scraper = GameLogScraper(YEAR, SPLIT, OUTPUT, verbose=True)
+    scraper = GameLogScraper(YEAR, SPLIT, OUTPUT, INSEASON, verbose=True)
     scraper.info()
     scraper.run()
     scraper.export()
