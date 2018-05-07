@@ -46,16 +46,19 @@ class TeamOffenseScraper:
             self._config = json.load(f)
 
     def info(self):
-        print("Individual Offense Scraper")
+        print("\n--------------------")
+        print("Team Offense Scraper")
         print("Year:", self._year)
         print("Split:", self._split)
-        print("In-Season:", self._inseason)
-        print("Output format:", self._output)
-        if self._runnable:
-            print("Scraper has not been run yet. Use run() to do so.")
-        else:
-            print("Scraper has been run")
-            print(self._data.info())
+        if self._verbose:
+            print("In-Season:", self._inseason)
+            print("Output format:", self._output)
+            if self._runnable:
+                print("Scraper has not been run yet. Use run() to do so.")
+            else:
+                print("Scraper has been run")
+                print(self._data.info())
+        print("--------------------")
 
     def run(self):
         # run the scraper
@@ -151,8 +154,8 @@ class TeamOffenseScraper:
             else:
                 print("Invalid output type:", self._output)
                 sys.exit(1)
-            if self._verbose:
-                print("Successfully exported")
+            # if self._verbose:
+            #     print("Successfully exported")
 
     def get_data(self):
         return self._data

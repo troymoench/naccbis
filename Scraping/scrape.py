@@ -1,6 +1,7 @@
 import sys
 import argparse
 import pandas as pd
+from datetime import date
 import ScrapeFunctions as sf
 from ScrapeGameLog import GameLogScraper
 from ScrapeIndividualOffense import IndividualOffenseScraper
@@ -12,6 +13,7 @@ from ScrapeTeamPitching import TeamPitchingScraper
 
 # This script is the scraping controller
 # TODO: Unify standard output for default and verbose
+# TODO: fix csv output: combine files? zip?
 
 
 def parse_year(year):
@@ -39,6 +41,44 @@ def parse_stat(stats, accepted_values):
             return temp
         else:
             return list()  # should raise an exception
+
+
+def run_scrapers(scrapers, year, splits, output, inseason, verbose):
+    # run selected scrapers for a given year
+
+    for split in splits:
+        if 1 in scrapers:
+            indOffScraper = IndividualOffenseScraper(year, split, output, inseason, verbose)
+            indOffScraper.info()
+            indOffScraper.run()
+            indOffScraper.export()
+        if 2 in scrapers:
+            indPitScraper = IndividualPitchingScraper(year, split, output, inseason, verbose)
+            indPitScraper.info()
+            indPitScraper.run()
+            indPitScraper.export()
+        if 3 in scrapers:
+            teamOffScraper = TeamOffenseScraper(year, split, output, inseason, verbose)
+            teamOffScraper.info()
+            teamOffScraper.run()
+            teamOffScraper.export()
+        if 4 in scrapers:
+            teamPitScraper = TeamPitchingScraper(year, split, output, inseason, verbose)
+            teamPitScraper.info()
+            teamPitScraper.run()
+            teamPitScraper.export()
+        if 5 in scrapers:
+            teamFieldScraper = TeamFieldingScraper(year, split, output, inseason, verbose)
+            teamFieldScraper.info()
+            teamFieldScraper.run()
+            teamFieldScraper.export()
+
+    if 6 in scrapers:
+        for split in ["hitting", "pitching", "fielding"]:
+            gameLogScraper = GameLogScraper(year, split, output, inseason, verbose)
+            gameLogScraper.info()
+            gameLogScraper.run()
+            gameLogScraper.export()
 
 
 def final():
@@ -70,7 +110,7 @@ def final():
     seasons = parse_year(final_args.year)
     # print(seasons)
     years = [sf.season_to_year(x) for x in seasons]
-    print(years)
+    # print(years)
 
     # print(final_args.split)
 
@@ -79,12 +119,12 @@ def final():
         splits = ["overall", "conference"]
     else:
         splits = [final_args.split]
-    print(splits)
+    # print(splits)
 
     # parse stat
     accepted = list(range(1, 7))
     scrapers = parse_stat(final_args.stat, accepted)
-    print(scrapers)
+    # print(scrapers)
     if len(scrapers) == 0:
         print("Unrecognized stat option")
         final_parser.print_usage()
@@ -92,64 +132,86 @@ def final():
 
     # parse output
     output = final_args.output
-    print(output)
+    # print(output)
 
     # parse verbose
     verbose = final_args.verbose
-    if verbose:
-        print("Verbose")
+    # if verbose:
+    #     print("Verbose")
 
     for year in years:
         print("\nScraping:", year, "\n")
 
-        for split in splits:
-            if 1 in scrapers:
-                indOffScraper = IndividualOffenseScraper(year, split, output, verbose=verbose)
-                # indOffScraper.info()
-                indOffScraper.run()
-                indOffScraper.export()
-            if 2 in scrapers:
-                indPitScraper = IndividualPitchingScraper(year, split, output, verbose=verbose)
-                # indPitScraper.info()
-                indPitScraper.run()
-                indPitScraper.export()
-            if 3 in scrapers:
-                teamOffScraper = TeamOffenseScraper(year, split, output, verbose=verbose)
-                # teamOffScraper.info()
-                teamOffScraper.run()
-                teamOffScraper.export()
-            if 4 in scrapers:
-                teamPitScraper = TeamPitchingScraper(year, split, output, verbose=verbose)
-                # teamPitScraper.info()
-                teamPitScraper.run()
-                teamPitScraper.export()
-            if 5 in scrapers:
-                teamFieldScraper = TeamFieldingScraper(year, split, output, verbose=verbose)
-                # teamFieldScraper.info()
-                teamFieldScraper.run()
-                teamFieldScraper.export()
-
-        if 6 in scrapers:
-            gameLogScraper = GameLogScraper(year, "hitting", output, verbose=verbose)
-            # gameLogScraper.info()
-            gameLogScraper.run()
-            gameLogScraper.export()
-            gameLogScraper = GameLogScraper(year, "pitching", output, verbose=verbose)
-            # gameLogScraper.info()
-            gameLogScraper.run()
-            gameLogScraper.export()
-            gameLogScraper = GameLogScraper(year, "fielding", output, verbose=verbose)
-            # gameLogScraper.info()
-            gameLogScraper.run()
-            gameLogScraper.export()
+        run_scrapers(scrapers, year, splits, output, inseason=False, verbose=verbose)
 
 
 def inseason():
-    print("Scrape inseason stats")
+    inseason_parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                              description='Scrape stats during the season. '
+                                                          'A column is added for the scrape date.\n\n'
+                                              '     Stat Options\n'
+                                              '  ---------------------\n'
+                                              '  1) Individual Offense\n'
+                                              '  2) Individual Pitching\n'
+                                              '  3) Team Offense\n'
+                                              '  4) Team Pitching\n'
+                                              '  5) Team Fielding\n'
+                                              '  6) Game Logs\n'
+                                              '  all) All\n')
+    inseason_parser.add_argument("-s", "--split", type=str, choices=["overall", "conference", "all"],
+                                 default="all", metavar="SPLIT",
+                                 help="Split choices: overall, conference, all (default)")
+    inseason_parser.add_argument("-S", "--stat", type=str, default="all", metavar="STAT",
+                                 help="Select stat scraper(s) to run. Provide comma separated list or all for multiple")
+
+    inseason_parser.add_argument("-o", "--output", type=str, choices=["csv", "sql"],
+                                 default="csv", metavar="OUTPUT", help="Output choices: csv (default), sql")
+    inseason_parser.add_argument("-v", "--verbose", action="store_true", help="Print extra information to standard out")
+
+    inseason_args = inseason_parser.parse_args(sys.argv[2:])
+    # print(inseason_args)
+
+    # current year
+    year = date.today().year
+    year = sf.season_to_year(year)
+    # print(year)
+
+    # parse split
+    if inseason_args.split == "all":
+        splits = ["overall", "conference"]
+    else:
+        splits = [inseason_args.split]
+    # print(splits)
+
+    # parse stat
+    accepted = list(range(1, 7))
+    scrapers = parse_stat(inseason_args.stat, accepted)
+    # print(scrapers)
+    if len(scrapers) == 0:
+        print("Unrecognized stat option")
+        inseason_parser.print_usage()
+        exit(1)
+
+    # parse output
+    output = inseason_args.output
+    # print(output)
+
+    # parse verbose
+    verbose = inseason_args.verbose
+    # if verbose:
+    #     print("Verbose")
+
+    run_scrapers(scrapers, year, splits, output, inseason=True, verbose=verbose)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="This script is the NACCBIS scraping controller", epilog="examples:  scrape.py final 2015:2017")
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description="This script is the NACCBIS scraping controller",
+                                     epilog="examples:\n"
+                                            "   scrape.py final 2015:2017\n"
+                                            "   scrape.py final 2017 -S 1,3 -s conference -o sql\n"
+                                            "   scrape.py inseason\n"
+                                            "   scrape.py inseason -S 6 -s overall -o csv")
     parser.add_argument("type", help="Select the type of stats to scrape", choices=["final", "inseason"])
     args = parser.parse_args(sys.argv[1:2])
 

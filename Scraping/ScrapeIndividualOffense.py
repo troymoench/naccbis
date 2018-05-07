@@ -18,11 +18,6 @@ YEAR = "2017-18"
 SPLIT = "overall"
 OUTPUT = "sql"
 INSEASON = True
-# TODO: Add support for in-season scraping
-# add date of scraping column (DONE)
-# add date of scraping to file name? (DONE)
-# add new table in database for in-season
-# TODO: Add getData() method (returns DataFrame)
 
 
 class IndividualOffenseScraper:
@@ -60,16 +55,19 @@ class IndividualOffenseScraper:
             self._config = json.load(f)
 
     def info(self):
+        print("\n--------------------------")
         print("Individual Offense Scraper")
         print("Year:", self._year)
         print("Split:", self._split)
-        print("In-Season:", self._inseason)
-        print("Output format:", self._output)
-        if self._runnable:
-            print("Scraper has not been run yet. Use run() to do so.")
-        else:
-            print("Scraper has been run")
-            print(self._data.info())
+        if self._verbose:
+            print("In-Season:", self._inseason)
+            print("Output format:", self._output)
+            if self._runnable:
+                print("Scraper has not been run yet. Use run() to do so.")
+            else:
+                print("Scraper has been run")
+                print(self._data.info())
+        print("--------------------------")
 
     def run(self):
         # run the scraper
@@ -81,7 +79,7 @@ class IndividualOffenseScraper:
         for team in teamList:
             print("Fetching", team['team'])
 
-            teamSoup = sf.get_soup("{}{}/{}".format(self.BASE_URL, self._year, team['url']), verbose=True)
+            teamSoup = sf.get_soup("{}{}/{}".format(self.BASE_URL, self._year, team['url']), verbose=self._verbose)
             df = self._scrape(teamSoup)
             df = self._clean(df, team['id'])
             self._data = pd.concat([self._data, df], ignore_index=True)
@@ -161,7 +159,6 @@ class IndividualOffenseScraper:
             sys.exit(1)
         else:
             tableName = self.TABLES[self._split]
-
             if self._output == "csv":
                 if self._inseason:
                     self._data.to_csv(
@@ -181,8 +178,8 @@ class IndividualOffenseScraper:
             else:
                 print("Invalid output type:", self._output)
                 sys.exit(1)
-            if self._verbose:
-                print("Successfully exported")
+            # if self._verbose:  # TODO: fix this
+            #     print("Successfully exported")
 
     def get_data(self):
         return self._data
