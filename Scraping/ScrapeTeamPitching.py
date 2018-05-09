@@ -4,6 +4,7 @@ import sys
 import json
 from datetime import date
 import ScrapeFunctions as sf
+from ScrapeBase import BaseScraper
 
 YEAR = "2017-18"
 SPLIT = "conference"
@@ -11,54 +12,36 @@ OUTPUT = "sql"
 INSEASON = True
 
 
-class TeamPitchingScraper:
-    BASE_URL = "http://naccsports.org/sports/bsb/"  # add constants to ScrapeFunctions.py?
+class TeamPitchingScraper(BaseScraper):
     PITCHING_COLS = ['no.', 'name', 'yr', 'pos', 'app', 'gs', 'w', 'l', 'ip', 'h', 'r', 'er', 'era']
     COACHES_VIEW_COLS = ['no.', 'player', 'era', 'w', 'l', 'app', 'gs', 'ip', 'h', 'r', 'er', '2b', '3b', 'hr', 'ab']
     CONFERENCE_COLS = ['name', 'gp', 'ip', 'h', 'r', 'er', 'bb', 'k', 'era']
-    TEAM_IDS = {
-        'Aurora': 'AUR',
-        'Benedictine': 'BEN',
-        'Concordia Chicago': 'CUC',
-        'Concordia Wisconsin': 'CUW',
-        'Dominican': 'DOM',
-        'Edgewood': 'EDG',
-        'Lakeland': 'LAK',
-        'MSOE': 'MSOE',
-        'Marian': 'MAR',
-        'Maranatha': 'MARN',
-        'Rockford': 'ROCK',
-        'Wisconsin Lutheran': 'WLC'
-    }
     TABLES = {"overall": "raw_team_pitching_overall", "conference": "raw_team_pitching_conference"}
 
     def __init__(self, year, split, output, inseason=False, verbose=False):
-        self._year = year
-        self._split = split
-        self._output = output
-        self._inseason = inseason
-        self._verbose = verbose
+        super().__init__(year, split, output, inseason, verbose)
+        self._name = "Team Pitching Scraper"
         self._data = pd.DataFrame()
         self._runnable = True
 
         # TODO: Add error handling
         with open('../config.json') as f:
             self._config = json.load(f)
-
-    def info(self):
-        print("\n---------------------")
-        print("Team Pitching Scraper")
-        print("Year:", self._year)
-        print("Split:", self._split)
-        if self._verbose:
-            print("In-Season:", self._inseason)
-            print("Output format:", self._output)
-            if self._runnable:
-                print("Scraper has not been run yet. Use run() to do so.")
-            else:
-                print("Scraper has been run")
-                print(self._data.info())
-        print("---------------------")
+    #
+    # def info(self):
+    #     print("\n---------------------")
+    #     print("Team Pitching Scraper")
+    #     print("Year:", self._year)
+    #     print("Split:", self._split)
+    #     if self._verbose:
+    #         print("In-Season:", self._inseason)
+    #         print("Output format:", self._output)
+    #         if self._runnable:
+    #             print("Scraper has not been run yet. Use run() to do so.")
+    #         else:
+    #             print("Scraper has been run")
+    #             print(self._data.info())
+    #     print("---------------------")
 
     def run(self):
         # run the scraper
@@ -202,38 +185,38 @@ class TeamPitchingScraper:
         else:
             print("Invalid split:", self._split)
             sys.exit(1)
-
-    def export(self):
-        # export scraped and cleaned data to csv or database
-        if self._runnable:
-            print("Cannot export. Scraper has not been run yet. Use run() to do so.")
-            sys.exit(1)
-        else:
-            tableName = self.TABLES[self._split]
-
-            if self._output == "csv":
-                if self._inseason:
-                    self._data.to_csv(
-                        "{}{}{}.csv".format(self._config["csv_path"], tableName, str(date.today())),
-                        index=False)
-                else:
-                    self._data.to_csv("{}{}{}.csv".format(self._config["csv_path"], tableName,
-                                                          sf.year_to_season(self._year)), index=False)
-            elif self._output == "sql":
-                con = psycopg2.connect(host=self._config["host"], database=self._config["database"],
-                                       user=self._config["user"], password=self._config["password"])
-                if self._inseason:
-                    tableName += "_inseason"
-                sf.df_to_sql(con, self._data, tableName, verbose=self._verbose)
-                con.close()
-            else:
-                print("Invalid output type:", self._output)
-                sys.exit(1)
-            # if self._verbose:
-            #     print("Successfully exported")
-
-    def get_date(self):
-        return self._data
+    #
+    # def export(self):
+    #     # export scraped and cleaned data to csv or database
+    #     if self._runnable:
+    #         print("Cannot export. Scraper has not been run yet. Use run() to do so.")
+    #         sys.exit(1)
+    #     else:
+    #         tableName = self.TABLES[self._split]
+    #
+    #         if self._output == "csv":
+    #             if self._inseason:
+    #                 self._data.to_csv(
+    #                     "{}{}{}.csv".format(self._config["csv_path"], tableName, str(date.today())),
+    #                     index=False)
+    #             else:
+    #                 self._data.to_csv("{}{}{}.csv".format(self._config["csv_path"], tableName,
+    #                                                       sf.year_to_season(self._year)), index=False)
+    #         elif self._output == "sql":
+    #             con = psycopg2.connect(host=self._config["host"], database=self._config["database"],
+    #                                    user=self._config["user"], password=self._config["password"])
+    #             if self._inseason:
+    #                 tableName += "_inseason"
+    #             sf.df_to_sql(con, self._data, tableName, verbose=self._verbose)
+    #             con.close()
+    #         else:
+    #             print("Invalid output type:", self._output)
+    #             sys.exit(1)
+    #         # if self._verbose:
+    #         #     print("Successfully exported")
+    #
+    # def get_date(self):
+    #     return self._data
 
 
 # ***********************************
