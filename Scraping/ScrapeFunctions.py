@@ -3,19 +3,26 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import psycopg2
 import sys
+from time import sleep
 
 
 # ********************************
 # ** General Scraping Functions **
 # ********************************
-def get_soup(url, verbose=False):
+def get_soup(url, backoff=.5, verbose=False):
     # returns a Beautiful Soup object from the specified URL
-    # will be placed in ScrapingFunctions.py
+
+    sleep(backoff)  # to prevent overloading the server
     if verbose:
         print("GET " + url)
-    request = requests.get(url)
-    text = request.text
-    return BeautifulSoup(text, "html.parser")
+    try:
+        request = requests.get(url, timeout=10)  # give the server 10 seconds to respond
+    except requests.exceptions.RequestException:
+        print("Error: Unable to connect to", url)
+        exit(1)
+    else:
+        text = request.text
+        return BeautifulSoup(text, "html.parser")
 
 
 def get_text(html_tag):
@@ -100,16 +107,6 @@ def get_team_list(base_url, year, team_ids):
             'url': get_href(link)
         })
     return teamList
-
-'''
-def get_nav_links(team_soup):
-    VALUES = [""]
-    target = team_soup.select("div.tab-nav ul")
-    for tag in target:
-        list_items = tag.find_all("li")
-        list_items = [get_text(item) for item in list_items]
-        print(list_items)
-'''
 
 
 # ****************************
@@ -216,10 +213,12 @@ def df_to_sql(con, data, table, verbose=False):
     except psycopg2.Error as e:
         print("Failed to obtain cursor:", e)
         con.close()
-        sys.exit(1)
+        return
 
     query = build_insert_str(table, data.shape[1])
     acc = 0
+
+    # insert each row into database
     for i in range(data.shape[0]):  # DataFrame.itertuples() could work as well
         value = data.iloc[i].tolist()
         # TODO: Convert data types to Postgres friendly types e.g. <class 'numpy.int64'> to <class 'int'>
@@ -230,9 +229,10 @@ def df_to_sql(con, data, table, verbose=False):
             cur.execute(query, value)
         except psycopg2.Error as e:
             print("Insert failed:", e)
-            print("Total inserted rows:", 0)
-            cur.close()
-            return
+            # print("Total inserted rows:", 0)
+            # cur.close()
+            # return
+            raise
         acc += 1
     print("Total inserted rows:", acc)
     con.commit()

@@ -92,7 +92,8 @@ def final():
                                            '  4) Team Pitching\n'
                                            '  5) Team Fielding\n'
                                            '  6) Game Logs\n'
-                                           '  all) All\n')
+                                           '  all) All\n',
+                                           usage="%(prog)s final YEAR [-h] [-s SPLIT] [-S STAT] [-o OUTPUT] [-v]")
     final_parser.add_argument("year", type=str, help="A year or range of years")
     final_parser.add_argument("-s", "--split", type=str, choices=["overall", "conference", "all"],
                               default="all", metavar="SPLIT", help="Split choices: overall, conference, all (default)")
@@ -157,7 +158,8 @@ def inseason():
                                               '  4) Team Pitching\n'
                                               '  5) Team Fielding\n'
                                               '  6) Game Logs\n'
-                                              '  all) All\n')
+                                              '  all) All\n',
+                                              usage="%(prog)s inseason [-h] [-s SPLIT] [-S STAT] [-o OUTPUT] [-v]")
     inseason_parser.add_argument("-s", "--split", type=str, choices=["overall", "conference", "all"],
                                  default="all", metavar="SPLIT",
                                  help="Split choices: overall, conference, all (default)")
