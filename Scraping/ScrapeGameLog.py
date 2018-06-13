@@ -11,8 +11,6 @@ SPLIT = "hitting"  # hitting/pitching/fielding
 OUTPUT = "sql"
 INSEASON = True
 
-# TODO: Add game number column to prevent double inserts for inseason
-
 
 class GameLogScraper(BaseScraper):
     HITTING_COLS = ['date', 'opponent', 'score', 'ab', 'r', 'h', '2b', '3b', 'hr', 'bb', 'k']
@@ -126,6 +124,8 @@ class GameLogScraper(BaseScraper):
         data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
         if self._inseason:
             data["ScrapeDate"] = str(date.today())
+        data["GameNum"] = list(range(1, len(data) + 1))
+        data["GameNum"] = data["GameNum"].apply(str)
 
         finalColNames = data.axes[1].tolist()
         finalColNames.remove("Season")
@@ -138,6 +138,8 @@ class GameLogScraper(BaseScraper):
         if self._inseason:
             finalColNames.insert(0, "ScrapeDate")
 
+        finalColNames.remove("GameNum")
+        finalColNames.insert(0, "GameNum")
         return data[finalColNames]
 
 

@@ -141,6 +141,7 @@ create table raw_batters_overall_inseason (
 );
 
 create table raw_game_log_fielding (
+  Game_num integer,
   Date varchar(10),
   Season integer,
   Name varchar(30),
@@ -156,10 +157,12 @@ create table raw_game_log_fielding (
   CS integer,
   CSPCT numeric,
   PB integer,
-  CI integer
+  CI integer,
+  primary key (Game_num, Date, Season, Name)
 );
 
 create table raw_game_log_fielding_inseason (
+  Game_num integer,
   Scrape_date date,
   Date varchar(10),
   Season integer,
@@ -176,10 +179,12 @@ create table raw_game_log_fielding_inseason (
   CS integer,
   CSPCT numeric,
   PB integer,
-  CI integer
+  CI integer,
+  primary key (Game_num, Scrape_date, Name)
 );
 
 create table raw_game_log_hitting (
+  Game_num integer,
   Date varchar(10),
   Season integer,
   Name varchar(30),
@@ -205,10 +210,13 @@ create table raw_game_log_hitting (
   GO integer,
   FO integer,
   GO_FO numeric,
-  PA integer
+  PA integer,
+  primary key (Game_num, Date, Season, Name)
+
 );
 
 create table raw_game_log_hitting_inseason (
+  Game_num integer,
   Scrape_date date,
   Date varchar(10),
   Season integer,
@@ -235,10 +243,13 @@ create table raw_game_log_hitting_inseason (
   GO integer,
   FO integer,
   GO_FO numeric,
-  PA integer
+  PA integer,
+  primary key (Game_num, Scrape_date, Name)
+
 );
 
 create table raw_game_log_pitching (
+  Game_num integer,
   Date varchar(10),
   Season integer,
   Name varchar(30),
@@ -254,10 +265,12 @@ create table raw_game_log_pitching (
   ERA numeric,
   BB integer,
   SO integer,
-  HR integer
+  HR integer,
+  primary key (Game_num, Date, Season, Name)
 );
 
 create table raw_game_log_pitching_inseason (
+  Game_num integer,
   Scrape_date date,
   Date varchar(10),
   Season integer,
@@ -274,7 +287,9 @@ create table raw_game_log_pitching_inseason (
   ERA numeric,
   BB integer,
   SO integer,
-  HR integer
+  HR integer,
+  primary key (Game_num, Scrape_date, Name)
+
 );
 
 create table raw_pitchers_conference (

@@ -12,7 +12,6 @@ from ScrapeTeamPitching import TeamPitchingScraper
 
 
 # This script is the scraping controller
-# TODO: Unify standard output for default and verbose
 # TODO: fix csv output: combine files? zip?
 
 
@@ -25,7 +24,7 @@ def parse_year(year):
         temp = [int(yr) for yr in year.split(':')]
         temp.sort()  # ascending
         rng = list(range(temp[0], temp[1]+1))
-        rng.sort(reverse=True)  # descending
+        # rng.sort(reverse=True)  # descending
         return rng
 
 
@@ -43,37 +42,23 @@ def parse_stat(stats, accepted_values):
             return list()  # should raise an exception
 
 
-def run_scrapers(scrapers, year, splits, output, inseason, verbose):
+def run_scrapers(scraper_nums, year, splits, output, inseason, verbose):
     # run selected scrapers for a given year
+    scrapers = {1: IndividualOffenseScraper,
+                2: IndividualPitchingScraper,
+                3: TeamOffenseScraper,
+                4: TeamPitchingScraper,
+                5: TeamFieldingScraper}
 
     for split in splits:
-        if 1 in scrapers:
-            indOffScraper = IndividualOffenseScraper(year, split, output, inseason, verbose)
-            indOffScraper.info()
-            indOffScraper.run()
-            indOffScraper.export()
-        if 2 in scrapers:
-            indPitScraper = IndividualPitchingScraper(year, split, output, inseason, verbose)
-            indPitScraper.info()
-            indPitScraper.run()
-            indPitScraper.export()
-        if 3 in scrapers:
-            teamOffScraper = TeamOffenseScraper(year, split, output, inseason, verbose)
-            teamOffScraper.info()
-            teamOffScraper.run()
-            teamOffScraper.export()
-        if 4 in scrapers:
-            teamPitScraper = TeamPitchingScraper(year, split, output, inseason, verbose)
-            teamPitScraper.info()
-            teamPitScraper.run()
-            teamPitScraper.export()
-        if 5 in scrapers:
-            teamFieldScraper = TeamFieldingScraper(year, split, output, inseason, verbose)
-            teamFieldScraper.info()
-            teamFieldScraper.run()
-            teamFieldScraper.export()
+        for num in scraper_nums:
+            if num in scrapers.keys():
+                runScraper = scrapers[num](year, split, output, inseason, verbose)
+                runScraper.info()
+                runScraper.run()
+                runScraper.export()
 
-    if 6 in scrapers:
+    if 6 in scraper_nums:
         for split in ["hitting", "pitching", "fielding"]:
             gameLogScraper = GameLogScraper(year, split, output, inseason, verbose)
             gameLogScraper.info()
