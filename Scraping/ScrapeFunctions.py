@@ -77,7 +77,15 @@ def scrape_table(soup, tbl_num, first_row=2, skip_rows=0):
     df = pd.DataFrame(columns=headers)
 
     for row in rows:
-        s = pd.Series([x.text.strip() for x in row.find_all('td')], index=headers)
+
+        row_data = [x.text.strip() for x in row.find_all('td')]
+
+        # workaround for incompatibility with pandas 23
+        if len(row_data) != len(headers):
+            print("Row length doesn't match header length. Skipping row.")
+            continue
+
+        s = pd.Series(row_data, index=headers)
         d = pd.DataFrame(s).T
         df = pd.concat([df, d], ignore_index=True)
 
