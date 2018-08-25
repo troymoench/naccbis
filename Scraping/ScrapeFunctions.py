@@ -4,6 +4,7 @@ import pandas as pd
 import psycopg2
 import sys
 from time import sleep
+import logging
 
 
 # ********************************
@@ -11,7 +12,7 @@ from time import sleep
 # ********************************
 def get_soup(url, backoff=.5, verbose=False):
     # returns a Beautiful Soup object from the specified URL
-
+    logging.debug("Backing off for %f seconds", backoff)
     sleep(backoff)  # to prevent overloading the server
     if verbose:
         print("GET " + url)
@@ -19,6 +20,7 @@ def get_soup(url, backoff=.5, verbose=False):
         request = requests.get(url, timeout=10)  # give the server 10 seconds to respond
     except requests.exceptions.RequestException:
         print("Error: Unable to connect to", url)
+        logging.critical("Error: Unable to connect to", url)
         exit(1)
     else:
         text = request.text
@@ -53,6 +55,7 @@ def find_table(soup_obj, header_values, verbose=False):
             if verbose:  # this needs some work
                 print("Missing values in table {}: {}".format(i, set(header_values) - set(columns)))
         i += 1
+    logging.debug("Found %d tables with matching headers", len(indices))
     return indices
 
 
@@ -72,6 +75,7 @@ def scrape_table(soup, tbl_num, first_row=2, skip_rows=0):
 
     html_rows = table.find_all('tr')
     rows = html_rows[first_row - 1:len(html_rows) - skip_rows]
+    logging.debug("Found %d table rows", len(rows))
 
     # Empty DataFrame to add rows to
     df = pd.DataFrame(columns=headers)
@@ -83,6 +87,7 @@ def scrape_table(soup, tbl_num, first_row=2, skip_rows=0):
         # workaround for incompatibility with pandas 23
         if len(row_data) != len(headers):
             print("Row length doesn't match header length. Skipping row.")
+            logging.warning("Row length doesn't match header length. Skipping row.")
             continue
 
         s = pd.Series(row_data, index=headers)
@@ -98,8 +103,10 @@ def get_team_list(base_url, year, team_ids):
 
     # search the page for the target element
     target = soup.find_all("table", {"class": "teamSummary"})
+    logging.debug("Found %d target elements", len(target))
     if not len(target) == 1:
         print("Could not find exactly one target element")  # throw an exception?
+        logging.critical("Could not find exactly one target element.")
         exit(1)
 
     # create a list of links that are children of the target element
@@ -220,6 +227,7 @@ def df_to_sql(con, data, table, verbose=False):
         cur = con.cursor()
     except psycopg2.Error as e:
         print("Failed to obtain cursor:", e)
+        logging.error("Failed to obtain cursor")
         con.close()
         return
 
@@ -237,6 +245,7 @@ def df_to_sql(con, data, table, verbose=False):
             cur.execute(query, value)
         except psycopg2.Error as e:
             print("Insert failed:", e)
+            logging.error("Insert failed: %s", e)
             # print("Total inserted rows:", 0)
             # cur.close()
             # return

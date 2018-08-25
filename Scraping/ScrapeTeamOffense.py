@@ -2,6 +2,7 @@ import pandas as pd
 import psycopg2
 import sys
 import json
+import logging
 from datetime import date
 import ScrapeFunctions as sf
 from ScrapeBase import BaseScraper
@@ -31,8 +32,12 @@ class TeamOffenseScraper(BaseScraper):
     def run(self):
         # run the scraper
         # TODO: add argument export=True
+        logging.info("%s", self._name)
+        logging.info("Fetching teams")
         soup = sf.get_soup(self.BASE_URL + self._year + "/teams", verbose=self._verbose)
+        logging.info("Looking for hitting tables")
         df = self._scrape(soup)
+        logging.info("Cleaning scraped data")
         self._data = self._clean(df)
         self._runnable = False
 

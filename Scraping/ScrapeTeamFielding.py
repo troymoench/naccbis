@@ -2,6 +2,7 @@ import pandas as pd
 import psycopg2
 import sys
 import json
+import logging
 from datetime import date
 import ScrapeFunctions as sf
 from ScrapeBase import BaseScraper
@@ -25,27 +26,16 @@ class TeamFieldingScraper(BaseScraper):
         # TODO: Add error handling
         with open('../config.json') as f:
             self._config = json.load(f)
-    #
-    # def info(self):
-    #     print("\n---------------------")
-    #     print("Team Fielding Scraper")
-    #     print("Year:", self._year)
-    #     print("Split:", self._split)
-    #     if self._verbose:
-    #         print("In-Season:", self._inseason)
-    #         print("Output format:", self._output)
-    #         if self._runnable:
-    #             print("Scraper has not been run yet. Use run() to do so.")
-    #         else:
-    #             print("Scraper has been run")
-    #             print(self._data.info())
-    #     print("---------------------")
 
     def run(self):
         # run the scraper
         # TODO: add argument export=True
+        logging.info("%s", self._name)
+        logging.info("Fetching teams")
         soup = sf.get_soup(self.BASE_URL + self._year + "/teams", verbose=self._verbose)
+        logging.info("Looking for fielding table")
         df = self._scrape(soup)
+        logging.info("Cleaning scraped data")
         self._data = self._clean(df)
 
         self._runnable = False
@@ -102,4 +92,3 @@ if __name__ == "__main__":
     scraper.info()
     scraper.run()
     scraper.export()
-

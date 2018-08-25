@@ -1,6 +1,8 @@
 import sys
 import argparse
 import pandas as pd
+import logging
+import config
 from datetime import date
 import ScrapeFunctions as sf
 from ScrapeGameLog import GameLogScraper
@@ -202,6 +204,10 @@ if __name__ == "__main__":
     parser.add_argument("type", help="Select the type of stats to scrape", choices=["final", "inseason"])
     args = parser.parse_args(sys.argv[1:2])
 
+    # log that the script has started
+    logging.info("Initializing scraping controller script")
+    logging.info("Command line args received: %s", sys.argv[1:])
+
     if args.type == "final":
         final()
     elif args.type == "inseason":
@@ -209,3 +215,4 @@ if __name__ == "__main__":
     else:
         print("This can't happen")
 
+    logging.info("Scraping completed")

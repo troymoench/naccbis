@@ -2,6 +2,7 @@ import pandas as pd
 import psycopg2
 import sys
 import json
+import logging
 from datetime import date
 import ScrapeFunctions as sf
 from ScrapeBase import BaseScraper
@@ -33,15 +34,20 @@ class GameLogScraper(BaseScraper):
     def run(self):
         # run the scraper
         # TODO: add argument export=True
+        logging.info("%s", self._name)
 
         teamList = sf.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
+        logging.info("Found %d teams to scrape", len(teamList))
 
         # iterate over the teams
         for team in teamList:
             print("Fetching", team['team'])
+            logging.info("Fetching %s", team['team'])
 
             teamSoup = sf.get_soup("{}{}/{}".format(self.BASE_URL, self._year, team['url']), verbose=self._verbose)
+            logging.info("Looking for game log table")
             df = self._scrape(teamSoup)
+            logging.info("Cleaning scraped data")
             df = self._clean(df, team['team'])
 
             self._data = pd.concat([self._data, df], ignore_index=True)
@@ -53,6 +59,7 @@ class GameLogScraper(BaseScraper):
         tags = team_soup.find_all('a', string="Game Log")
         if len(tags) != 1:
             print("Can't find Game Log")
+            logging.error("Can't find Game Log")
             exit(1)
         url = tags[0].get('href')
         url = sf.url_union(self.BASE_URL, url)
@@ -151,4 +158,3 @@ if __name__ == "__main__":
     scraper.info()
     scraper.run()
     scraper.export()
-
