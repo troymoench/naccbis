@@ -42,11 +42,13 @@ def get_href(html_tag):
 def find_table(soup_obj, header_values, verbose=False):
     # find the indices of tables that contain specific values in header
     # returns empty list if table not found
+    # Note: Header value matching is case insensitive
+
+    header_values = [x.lower() for x in header_values]
+
     indices = []
     tables = soup_obj.find_all('table')
-    i = 0
-    while i < len(tables):  # enumerate?
-        table = tables[i]
+    for i, table in enumerate(tables):
         header = table.find_all('th')
         columns = [x.text.strip().lower() for x in header]
         if set(header_values).issubset(set(columns)):
@@ -54,7 +56,6 @@ def find_table(soup_obj, header_values, verbose=False):
         else:
             if verbose:  # this needs some work
                 print("Missing values in table {}: {}".format(i, set(header_values) - set(columns)))
-        i += 1
     logging.debug("Found %d tables with matching headers", len(indices))
     return indices
 
