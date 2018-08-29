@@ -176,17 +176,6 @@ def strip_dots(x):
     return x.rstrip('.')
 
 
-def convert_ip(x):
-    """
-    Converts IP notation into a float
-    """
-    split = x.split('.')
-    print(split)
-    whole = int(split[0])
-    fraction = int(split[1])*(1/3)
-    return whole + fraction
-
-
 def build_value_str(num_cols):
     tmp = ", ".join(["%s"]*num_cols)
     return "({})".format(tmp)
