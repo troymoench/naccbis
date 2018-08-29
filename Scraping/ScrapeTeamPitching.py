@@ -6,6 +6,7 @@ import logging
 from datetime import date
 import ScrapeFunctions as sf
 from ScrapeBase import BaseScraper
+from urllib.parse import urljoin
 
 YEAR = "2017-18"
 SPLIT = "conference"
@@ -90,7 +91,7 @@ class TeamPitchingScraper(BaseScraper):
                 exit(1)
 
             url = tags[0].get('href')
-            url = sf.url_union(self.BASE_URL, url)
+            url = urljoin(self.BASE_URL, url)
             coach_soup = sf.get_soup(url, verbose=self._verbose)
             tableNum2 = sf.find_table(coach_soup, self.COACHES_VIEW_COLS)[0]
             coach_view = sf.scrape_table(coach_soup, tableNum2 + 1, first_row=3, skip_rows=1)

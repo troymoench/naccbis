@@ -6,6 +6,7 @@ import logging
 from datetime import date
 import ScrapeFunctions as sf
 from ScrapeBase import BaseScraper
+from urllib.parse import urljoin
 
 YEAR = "2017-18"
 SPLIT = "hitting"  # hitting/pitching/fielding
@@ -62,7 +63,7 @@ class GameLogScraper(BaseScraper):
             logging.error("Can't find Game Log")
             exit(1)
         url = tags[0].get('href')
-        url = sf.url_union(self.BASE_URL, url)
+        url = urljoin(self.BASE_URL, url)
 
         game_soup = sf.get_soup(url, verbose=self._verbose)
 

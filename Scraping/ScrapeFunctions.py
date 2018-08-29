@@ -127,25 +127,6 @@ def get_team_list(base_url, year, team_ids):
 # ****************************
 # ***** Helper Functions *****
 # ****************************
-def url_union(url1, url2):
-    # urllib.parse.join() might do the trick too
-
-    # to find the union of two urls,
-    # 1) split into two lists on '/'
-    # 2) c = a + [i for i in b if i not in a]
-    # 3) join list of strings sep='/'
-
-    # remove trailing '/' on url1
-    url1 = url1.strip('/')
-    # remove leading '/' on url2
-    url2 = url2.strip('/')
-
-    url1 = url1.split(sep='/')
-    url2 = url2.split(sep='/')
-    union = url1 + [i for i in url2 if i not in url1]
-    return '/'.join(union)
-
-
 def year_to_season(yr):
     # eg. year_to_season("2016-17") returns 2017
     return int(yr[0:4]) + 1
