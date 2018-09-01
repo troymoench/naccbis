@@ -1,3 +1,5 @@
+""" This module provides the TeamFieldingScraper class """
+
 import pandas as pd
 import psycopg2
 import sys
@@ -14,10 +16,20 @@ INSEASON = True
 
 
 class TeamFieldingScraper(BaseScraper):
+
+    """ This scraper is responsible for scraping team fielding stats. """
+
     FIELDING_COLS = ['name', 'gp', 'tc', 'po', 'a', 'e', 'fpct', 'dp']
     TABLES = {"overall": "raw_team_fielding_overall", "conference": "raw_team_fielding_conference"}
 
     def __init__(self, year, split, output, inseason=False, verbose=False):
+        """ Class constructor
+        :param year: The school year. A string.
+        :param split: overall or conference stats. A string.
+        :param output: Output format. Currently csv and sql.
+        :param inseason: Is this scraping taking place in season?
+        :param verbose: Print extra information to standard out?
+        """
         super().__init__(year, split, output, inseason, verbose)
         self._name = "Team Fielding Scraper"
         self._data = pd.DataFrame()

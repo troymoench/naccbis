@@ -1,6 +1,4 @@
-"""
-Scraping unit tests
-"""
+""" This module provides scraping unit tests """
 
 import unittest
 import ScrapeFunctions as sf
@@ -9,7 +7,8 @@ import pandas as pd
 
 
 class TestScrapeFunctions(unittest.TestCase):
-    """Unit tests for scraping functions"""
+
+    """ Unit tests for scraping functions """
 
     def setUp(self):
         self.html = """<div class='container'>

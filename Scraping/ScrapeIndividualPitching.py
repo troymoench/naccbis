@@ -1,3 +1,5 @@
+""" This module provides the IndividualPitchingScraper class """
+
 import pandas as pd
 import psycopg2
 import sys
@@ -15,12 +17,22 @@ INSEASON = True
 
 
 class IndividualPitchingScraper(BaseScraper):
+
+    """ This scraper is responsible for scraping individual pitching stats. """
+
     PITCHING_COLS = ['no.', 'name', 'yr', 'pos', 'app', 'gs', 'w', 'l', 'ip', 'h', 'r', 'er',
                     'era']
     COACHES_VIEW_COLS = ['no.', 'player', 'era', 'w', 'l', 'app', 'gs', 'ip', 'h', 'r', 'er', '2b', '3b', 'hr', 'ab']
     TABLES = {"overall": "raw_pitchers_overall", "conference": "raw_pitchers_conference"}
 
     def __init__(self, year, split, output, inseason=False, verbose=False):
+        """ Class constructor
+        :param year: The school year. A string.
+        :param split: overall or conference stats. A string.
+        :param output: Output format. Currently csv and sql.
+        :param inseason: Is this scraping taking place in season?
+        :param verbose: Print extra information to standard out?
+        """
         super().__init__(year, split, output, inseason, verbose)
         self._name = "Individual Pitching Scraper"
         self._data = pd.DataFrame()

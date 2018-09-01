@@ -1,3 +1,5 @@
+""" This script is the scraping controller """
+
 import sys
 import argparse
 import pandas as pd
@@ -11,10 +13,6 @@ from ScrapeIndividualPitching import IndividualPitchingScraper
 from ScrapeTeamFielding import TeamFieldingScraper
 from ScrapeTeamOffense import TeamOffenseScraper
 from ScrapeTeamPitching import TeamPitchingScraper
-
-
-# This script is the scraping controller
-# TODO: fix csv output: combine files? zip?
 
 
 def parse_year(year):

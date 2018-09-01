@@ -1,3 +1,5 @@
+""" This module provides the IndividualOffenseScraper class """
+
 import pandas as pd
 import psycopg2
 import sys
@@ -7,16 +9,6 @@ from datetime import date
 import ScrapeFunctions as sf
 from ScrapeBase import BaseScraper
 
-'''
-This script scrapes individual offense for a given year
-Script args: YEAR, SPLIT, OUTPUT, INSEASON
-Will need to run this script twice if
-you wish to scrape Overall and Conference stats
-
-1. Scrape
-2. Clean
-3. Export
-'''
 YEAR = "2017-18"
 SPLIT = "overall"
 OUTPUT = "csv"
@@ -24,12 +16,22 @@ INSEASON = True
 
 
 class IndividualOffenseScraper(BaseScraper):
+
+    """ This scraper is responsible for scraping individual offensive stats. """
+
     HITTING_COLS = ['no.', 'name', 'yr', 'pos', 'g', 'ab', 'r', 'h', '2b', 'hr', 'avg', 'obp',
                     'slg']
     EXTENDED_HITTING_COLS = ['no.', 'name', 'yr', 'pos', 'g', 'hbp', 'sf', 'pa']
     TABLES = {"overall": "raw_batters_overall", "conference": "raw_batters_conference"}
 
     def __init__(self, year, split, output, inseason=False, verbose=False):
+        """ Class constructor
+        :param year: The school year. A string.
+        :param split: overall or conference stats. A string.
+        :param output: Output format. Currently csv and sql.
+        :param inseason: Is this scraping taking place in season?
+        :param verbose: Print extra information to standard out?
+        """
         super().__init__(year, split, output, inseason, verbose)
         self._name = "Individual Offense Scraper"
         self._data = pd.DataFrame()

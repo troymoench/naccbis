@@ -1,3 +1,5 @@
+""" This module provides the BaseScraper class """
+
 import pandas as pd
 import psycopg2
 import sys
@@ -6,13 +8,22 @@ import logging
 from datetime import date
 import ScrapeFunctions as sf
 
-'''This is the base class for the scrapers
-   It provides only the shared functionality between all
-   scrapers. Don't directly create an instance of the base class!
-'''
-
 
 class BaseScraper:
+
+    """ This is the abstract base class for the scrapers.
+
+    It provides only the shared functionality between all scrapers.
+    Don't directly create an instance of the base class!
+
+    General procedure that each scraper follows:
+
+    1. Scrape the data from the web
+    2. Clean the data
+    3. Export the data
+
+    """
+
     BASE_URL = "http://naccsports.org/sports/bsb/"
     TEAM_IDS = {
         'Aurora': 'AUR',
@@ -31,6 +42,13 @@ class BaseScraper:
     TABLES = {}
 
     def __init__(self, year, split, output, inseason=False, verbose=False):
+        """ Class constructor
+        :param year: The school year. A string.
+        :param split: overall or conference stats. A string.
+        :param output: Output format. Currently csv and sql.
+        :param inseason: Is this scraping taking place in season?
+        :param verbose: Print extra information to standard out?
+        """
         self._name = "Base Scraper"
         self._year = year
         self._split = split
@@ -45,6 +63,9 @@ class BaseScraper:
             self._config = json.load(f)
 
     def info(self):
+        """ Print the scraper information to standard out
+        :returns: None
+        """
         print("\n--------------------------")
         print(self._name)
         print("Year:", self._year)
@@ -55,6 +76,9 @@ class BaseScraper:
         print("--------------------------")
 
     def export(self):
+        """ Export scraped and cleaned data to csv or database
+        :returns: None
+        """
         # export scraped and cleaned data to csv or database
         # NOTE: If exporting to database, the table must already be created.
         logging.info("Exporting data from %s", self._name)

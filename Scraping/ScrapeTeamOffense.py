@@ -1,3 +1,5 @@
+""" This module provides the TeamOffenseScraper class """
+
 import pandas as pd
 import psycopg2
 import sys
@@ -14,12 +16,22 @@ INSEASON = True
 
 
 class TeamOffenseScraper(BaseScraper):
+
+    """ This scraper is responsible for scraping team offensive stats. """
+
     HITTING_COLS = ['name', 'gp', 'ab', 'r', 'h', '2b', 'hr', 'avg', 'obp',
                     'slg']
     EXTENDED_HITTING_COLS = ['name', 'gp', 'hbp', 'sf', 'sh', 'pa']
     TABLES = {"overall": "raw_team_offense_overall", "conference": "raw_team_offense_conference"}
 
     def __init__(self, year, split, output, inseason=False, verbose=False):
+        """ Class constructor
+        :param year: The school year. A string.
+        :param split: overall or conference stats. A string.
+        :param output: Output format. Currently csv and sql.
+        :param inseason: Is this scraping taking place in season?
+        :param verbose: Print extra information to standard out?
+        """
         super().__init__(year, split, output, inseason, verbose)
         self._name = "Team Offense Scraper"
         self._data = pd.DataFrame()

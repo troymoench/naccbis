@@ -1,3 +1,7 @@
+""" This module provides general scraping functions as well as
+some utility functions used in the scraping process.
+"""
+
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -11,7 +15,13 @@ import logging
 # ** General Scraping Functions **
 # ********************************
 def get_soup(url, backoff=.5, verbose=False):
-    # returns a Beautiful Soup object from the specified URL
+    """ Create a BeautifulSoup object from a web page with the requested URL
+
+    :param url: A string with the requested URL
+    :param backoff: Number of seconds to sleep to prevent overloading the server
+    :param verbose: Print extra information to standard out?
+    :returns: A BeautifulSoup object
+    """
     logging.debug("Backing off for %f seconds", backoff)
     sleep(backoff)  # to prevent overloading the server
     if verbose:
@@ -28,22 +38,32 @@ def get_soup(url, backoff=.5, verbose=False):
 
 
 def get_text(html_tag):
-    # get the text from an html tag
-    # returns a string
+    """ Get the inner HTML from a BeautifulSoup tag and strip whitespace.
+
+    :param html_tag: BeautifulSoup tag
+    :returns: The inner HTML as a string
+    """
     return html_tag.text.strip()
 
 
 def get_href(html_tag):
-    # get the href attribute from an html tag
-    # returns a string
+    """ Get the href attribute from a BeautifulSoup tag
+
+    :param html_tag: BeautifulSoup tag
+    :returns: The href attribute as a string
+    """
     return html_tag.attrs['href']
 
 
 def find_table(soup_obj, header_values, verbose=False):
-    # find the indices of tables that contain specific values in header
-    # returns empty list if table not found
-    # Note: Header value matching is case insensitive
+    """ Find HTML tables that contain the specified header values.
+    Note that header value matching is case insensitive.
 
+    :param soup_obj: BeautifulSoup object to search
+    :param header_values: A list of header values to search for
+    :param verbose: Print extra information to standard out?
+    :returns: A list of table indices. Returns an empty list if table not found.
+    """
     header_values = [x.lower() for x in header_values]
 
     indices = []
@@ -61,15 +81,15 @@ def find_table(soup_obj, header_values, verbose=False):
 
 
 def scrape_table(soup, tbl_num, first_row=2, skip_rows=0):
-    """
-    Scrapes specified table and puts into a DataFrame
-    :param soup: A BeautifulSoup object
-    :param tbl_num: Which table, denoted by position on page (Int)
-    :param first_row: Number of the starting row
-    :param skip_rows: Number of rows to skip on the bottom of the table
-    :return: A DataFrame of the raw scraped table
-    """
+    """ Scrape HTML table with the specified index and populate a DataFrame.
 
+    :param soup: BeautifulSoup object containing the table
+    :param tbl_num: Integer index that specifies the table to scrape. Note that
+                    the index is 1 based.
+    :param first_row: First table row that will populate the DataFrame
+    :param skip_rows: Number of rows to skip on the bottom of the table
+    :returns: A DataFrame of the raw scraped table
+    """
     table = soup.find_all('table')[tbl_num - 1]
     html_th = table.find_all('th')
     headers = [x.text.strip() for x in html_th]
@@ -99,7 +119,13 @@ def scrape_table(soup, tbl_num, first_row=2, skip_rows=0):
 
 
 def get_team_list(base_url, year, team_ids):
-    # gets the list of teams and their respective links from the leaders page
+    """ Get the list of teams and their respective links from the leaders page.
+
+    :param base_url: Base URL for the NACC baseball page
+    :param year: The year eg "2016-17"
+    :param team_ids: Dictionary of team names and abbreviations
+    :returns: A list of dictionaries that includes the team name, abbr, and URL
+    """
     soup = get_soup("{}{}/leaders".format(base_url, year))
 
     # search the page for the target element
@@ -129,12 +155,22 @@ def get_team_list(base_url, year, team_ids):
 # ***** Helper Functions *****
 # ****************************
 def year_to_season(yr):
-    # eg. year_to_season("2016-17") returns 2017
+    """ Converts a school year into a season
+    e.g. year_to_season("2016-17") returns 2017
+
+    :param yr: String
+    :returns: Int
+    """
     return int(yr[0:4]) + 1
 
 
 def season_to_year(season):
-    # eg. season_to_year(2017) returns "2016-17"
+    """ Converts a season into a school year
+    e.g. season_to_year(2017) returns "2016-17"
+
+    :param season: Int
+    :returns: String
+    """
     return str(season - 1) + '-' + str(season - 2000)
 
 
@@ -178,17 +214,36 @@ def strip_dots(x):
 
 
 def build_value_str(num_cols):
+    """ Build the values string of an `insert into` SQL query.
+
+    :param num_cols: The number of columns in the table
+    :returns: A formatted values string
+    """
     tmp = ", ".join(["%s"]*num_cols)
     return "({})".format(tmp)
 
 
 def build_insert_str(table, num_cols):
+    """ Build an `insert into` SQL query string.
+
+    :param table: Table to insert into. A string.
+    :param num_cols: The number of columns in the table
+    :returns: A formatted query string
+    """
     valueStr = build_value_str(num_cols)
     insertStr = "INSERT INTO {} VALUES {}".format(table, valueStr)
     return insertStr
 
 
 def df_to_sql(con, data, table, verbose=False):
+    """ Insert a DataFrame into a database.
+
+    :param con: Database connection
+    :param data: DataFrame to insert into the database
+    :param table: Table to insert into. A string.
+    :param verbose: Print extra information to standard out?
+    :returns: None
+    """
     # sqlalchemy was acting weird so I'm doing this by hand
     # table must exist
     # data will be appended to table

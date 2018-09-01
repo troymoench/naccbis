@@ -15,6 +15,9 @@ INSEASON = True
 
 
 class GameLogScraper(BaseScraper):
+
+    """ This scraper is responsible for scraping game log stats. """
+
     HITTING_COLS = ['date', 'opponent', 'score', 'ab', 'r', 'h', '2b', '3b', 'hr', 'bb', 'k']
     EXTENDED_HITTING_COLS = ['date', 'opponent', 'score', 'hbp', 'sf', 'sh', 'tb', 'pa']
     PITCHING_COLS = ['date', 'opponent', 'score', 'w', 'l', 'ip', 'h', 'r', 'er', 'era']
@@ -23,6 +26,13 @@ class GameLogScraper(BaseScraper):
               "fielding": "raw_game_log_fielding"}
 
     def __init__(self, year, split, output, inseason=False, verbose=False):
+        """ Class constructor
+        :param year: The school year. A string.
+        :param split: hitting, pitching, or fielding stats. A string.
+        :param output: Output format. Currently csv and sql.
+        :param inseason: Is this scraping taking place in season?
+        :param verbose: Print extra information to standard out?
+        """
         super().__init__(year, split, output, inseason, verbose)
         self._name = "Game Log Scraper"
         self._data = pd.DataFrame()
