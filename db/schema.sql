@@ -707,3 +707,15 @@ create table raw_team_pitching_overall_inseason (
   SO_9 numeric,
   primary key (Name, Season, Date)
 );
+
+create table name_corrections (
+  uc_fname varchar(20) not null,
+  uc_lname varchar(20) not null,
+  uc_team varchar(5) not null,
+  uc_season integer not null,
+  c_fname varchar(20) not null,
+  c_lname varchar(20) not null,
+  type char(1),
+  submitted timestamp default now(),
+  primary key (uc_fname, uc_lname, uc_team, uc_season)
+);
