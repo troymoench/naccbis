@@ -95,5 +95,9 @@ if __name__ == "__main__":
         data = CleanFunctions.apply_corrections(data, corrections, verbose=True)
         data = data.sort_values(by=["lname", "fname", "team", "season"])
 
-    output = levenshtein_analysis(data, levenshtein_first, levenshtein_last)
+    if levenshtein_last or levenshtein_first:
+        output = levenshtein_analysis(data, levenshtein_first, levenshtein_last)
+    else:
+        # dump all names
+        output = data
     output.to_csv("output.csv", index=False)
