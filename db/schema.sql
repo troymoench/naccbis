@@ -719,3 +719,10 @@ create table name_corrections (
   submitted timestamp default now(),
   primary key (uc_fname, uc_lname, uc_team, uc_season)
 );
+
+create table nicknames (
+  rid integer,
+  name varchar(20),
+  nickname varchar(20),
+  primary key (name, nickname)
+);
