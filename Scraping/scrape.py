@@ -16,7 +16,10 @@ from ScrapeTeamPitching import TeamPitchingScraper
 
 
 def parse_year(year):
-    # parses a string of year(s), e.g. 2017, 2015:2017
+    """ Parse a string of year(s), e.g. 2017, 2015:2017
+    :param year: The string representation of a year or range of years
+    :returns: List of years (integers)
+    """
     # if no colon exists, single year
     if ':' not in year:
         return [int(year)]
@@ -29,7 +32,11 @@ def parse_year(year):
 
 
 def parse_stat(stats, accepted_values):
-    # parses a string of stat(s), e.g. 1,2 all
+    """ Parse a string of stat options, e.g. 1,2 all
+    :param stats: String of stat options to parse
+    :param accepted_values: List of accepted stat options
+    :returns: List of stat options (integers)
+    """
     if stats == "all":
         return accepted_values
     else:
@@ -43,7 +50,14 @@ def parse_stat(stats, accepted_values):
 
 
 def run_scrapers(scraper_nums, year, splits, output, inseason, verbose):
-    # run selected scrapers for a given year
+    """ Run selected scrapers for a given year
+    :param scraper_nums: List of integers that correspond to the scrapers to be run
+    :param year: The integer representation of the year
+    :param splits: List of splits
+    :param output: Output type
+    :param inseason: Scraping during the season?
+    :param verbose: Print extra information to standard out?
+    """
     scrapers = {1: IndividualOffenseScraper,
                 2: IndividualPitchingScraper,
                 3: TeamOffenseScraper,
@@ -66,129 +80,81 @@ def run_scrapers(scraper_nums, year, splits, output, inseason, verbose):
             gameLogScraper.export()
 
 
-def final():
-    final_parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                           description='Scrape end of the year final stats\n\n'
-                                           '     Stat Options\n'
-                                           '  ---------------------\n'
-                                           '  1) Individual Offense\n'
-                                           '  2) Individual Pitching\n'
-                                           '  3) Team Offense\n'
-                                           '  4) Team Pitching\n'
-                                           '  5) Team Fielding\n'
-                                           '  6) Game Logs\n'
-                                           '  all) All\n',
-                                           usage="%(prog)s final YEAR [-h] [-s SPLIT] [-S STAT] [-o OUTPUT] [-v]")
-    final_parser.add_argument("year", type=str, help="A year or range of years")
-    final_parser.add_argument("-s", "--split", type=str, choices=["overall", "conference", "all"],
-                              default="all", metavar="SPLIT", help="Split choices: overall, conference, all (default)")
-    final_parser.add_argument("-S", "--stat", type=str, default="all", metavar="STAT",
-                              help="Select stat scraper(s) to run. Provide comma separated list or all for multiple")
-
-    final_parser.add_argument("-o", "--output", type=str, choices=["csv", "sql"],
-                              default="csv", metavar="OUTPUT", help="Output choices: csv (default), sql")
-    final_parser.add_argument("-v", "--verbose", action="store_true", help="Print extra information to standard out")
-
-    final_args = final_parser.parse_args(sys.argv[2:])
-    # print(final_args.year)
-
+def final(args):
+    """ Run scrapers for the final subcommand
+    :param args: Arguments for the scrapers
+    """
     # parse year
-    seasons = parse_year(final_args.year)
+    seasons = parse_year(args.year)
     # print(seasons)
     years = [sf.season_to_year(x) for x in seasons]
     # print(years)
 
-    # print(final_args.split)
-
     # parse split
-    if final_args.split == "all":
+    if args.split == "all":
         splits = ["overall", "conference"]
     else:
-        splits = [final_args.split]
+        splits = [args.split]
     # print(splits)
 
     # parse stat
     accepted = list(range(1, 7))
-    scrapers = parse_stat(final_args.stat, accepted)
+    scrapers = parse_stat(args.stat, accepted)
     # print(scrapers)
     if len(scrapers) == 0:
         print("Unrecognized stat option")
         final_parser.print_usage()
         exit(1)
 
-    # parse output
-    output = final_args.output
-    # print(output)
-
-    # parse verbose
-    verbose = final_args.verbose
-    # if verbose:
-    #     print("Verbose")
-
     for year in years:
         print("\nScraping:", year, "\n")
 
-        run_scrapers(scrapers, year, splits, output, inseason=False, verbose=verbose)
+        run_scrapers(scrapers, year, splits, args.output, inseason=False, verbose=args.verbose)
 
 
-def inseason():
-    inseason_parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                              description='Scrape stats during the season. '
-                                                          'A column is added for the scrape date.\n\n'
-                                              '     Stat Options\n'
-                                              '  ---------------------\n'
-                                              '  1) Individual Offense\n'
-                                              '  2) Individual Pitching\n'
-                                              '  3) Team Offense\n'
-                                              '  4) Team Pitching\n'
-                                              '  5) Team Fielding\n'
-                                              '  6) Game Logs\n'
-                                              '  all) All\n',
-                                              usage="%(prog)s inseason [-h] [-s SPLIT] [-S STAT] [-o OUTPUT] [-v]")
-    inseason_parser.add_argument("-s", "--split", type=str, choices=["overall", "conference", "all"],
-                                 default="all", metavar="SPLIT",
-                                 help="Split choices: overall, conference, all (default)")
-    inseason_parser.add_argument("-S", "--stat", type=str, default="all", metavar="STAT",
-                                 help="Select stat scraper(s) to run. Provide comma separated list or all for multiple")
-
-    inseason_parser.add_argument("-o", "--output", type=str, choices=["csv", "sql"],
-                                 default="csv", metavar="OUTPUT", help="Output choices: csv (default), sql")
-    inseason_parser.add_argument("-v", "--verbose", action="store_true", help="Print extra information to standard out")
-
-    inseason_args = inseason_parser.parse_args(sys.argv[2:])
-    # print(inseason_args)
-
+def inseason(args):
+    """ Run scrapers for the inseason subcommand
+    :param args: Arguments for the scrapers
+    """
     # current year
     year = date.today().year
     year = sf.season_to_year(year)
     # print(year)
 
     # parse split
-    if inseason_args.split == "all":
+    if args.split == "all":
         splits = ["overall", "conference"]
     else:
-        splits = [inseason_args.split]
+        splits = [args.split]
     # print(splits)
 
     # parse stat
     accepted = list(range(1, 7))
-    scrapers = parse_stat(inseason_args.stat, accepted)
+    scrapers = parse_stat(args.stat, accepted)
     # print(scrapers)
     if len(scrapers) == 0:
         print("Unrecognized stat option")
         inseason_parser.print_usage()
         exit(1)
 
-    # parse output
-    output = inseason_args.output
-    # print(output)
+    run_scrapers(scrapers, year, splits, args.output, inseason=True, verbose=args.verbose)
 
-    # parse verbose
-    verbose = inseason_args.verbose
-    # if verbose:
-    #     print("Verbose")
 
-    run_scrapers(scrapers, year, splits, output, inseason=True, verbose=verbose)
+def add_common_args(parser):
+    """ Add common arguments to the parser
+    :param parser: Parser object to add arguments to
+    """
+    # NOTE: These args are common to all subcommands. Unfortunately, they can't just
+    # be added to the top level parser because the subcommand parser parses all
+    # args after the subcommand.
+
+    parser.add_argument("-o", "--output", type=str, choices=["csv", "sql"],
+                              default="csv", metavar="OUTPUT", help="Output choices: csv (default), sql")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Print extra information to standard out")
+    parser.add_argument("-s", "--split", type=str, choices=["overall", "conference", "all"],
+                              default="all", metavar="SPLIT", help="Split choices: overall, conference, all (default)")
+    parser.add_argument("-S", "--stat", type=str, default="all", metavar="STAT",
+                              help="Select stat scraper(s) to run. Provide comma separated list or all for multiple")
 
 
 if __name__ == "__main__":
@@ -199,18 +165,54 @@ if __name__ == "__main__":
                                             "   scrape.py final 2017 -S 1,3 -s conference -o sql\n"
                                             "   scrape.py inseason\n"
                                             "   scrape.py inseason -S 6 -s overall -o csv")
-    parser.add_argument("type", help="Select the type of stats to scrape", choices=["final", "inseason"])
-    args = parser.parse_args(sys.argv[1:2])
+    # parser.add_argument("type", help="Select the type of stats to scrape", choices=["final", "inseason"])
+    # args = parser.parse_args(sys.argv[1:2])
+
+    subparsers = parser.add_subparsers()
+
+    # parser for 'final' subcommand
+    final_parser = subparsers.add_parser("final",
+                                         formatter_class=argparse.RawDescriptionHelpFormatter,
+                                         description='Scrape end of the year final stats\n\n'
+                                         '     Stat Options\n'
+                                         '  ---------------------\n'
+                                         '  1) Individual Offense\n'
+                                         '  2) Individual Pitching\n'
+                                         '  3) Team Offense\n'
+                                         '  4) Team Pitching\n'
+                                         '  5) Team Fielding\n'
+                                         '  6) Game Logs\n'
+                                         '  all) All\n')
+
+    final_parser.add_argument("year", type=str, help="A year or range of years")
+    add_common_args(final_parser)
+    # set the callback function for this subcommand
+    final_parser.set_defaults(func=final)
+
+    # parser for 'inseason' subcommand
+    inseason_parser = subparsers.add_parser("inseason",
+                                            formatter_class=argparse.RawDescriptionHelpFormatter,
+                                            description='Scrape stats during the season. '
+                                            'A column is added for the scrape date.\n\n'
+                                            '     Stat Options\n'
+                                            '  ---------------------\n'
+                                            '  1) Individual Offense\n'
+                                            '  2) Individual Pitching\n'
+                                            '  3) Team Offense\n'
+                                            '  4) Team Pitching\n'
+                                            '  5) Team Fielding\n'
+                                            '  6) Game Logs\n'
+                                            '  all) All\n')
+    add_common_args(inseason_parser)
+    # set the callback function for this subcommand
+    inseason_parser.set_defaults(func=inseason)
 
     # log that the script has started
     logging.info("Initializing scraping controller script")
     logging.info("Command line args received: %s", sys.argv[1:])
 
-    if args.type == "final":
-        final()
-    elif args.type == "inseason":
-        inseason()
-    else:
-        print("This can't happen")
+    # parse arguments and call the appropriate function
+    args = parser.parse_args()
+    args.func(args)
 
     logging.info("Scraping completed")
