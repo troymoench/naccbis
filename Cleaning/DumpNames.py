@@ -52,6 +52,25 @@ def levenshtein_analysis(data, levenshtein_first, levenshtein_last):
     return output
 
 
+def nickname_analysis(data, nicknames):
+    """ Perform a nickname analysis on first names.
+    This is used for identifying inconsistencies due to nicknames.
+    :param data: A DataFrame
+    :param nicknames: Nickname lookup table. A DataFrame.
+    :returns: A DataFrame with player-season pairs with a matching name and
+            nickname in the lookup table.
+    """
+    names = pd.DataFrame(data[["lname", "fname", "team", "season"]])
+
+    # Compute the cartesian product
+    cart_prod = pd.merge(names, names, on="lname")
+    cart_prod = cart_prod[cart_prod["fname_x"] != cart_prod["fname_y"]]
+
+    output = pd.merge(cart_prod, nicknames, left_on=["fname_x", "fname_y"],
+                      right_on=["name", "nickname"])
+    return output
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="DumpNames.py")
     parser.add_argument("-c", "--corrections", action="store_true",
@@ -60,12 +79,16 @@ if __name__ == "__main__":
                         help="Filter first names by a Levenshtein distance")
     parser.add_argument("-l", "--lname", type=int, metavar="LNAME",
                         help="Filter last names by a Levenshtein distance")
+    parser.add_argument("--nicknames", action="store_true",
+                        help="Perform a nickname analysis")
     args = parser.parse_args()
     levenshtein_first = args.fname
     levenshtein_last = args.lname
 
     with open('../config.json') as f:
         config = json.load(f)
+
+    CSV_DIR = "csv/"
 
     conn_str = 'postgresql+psycopg2://{}:{}@{}:5432/{}'.format(config["user"], config["password"], config["host"], config["database"])
     engine = create_engine(conn_str)
@@ -75,6 +98,8 @@ if __name__ == "__main__":
     pitchers = pd.read_sql_table("raw_pitchers_overall", conn)
     if args.corrections:
         corrections = pd.read_sql_table("name_corrections", conn)
+    if args.nicknames:
+        nicknames = pd.read_sql_table("nicknames", conn)
 
     conn.close()
 
@@ -96,8 +121,17 @@ if __name__ == "__main__":
         data = data.sort_values(by=["lname", "fname", "team", "season"])
 
     if levenshtein_last or levenshtein_first:
+        print("Performing levenshtein analysis")
         output = levenshtein_analysis(data, levenshtein_first, levenshtein_last)
-    else:
-        # dump all names
-        output = data
-    output.to_csv("output.csv", index=False)
+        print("Found", len(output), "candidates. Dumping to csv")
+        output.to_csv(CSV_DIR + "levenshtein_analysis.csv", index=False)
+
+    if args.nicknames:
+        print("Performing nickname analysis")
+        output = nickname_analysis(data, nicknames)
+        print("Found", len(output), "candidates. Dumping to csv")
+        output.to_csv(CSV_DIR + "nickname_analysis.csv", index=False)
+
+    # dump all names
+    print("Dumping all names to csv")
+    data.to_csv(CSV_DIR + "all_names.csv", index=False)
