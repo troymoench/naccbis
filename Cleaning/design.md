@@ -20,3 +20,7 @@ Find all player-season pairs such that:
 ### Nicknames
 
 To identify name inconsistencies due to nicknames, a nickname lookup table will be used.  
+
+### Transfers and Duplicate Names
+
+To identify players who have either transferred to another NACC team or share a name with another player, find all player-seasons that have the same name but different teams.  

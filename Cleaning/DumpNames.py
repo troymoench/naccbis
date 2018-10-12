@@ -71,6 +71,25 @@ def nickname_analysis(data, nicknames):
     return output
 
 
+def duplicate_names_analysis(data):
+    """ Perform duplicate names analysis.
+    :param data: A DataFrame
+    :returns: A DataFrame with player-seasons that have the same name but
+            different teams.
+    """
+    names = pd.DataFrame(data[["fname", "lname", "team", "season"]])
+    names["name"] = [" ".join(x) for x in zip(names["fname"], names["lname"])]
+    names = names[["name", "team", "season"]]
+
+    temp = names[["name", "team"]].groupby(["name", "team"]).head(1)
+    temp = temp.groupby(["name"]).filter(lambda x: len(x) > 1)
+    output = names[names["name"].isin(temp["name"])].groupby(["name", "team", "season"]).head(1)
+    output["fname"] = [x.split(" ")[0].strip() for x in output["name"]]
+    output["lname"] = [" ".join(x.split(" ")[1:]).strip() for x in output["name"]]
+
+    return output[["fname", "lname", "team", "season"]]
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="DumpNames.py")
     parser.add_argument("-c", "--corrections", action="store_true",
@@ -81,6 +100,8 @@ if __name__ == "__main__":
                         help="Filter last names by a Levenshtein distance")
     parser.add_argument("--nicknames", action="store_true",
                         help="Perform a nickname analysis")
+    parser.add_argument("--duplicates", action="store_true",
+                        help="Perform duplicate names analysis")
     args = parser.parse_args()
     levenshtein_first = args.fname
     levenshtein_last = args.lname
@@ -131,6 +152,12 @@ if __name__ == "__main__":
         output = nickname_analysis(data, nicknames)
         print("Found", len(output), "candidates. Dumping to csv")
         output.to_csv(CSV_DIR + "nickname_analysis.csv", index=False)
+
+    if args.duplicates:
+        print("Performing duplicate names analysis")
+        output = duplicate_names_analysis(data)
+        print("Found", len(output), "candidates. Dumping to csv")
+        output.to_csv(CSV_DIR + "duplicate_names_analysis.csv", index=False)
 
     # dump all names
     print("Dumping all names to csv")
