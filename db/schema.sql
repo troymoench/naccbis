@@ -726,3 +726,12 @@ create table nicknames (
   nickname varchar(20),
   primary key (name, nickname)
 );
+
+create table duplicate_names (
+  fname varchar(20),
+  lname varchar(20),
+  team varchar(5),
+  season integer,
+  id integer,
+  primary key (fname, lname, team, season)
+);
