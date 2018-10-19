@@ -29,7 +29,9 @@ def apply_corrections(data, corrections, verbose=False):
     :param verbose: Print extra information to standard out?
     :returns: A DataFrame with the updated names
     """
-    # TODO: Return a copy of the DataFrame instead of modifying
+    # Return a copy of the DataFrame instead of modifying
+    data = data.copy()
+
     for i in range(len(corrections)):
         row = corrections.iloc[i]
         # print(row)
