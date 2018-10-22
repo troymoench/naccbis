@@ -82,7 +82,7 @@ def add_n(player_id, n):
     '''Add an integer  to a player id
     e.g. add_n("engelcu01", 2) -> "engelcu03"
     '''
-    num = int(player_id[-2:]) + n
+    num = int(player_id[-2:]) + int(n)
     num = str(num).zfill(2)
     return "{}{}".format(player_id[0:len(player_id)-2], num)
 
