@@ -735,3 +735,12 @@ create table duplicate_names (
   id integer,
   primary key (fname, lname, team, season)
 );
+
+create table player_id (
+  fname varchar(20),
+  lname varchar(20),
+  team varchar(5),
+  season integer,
+  player_id varchar(10),
+  primary key (fname, lname, team, season)
+)
