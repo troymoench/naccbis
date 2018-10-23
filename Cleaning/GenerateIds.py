@@ -116,14 +116,19 @@ def generate_ids(data, duplicates):
     else:
         print("An issue occurred while verifying player ids")
         exit(1)
+    data.drop(columns=["full_name"], inplace=True)
     return data
 
 
 if __name__ == "__main__":
-    # load raw data from database
+    # extract raw data from database
     # apply name corrections
     # generate player ids
-    # load
+    # load transformed data into database
+    parser = argparse.ArgumentParser(description="Generate Player Ids")
+    parser.add_argument("--load", action="store_true",
+                        help="Load data into database")
+    args = parser.parse_args()
 
     with open('../config.json') as f:
         config = json.load(f)
@@ -151,12 +156,27 @@ if __name__ == "__main__":
     pitchers = pitchers[["lname", "fname", "team", "season"]]
 
     # All batters and pitchers
-    data = pd.concat([batters, pitchers], ignore_index=True)
+    # (remove duplicates where a player batted and pitched in the same season)
+    data = pd.merge(batters, pitchers, on=["fname", "lname", "team", "season"], how="outer")
     data = data.sort_values(by=["lname", "fname", "team", "season"])
 
     data = cf.apply_corrections(data, corrections)
-    # print(data)
 
     data = generate_ids(data, duplicates)
-    print(data)
+
+    if args.load:
+        print("Loading data into database")
+        try:
+            data.to_sql("player_id", conn, if_exists="append", index=False)
+            # NOTE: May want to use if_exists="replace" along with specifying
+            # the table schema
+        except SQLAlchemyError as e:
+            print("Failed to load data into database")
+            print(e)
+            conn.close()
+            exit(1)
+        print("Loaded successfully")
+    else:
+        print("Dumping to csv")
+        data.to_csv(CSV_DIR + "player_id.csv", index=False)
     conn.close()
