@@ -7,6 +7,7 @@ These inconsistencies include, but are not limited to:
 
 import pandas as pd
 from sqlalchemy import create_engine
+from sqlalchemy.exc import SQLAlchemyError
 import json
 import argparse
 from Levenshtein import distance
@@ -113,7 +114,12 @@ if __name__ == "__main__":
 
     conn_str = 'postgresql+psycopg2://{}:{}@{}:5432/{}'.format(config["user"], config["password"], config["host"], config["database"])
     engine = create_engine(conn_str)
-    conn = engine.connect()
+    try:
+        conn = engine.connect()
+    except SQLAlchemyError as e:
+        print("Failed to connect to database")
+        print(e)
+        exit(1)
 
     batters = pd.read_sql_table("raw_batters_overall", conn)
     pitchers = pd.read_sql_table("raw_pitchers_overall", conn)
