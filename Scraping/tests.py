@@ -1,9 +1,11 @@
 """ This module provides scraping unit tests """
-
+# Standard library imports
 import unittest
-import ScrapeFunctions as sf
+# Third party imports
 from bs4 import BeautifulSoup
 import pandas as pd
+# Local imports
+import ScrapeFunctions as sf
 
 
 class TestScrapeFunctions(unittest.TestCase):

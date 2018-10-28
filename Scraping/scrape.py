@@ -1,11 +1,12 @@
 """ This script is the scraping controller """
-
-import sys
+# Standard library imports
 import argparse
-import pandas as pd
-import logging
-import config
 from datetime import date
+import sys
+import logging
+# Third party imports
+# Local imports
+import config
 import ScrapeFunctions as sf
 from ScrapeGameLog import GameLogScraper
 from ScrapeIndividualOffense import IndividualOffenseScraper

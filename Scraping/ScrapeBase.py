@@ -1,11 +1,13 @@
 """ This module provides the BaseScraper class """
-
-import pandas as pd
-import psycopg2
+# Standard library imports
+from datetime import date
 import sys
 import json
 import logging
-from datetime import date
+# Third party imports
+import pandas as pd
+import psycopg2
+# Local imports
 import ScrapeFunctions as sf
 
 

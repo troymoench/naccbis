@@ -1,14 +1,15 @@
 """ This module provides the TeamPitchingScraper class """
-
-import pandas as pd
-import psycopg2
-import sys
+# Standard library imports
+from datetime import date
 import json
 import logging
-from datetime import date
+import sys
+from urllib.parse import urljoin
+# Third party imports
+import pandas as pd
+# Local imports
 import ScrapeFunctions as sf
 from ScrapeBase import BaseScraper
-from urllib.parse import urljoin
 
 YEAR = "2017-18"
 SPLIT = "conference"

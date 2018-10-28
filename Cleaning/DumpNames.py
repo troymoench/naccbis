@@ -4,13 +4,15 @@ These inconsistencies include, but are not limited to:
 2. Name changes
 3. Nicknames
 """
-
+# Standard library imports
+import argparse
+import json
+# Third party imports
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
-import json
-import argparse
 from Levenshtein import distance
+# Local imports
 import CleanFunctions
 
 

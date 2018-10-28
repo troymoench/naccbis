@@ -1,11 +1,12 @@
 """ This module provides the TeamFieldingScraper class """
-
-import pandas as pd
-import psycopg2
-import sys
+# Standard library imports
+from datetime import date
 import json
 import logging
-from datetime import date
+import sys
+# Third party imports
+import pandas as pd
+# Local imports
 import ScrapeFunctions as sf
 from ScrapeBase import BaseScraper
 

@@ -1,8 +1,10 @@
 """ This module provides data cleaning unit tests """
-
+# Standard library imports
 import unittest
-import CleanFunctions as cf
+# Third party imports
 import pandas as pd
+# Local imports
+import CleanFunctions as cf
 
 
 class TestCleanFunctions(unittest.TestCase):

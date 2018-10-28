@@ -1,14 +1,15 @@
 """ This module provides the IndividualPitchingScraper class """
-
-import pandas as pd
-import psycopg2
+# Standard library imports
+from datetime import date
 import sys
 import json
 import logging
-from datetime import date
+from urllib.parse import urljoin
+# Third party imports
+import pandas as pd
+# Local imports
 import ScrapeFunctions as sf
 from ScrapeBase import BaseScraper
-from urllib.parse import urljoin
 
 YEAR = "2017-18"
 SPLIT = "overall"

@@ -1,10 +1,12 @@
 """ This script is used to generate player ids """
-
+# Standard library imports
+import argparse
+import json
+# Third party imports
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
-import json
-import argparse
+# Local imports
 import CleanFunctions as cf
 
 

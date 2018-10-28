@@ -1,14 +1,15 @@
 """ This module provides general scraping functions as well as
 some utility functions used in the scraping process.
 """
-
-import requests
+# Standard library imports
+import logging
+from time import sleep
+# Third party imports
 from bs4 import BeautifulSoup
 import pandas as pd
 import psycopg2
-import sys
-from time import sleep
-import logging
+import requests
+# Local imports
 
 
 # ********************************
