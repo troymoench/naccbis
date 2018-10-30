@@ -14,6 +14,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from Levenshtein import distance
 # Local imports
 import CleanFunctions
+import utils
 
 
 def levenshtein_analysis(data, levenshtein_first, levenshtein_last):
@@ -114,14 +115,7 @@ if __name__ == "__main__":
 
     CSV_DIR = "csv/"
 
-    conn_str = 'postgresql+psycopg2://{}:{}@{}:5432/{}'.format(config["user"], config["password"], config["host"], config["database"])
-    engine = create_engine(conn_str)
-    try:
-        conn = engine.connect()
-    except SQLAlchemyError as e:
-        print("Failed to connect to database")
-        print(e)
-        exit(1)
+    conn = utils.connect_db(config)
 
     batters = pd.read_sql_table("raw_batters_overall", conn)
     pitchers = pd.read_sql_table("raw_pitchers_overall", conn)
