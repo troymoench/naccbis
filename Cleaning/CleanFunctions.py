@@ -41,9 +41,7 @@ def apply_corrections(data, corrections, verbose=False):
                                 (data["lname"] == row["uc_lname"]) &
                                 (data["team"] == row["uc_team"]) &
                                 (data["season"] == row["uc_season"]))
-        # if need_update.sum() > 1:
-        #     print("Must update one row at a time!")
-        #     exit(1)
+
         if need_update.sum() == 0:
             print("No update")
             continue

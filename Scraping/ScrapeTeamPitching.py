@@ -101,7 +101,7 @@ class TeamPitchingScraper(BaseScraper):
             if len(tags) != 1:
                 print("Can't find Coach's View")
                 logging.error("Can't find Coach's View")
-                exit(1)
+                sys.exit(1)
 
             url = tags[0].get('href')
             url = urljoin(self.BASE_URL, url)

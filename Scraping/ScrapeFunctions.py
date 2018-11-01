@@ -3,6 +3,7 @@ some utility functions used in the scraping process.
 """
 # Standard library imports
 import logging
+import sys
 from time import sleep
 # Third party imports
 from bs4 import BeautifulSoup
@@ -32,7 +33,7 @@ def get_soup(url, backoff=.5, verbose=False):
     except requests.exceptions.RequestException:
         print("Error: Unable to connect to", url)
         logging.critical("Error: Unable to connect to", url)
-        exit(1)
+        sys.exit(1)
     else:
         text = request.text
         return BeautifulSoup(text, "html.parser")
@@ -135,7 +136,7 @@ def get_team_list(base_url, year, team_ids):
     if not len(target) == 1:
         print("Could not find exactly one target element")  # throw an exception?
         logging.critical("Could not find exactly one target element.")
-        exit(1)
+        sys.exit(1)
 
     # create a list of links that are children of the target element
     links = [link for link in target[0].find_all('a') if 'href' in link.attrs]

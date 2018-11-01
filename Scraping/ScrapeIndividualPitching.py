@@ -78,7 +78,7 @@ class IndividualPitchingScraper(BaseScraper):
             tags = team_soup.find_all('a', string="Coach's View")
             if len(tags) != 1:
                 print("Can't find Coach's View")
-                exit(1)
+                sys.exit(1)
             url = tags[0].get('href')
             url = urljoin(self.BASE_URL, url)
             coach_soup = sf.get_soup(url, verbose=self._verbose)

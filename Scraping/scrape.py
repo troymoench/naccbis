@@ -105,7 +105,7 @@ def final(args):
     if len(scrapers) == 0:
         print("Unrecognized stat option")
         final_parser.print_usage()
-        exit(1)
+        sys.exit(1)
 
     for year in years:
         print("\nScraping:", year, "\n")
@@ -136,7 +136,7 @@ def inseason(args):
     if len(scrapers) == 0:
         print("Unrecognized stat option")
         inseason_parser.print_usage()
-        exit(1)
+        sys.exit(1)
 
     run_scrapers(scrapers, year, splits, args.output, inseason=True, verbose=args.verbose)
 

@@ -2,6 +2,7 @@
 # Standard library imports
 import argparse
 import json
+import sys
 # Third party imports
 import pandas as pd
 from sqlalchemy import create_engine
@@ -38,7 +39,7 @@ def update_id_conflicts(data):
 
     if len(new_col) != len(new_col_idx):
         print("Oops! Length of column doesn't match length of index")
-        exit(1)
+        sys.exit(1)
 
     # update conflicting ID's
     data.loc[new_col_idx, "player_id"] = new_col
@@ -118,7 +119,7 @@ def generate_ids(data, duplicates):
         print("Player ids verified successfully")
     else:
         print("An issue occurred while verifying player ids")
-        exit(1)
+        sys.exit(1)
     data.drop(columns=["full_name"], inplace=True)
     return data
 
@@ -170,7 +171,7 @@ if __name__ == "__main__":
             print("Failed to load data into database")
             print(e)
             conn.close()
-            exit(1)
+            sys.exit(1)
         print("Loaded successfully")
     else:
         print("Dumping to csv")

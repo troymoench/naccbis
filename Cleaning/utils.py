@@ -1,5 +1,6 @@
 """ This module provides utility functions """
 # Standard library imports
+import sys
 # Third party imports
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
@@ -23,7 +24,7 @@ def connect_db(config):
                     config["database"])
     except KeyError as e:
         print("Database connection parameter error")
-        exit(1)
+        sys.exit(1)
 
     engine = create_engine(conn_str)
     try:
@@ -31,5 +32,5 @@ def connect_db(config):
     except SQLAlchemyError as e:
         print("Failed to connect to database")
         print(e)
-        exit(1)
+        sys.exit(1)
     return conn
