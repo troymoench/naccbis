@@ -1,5 +1,6 @@
 """ This module provides data cleaning unit tests """
 # Standard library imports
+import datetime
 import unittest
 # Third party imports
 import pandas as pd
@@ -80,6 +81,17 @@ class TestCleanGameLogs(unittest.TestCase):
                  "Edgewood", "Lakeland", "MSOE", "Marian", "Maranatha", "Rockford", "Wisconsin Lutheran"]
         for value in values:
             self.assertEqual(cgl.extract_conference(value["opponent"], value["season"], teams), value["expected"])
+
+    def test_extract_date(self):
+        values = [{"date_str": "Mar 6", "season": 2010, "expected": datetime.datetime(2010, 3, 6)},
+                  {"date_str": "May 14", "season": 2010, "expected": datetime.datetime(2010, 5, 14)},
+                  {"date_str": "Feb 28", "season": 2010, "expected": datetime.datetime(2010, 2, 28)},
+                  {"date_str": "Apr 02", "season": 2014, "expected": datetime.datetime(2014, 4, 2)},
+                  {"date_str": "May 20", "season": 2016, "expected": datetime.datetime(2016, 5, 20)},
+                  {"date_str": "Apr 30", "season": 2018, "expected": datetime.datetime(2018, 4, 30)}]
+
+        for value in values:
+            self.assertEqual(cgl.extract_date(value["date_str"], value["season"]), value["expected"])
 
     def tearDown(self):
         pass

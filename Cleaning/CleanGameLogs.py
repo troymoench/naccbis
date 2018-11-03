@@ -1,10 +1,10 @@
 """ This script is used to clean game log data and load into the database """
 # Standard library imports
+import datetime
 import json
 import re
 # Third party imports
 import pandas as pd
-from sqlalchemy.exc import SQLAlchemyError
 # Local imports
 import CleanFunctions as cf
 import utils
@@ -70,6 +70,11 @@ def extract_conference(opponent, season, teams):
     return matched
 
 
+def extract_date(date_str, season):
+    date_str = "{} {}".format(date_str, season)
+    return datetime.datetime.strptime(date_str, "%b %d %Y")
+
+
 def clean(data):
     data = data.copy()
     data["result"] = data["score"].apply(extract_result)
@@ -91,6 +96,11 @@ def clean(data):
             "Edgewood", "Lakeland", "MSOE", "Marian", "Maranatha", "Rockford", "Wisconsin Lutheran"]
 
     data["conference"] = list(map(lambda x, y: extract_conference(x, y, conf), data["opponent"], data["season"]))
+    data["opponent"] = data["opponent"].apply(extract_opponent)
+    data.rename(columns={"name": "team"}, inplace=True)
+    data.drop(columns=["score"], inplace=True)
+
+    data["date"] = list(map(lambda x, y: extract_date(x, y), data["date"], data["season"]))
     return data
 
 
