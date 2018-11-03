@@ -743,4 +743,18 @@ create table player_id (
   season integer,
   player_id varchar(10),
   primary key (fname, lname, team, season)
-)
+);
+
+create table game_log (
+  game_num integer,
+  date date,
+  season integer,
+  team varchar(30),
+  opponent varchar(30),
+  result varchar(1),
+  rs integer,
+  ra integer,
+  home boolean,
+  conference boolean,
+  primary key (game_num, season, team)
+);
