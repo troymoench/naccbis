@@ -1,10 +1,13 @@
 """ This script is used to clean game log data and load into the database """
 # Standard library imports
+import argparse
 import datetime
 import json
 import re
+import sys
 # Third party imports
 import pandas as pd
+from sqlalchemy.exc import SQLAlchemyError
 # Local imports
 import CleanFunctions as cf
 import utils
@@ -105,16 +108,34 @@ def clean(data):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Extract, Transform, Load Game Log data")
+    parser.add_argument("--load", action="store_true",
+                        help="Load data into database")
+    args = parser.parse_args()
 
     with open('../config.json') as f:
         config = json.load(f)
 
+    CSV_DIR = "csv/"
+
     conn = utils.connect_db(config)
 
     data = pd.read_sql_table("raw_game_log_hitting", conn)
-    conn.close()
 
     data = data[["game_num", "date", "season", "name", "opponent", "score"]]
     # print(data)
     data = clean(data)
-    print(data)
+    if args.load:
+        print("Loading data into database")
+        try:
+            data.to_sql("game_log", conn, if_exists="append", index=False)
+        except SQLAlchemyError as e:
+            print("Failed to load data into database")
+            print(e)
+            conn.close()
+            sys.exit(1)
+        print("Loaded successfully")
+    else:
+        print("Dumping to csv")
+        data.to_csv(CSV_DIR + "game_log.csv", index=False)
+    conn.close()
