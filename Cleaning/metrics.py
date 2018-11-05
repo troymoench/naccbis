@@ -57,6 +57,40 @@ def so_p(data):
     return data["so"] / data["pa"] * 100
 
 
+def pa(data):
+    return data["ab"] + data["bb"] + data["hbp"] + data["sf"] + data["sh"]
+
+
+def lob_p(data):
+    """ LOB% = (H+BB+HBP-R)/(H+BB+HBP-(1.4*HR))
+    :param
+    :returns:
+    """
+    num = data["h"]+data["bb"]+data["hbp"]-data["r"]
+    denom = data["h"]+data["bb"]+data["hbp"]-(1.4*data["hr"])
+    return num / denom
+
+
+def era(data):
+    return data["er"] / data["ip"] * 9
+
+
+def ra_9(data):
+    return data["r"] / data["ip"] * 9
+
+
+def so_9(data):
+    return data["so"] / data["ip"] * 9
+
+
+def bb_9(data):
+    return data["bb"] / data["ip"] * 9
+
+
+def hr_9(data):
+    return data["hr"] / data["ip"] * 9
+
+
 def basic_offensive_metrics(data, inplace=False):
     """ Calculate basic offensive metrics. These metrics do not depend on league
     wide metrics.
@@ -77,4 +111,26 @@ def basic_offensive_metrics(data, inplace=False):
     data["iso"] = iso(data)
     data["babip"] = babip(data)
     data["sar"] = sar(data)
+    return data
+
+
+def basic_pitching_metrics(data, inplace=False):
+    if not inplace:
+        data = data.copy()
+    data["pa"] = pa(data)
+    data["avg"] = avg(data)
+    data["obp"] = obp(data)
+    data["slg"] = slg(data)
+    data["ops"] = ops(data)
+    data["hbp_p"] = hbp_p(data)
+    data["bb_p"] = bb_p(data)
+    data["so_p"] = so_p(data)
+    data["iso"] = iso(data)
+    data["babip"] = babip(data)
+    data["lob_p"] = lob_p(data)
+    data["era"] = era(data)
+    data["ra_9"] = ra_9(data)
+    data["so_9"] = so_9(data)
+    data["bb_9"] = bb_9(data)
+    data["hr_9"] = hr_9(data)
     return data

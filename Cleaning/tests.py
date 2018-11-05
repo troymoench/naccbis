@@ -7,6 +7,7 @@ import pandas as pd
 # Local imports
 import CleanFunctions as cf
 import CleanGameLogs as cgl
+import CleanIndividualPitching as cip
 
 
 class TestCleanFunctions(unittest.TestCase):
@@ -92,6 +93,22 @@ class TestCleanGameLogs(unittest.TestCase):
 
         for value in values:
             self.assertEqual(cgl.extract_date(value["date_str"], value["season"]), value["expected"])
+
+    def tearDown(self):
+        pass
+
+
+class TestCleanIndividualPitching(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_convert_ip(self):
+        values = [{"raw": "10.0", "expected": 10.0},
+                  {"raw": "10.1", "expected": 10 + (1/3)},
+                  {"raw": "10.2", "expected": 10 + (2/3)}]
+        for value in values:
+            self.assertEqual(cip.convert_ip(value["raw"]), value["expected"])
 
     def tearDown(self):
         pass
