@@ -28,8 +28,8 @@ def update_id_conflicts(data):
     for _, group in data.groupby("player_id"):
         if group["full_name"].nunique() != 1:
             # print(group)
-            df_list = [group[group["full_name"] == name] for name in group["full_name"].unique()]
 
+            df_list = [item for _, item in group.groupby("full_name")]
             # sort by first season then by first team (alphabetically)
             df_list.sort(key=lambda x: (x["season"].min(), x["team"].min()))
             # print(df_list)

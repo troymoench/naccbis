@@ -7,6 +7,7 @@ import pandas as pd
 # Local imports
 import CleanFunctions as cf
 import CleanGameLogs as cgl
+import GenerateIds as gi
 import CleanIndividualPitching as cip
 
 
@@ -32,6 +33,47 @@ class TestCleanFunctions(unittest.TestCase):
 
     # def test_apply_corrections(self):
     #     pass
+
+    def tearDown(self):
+        pass
+
+
+class TestGenerateIds(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_update_id_conflicts(self):
+        #          lname   fname  team  season  player_id       full_name
+        # 2916    Balind  Garett   CUC    2011  balinga01   Garett Balind
+        # 1765    Balind  Garett   CUC    2010  balinga01   Garett Balind
+        # 1113  Balinski   Galen  MARN    2013  balinga01  Galen Balinski
+        # 2176  Schoemann  Tyler  WLC    2018  schoety01  Tyler Schoemann
+        # 1937     Schoen  Tyler  WLC    2010  schoety01     Tyler Schoen
+        # 1692     Schoen  Tyler  WLC    2011  schoety01     Tyler Schoen
+        # 1436     Schoen  Tyler  WLC    2012  schoety01     Tyler Schoen
+        # 1176     Schoen  Tyler  WLC    2013  schoety01     Tyler Schoen
+
+        raw = pd.DataFrame([("Balind", "Garett", "CUC", 2011, "balinga01", "Garett Balind"),
+                            ("Balind", "Garett", "CUC", 2010, "balinga01", "Garett Balind"),
+                            ("Balinski", "Galen", "MARN", 2013, "balinga01", "Galen Balinski"),
+                            ("Schoemann", "Tyler", "WLC", 2018, "schoety01", "Tyler Schoemann"),
+                            ("Schoen", "Tyler", "WLC", 2010, "schoety01", "Tyler Schoen"),
+                            ("Schoen", "Tyler", "WLC", 2011, "schoety01", "Tyler Schoen"),
+                            ("Schoen", "Tyler", "WLC", 2012, "schoety01", "Tyler Schoen"),
+                            ("Schoen", "Tyler", "WLC", 2013, "schoety01", "Tyler Schoen")],
+                            columns=["lname", "fname", "team", "season", "player_id", "full_name"])
+
+        expected = pd.DataFrame([("Balind", "Garett", "CUC", 2011, "balinga01", "Garett Balind"),
+                                 ("Balind", "Garett", "CUC", 2010, "balinga01", "Garett Balind"),
+                                 ("Balinski", "Galen", "MARN", 2013, "balinga02", "Galen Balinski"),
+                                 ("Schoemann", "Tyler", "WLC", 2018, "schoety02", "Tyler Schoemann"),
+                                 ("Schoen", "Tyler", "WLC", 2010, "schoety01", "Tyler Schoen"),
+                                 ("Schoen", "Tyler", "WLC", 2011, "schoety01", "Tyler Schoen"),
+                                 ("Schoen", "Tyler", "WLC", 2012, "schoety01", "Tyler Schoen"),
+                                 ("Schoen", "Tyler", "WLC", 2013, "schoety01", "Tyler Schoen")],
+                                 columns=["lname", "fname", "team", "season", "player_id", "full_name"])
+
+        self.assertTrue(gi.update_id_conflicts(raw).equals(expected))
 
     def tearDown(self):
         pass
