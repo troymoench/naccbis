@@ -91,6 +91,10 @@ def hr_9(data):
     return data["hr"] / data["ip"] * 9
 
 
+def whip(data):
+    return (data["bb"] + data["h"]) / data["ip"]
+
+
 def basic_offensive_metrics(data, inplace=False):
     """ Calculate basic offensive metrics. These metrics do not depend on league
     wide metrics.
@@ -114,23 +118,32 @@ def basic_offensive_metrics(data, inplace=False):
     return data
 
 
-def basic_pitching_metrics(data, inplace=False):
+def basic_pitching_metrics(data, conference=False, inplace=False):
+    """ Calculate basic pitching metrics. These metrics do not depend on league
+    wide metrics.
+    :param data: A DataFrame
+    :param conference: Omit metrics that cannot be calculated based on conference data
+    :param inplace: modify the DataFrame inplace?
+    :returns: A DataFrame
+    """
     if not inplace:
         data = data.copy()
-    data["pa"] = pa(data)
-    data["avg"] = avg(data)
-    data["obp"] = obp(data)
-    data["slg"] = slg(data)
-    data["ops"] = ops(data)
-    data["hbp_p"] = hbp_p(data)
-    data["bb_p"] = bb_p(data)
-    data["so_p"] = so_p(data)
-    data["iso"] = iso(data)
-    data["babip"] = babip(data)
-    data["lob_p"] = lob_p(data)
+    if not conference:
+        data["pa"] = pa(data)
+        data["avg"] = avg(data)
+        data["obp"] = obp(data)
+        data["slg"] = slg(data)
+        data["ops"] = ops(data)
+        data["hbp_p"] = hbp_p(data)
+        data["bb_p"] = bb_p(data)
+        data["so_p"] = so_p(data)
+        data["iso"] = iso(data)
+        data["babip"] = babip(data)
+        data["lob_p"] = lob_p(data)
     data["era"] = era(data)
     data["ra_9"] = ra_9(data)
     data["so_9"] = so_9(data)
     data["bb_9"] = bb_9(data)
     data["hr_9"] = hr_9(data)
+    data["whip"] = whip(data)
     return data
