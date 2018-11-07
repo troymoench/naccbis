@@ -34,6 +34,13 @@ class TestCleanFunctions(unittest.TestCase):
     # def test_apply_corrections(self):
     #     pass
 
+    def test_convert_ip(self):
+        values = [{"raw": "10.0", "expected": 10.0},
+                  {"raw": "10.1", "expected": 10 + (1/3)},
+                  {"raw": "10.2", "expected": 10 + (2/3)}]
+        for value in values:
+            self.assertEqual(cf.convert_ip(value["raw"]), value["expected"])
+
     def tearDown(self):
         pass
 
@@ -140,20 +147,13 @@ class TestCleanGameLogs(unittest.TestCase):
         pass
 
 
-class TestCleanIndividualPitching(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def test_convert_ip(self):
-        values = [{"raw": "10.0", "expected": 10.0},
-                  {"raw": "10.1", "expected": 10 + (1/3)},
-                  {"raw": "10.2", "expected": 10 + (2/3)}]
-        for value in values:
-            self.assertEqual(cip.convert_ip(value["raw"]), value["expected"])
-
-    def tearDown(self):
-        pass
+# class TestCleanIndividualPitching(unittest.TestCase):
+#
+#     def setUp(self):
+#         pass
+#
+#     def tearDown(self):
+#         pass
 
 
 if __name__ == "__main__":

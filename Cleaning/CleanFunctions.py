@@ -85,3 +85,16 @@ def add_n(player_id, n):
     num = int(player_id[-2:]) + int(n)
     num = str(num).zfill(2)
     return "{}{}".format(player_id[0:len(player_id)-2], num)
+
+# ****************************
+# ****** Misc. Functions *****
+# ****************************
+
+
+def convert_ip(ip_str):
+    """ Convert innings pitched from the string representation to the float
+    :param ip_str: String representation of innings pitched
+    :returns: Float representation of innings pitched
+    """
+    temp = ip_str.split(".")
+    return int(temp[0]) + int(temp[1]) * (1/3)

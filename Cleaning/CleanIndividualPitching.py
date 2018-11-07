@@ -11,11 +11,6 @@ import metrics
 SPLIT = "overall"
 
 
-def convert_ip(ip_str):
-    temp = ip_str.split(".")
-    return int(temp[0]) + int(temp[1]) * (1/3)
-
-
 if __name__ == "__main__":
     with open('../config.json') as f:
         config = json.load(f)
@@ -29,6 +24,6 @@ if __name__ == "__main__":
     data = cf.apply_corrections(data, corrections)
     data.drop(columns=["name"], inplace=True)
 
-    data["ip"] = data["ip"].apply(convert_ip)
+    data["ip"] = data["ip"].apply(cf.convert_ip)
     data = metrics.basic_pitching_metrics(data)
     print(data)
