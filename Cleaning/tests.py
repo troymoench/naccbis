@@ -17,10 +17,19 @@ class TestCleanFunctions(unittest.TestCase):
         pass
 
     def test_create_id(self):
-        self.assertEqual(cf.create_id("Curtis", "Engelbrecht"), "engelcu01")
+        values = [{"fname": "Curtis", "lname": "Engelbrecht", "expected": "engelcu01"},
+                  {"fname": "Garrett", "lname": "Balind", "expected": "balinga01"},
+                  {"fname": "Galen", "lname": "Balinski", "expected": "balinga01"},
+                  {"fname": "Patrick", "lname": "O'Malley", "expected": "omallpa01"}]
+        for value in values:
+            self.assertEqual(cf.create_id(value["fname"], value["lname"]), value["expected"])
 
     def test_add_n(self):
-        self.assertEqual(cf.add_n("engelcu01", 2), "engelcu03")
+        values = [{"id": "engelcu01", "n": 0, "expected": "engelcu01"},
+                  {"id": "engelcu01", "n": 1, "expected": "engelcu02"},
+                  {"id": "engelcu01", "n": 2, "expected": "engelcu03"}]
+        for value in values:
+            self.assertEqual(cf.add_n(value["id"], value["n"]), value["expected"])
 
     def test_normalize_names(self):
         df1 = pd.DataFrame({"name": ["Jeffrey  Mayes", "D.J.  Dillon", "Quinlan Milne Rojek"],
@@ -31,8 +40,54 @@ class TestCleanFunctions(unittest.TestCase):
         df2["lname"] = ["Mayes", "Dillon", "Milne Rojek"]
         self.assertTrue(cf.normalize_names(df1).equals(df2))
 
-    # def test_apply_corrections(self):
-    #     pass
+    def test_apply_corrections(self):
+        #          uc_fname     uc_lname uc_team  uc_season      c_fname           c_lname
+        # 0        Steven       Jaquez     AUR       2014           Ty            Jaquez
+        # 1        Steven       Jaquez     AUR       2015           Ty            Jaquez
+        # 2        Steven       Jaquez     AUR       2016           Ty            Jaquez
+        # 3           Dan     Lo dolce     CUC       2014          Dan          Lo Dolce
+        # 4           Dan      Lodolce     CUC       2015          Dan          Lo Dolce
+        # 5            Tj        McCoy     MAR       2013           TJ             McCoy
+        # 6            Tj        McCoy     MAR       2014           TJ             McCoy
+
+        corrections = pd.DataFrame([("Steven", "Jaquez", "AUR", 2014, "Ty", "Jaquez"),
+                                    ("Steven", "Jaquez", "AUR", 2015, "Ty", "Jaquez"),
+                                    ("Steven", "Jaquez", "AUR", 2016, "Ty", "Jaquez"),
+                                    ("Dan", "Lo dolce", "CUC", 2014, "Dan", "Lo Dolce"),
+                                    ("Dan", "Lodolce", "CUC", 2015, "Dan", "Lo Dolce"),
+                                    ("Tj", "McCoy", "MAR", 2013, "TJ", "McCoy"),
+                                    ("Tj", "McCoy", "MAR", 2014, "TJ", "McCoy"),],
+                                   columns=["uc_fname", "uc_lname", "uc_team",
+                                            "uc_season", "c_fname", "c_lname"])
+
+        data = pd.DataFrame([("Jaquez", "Steven", "AUR", 2014),
+                             ("Jaquez", "Steven", "AUR", 2015),
+                             ("Jaquez", "Steven", "AUR", 2016),
+                             ("Jaquez", "Ty", "AUR", 2017),
+                             ("Ackerman", "Kamren", "BEN", 2015),
+                             ("Ackerman", "Kamren", "BEN", 2016),
+                             ("Ackerman", "Kamren", "BEN", 2017),
+                             ("Lo dolce", "Dan", "CUC", 2014),
+                             ("Lodolce", "Dan", "CUC", 2015),
+                             ("McCoy", "Tj", "MAR", 2013),
+                             ("McCoy", "Tj", "MAR", 2014),
+                             ("McCoy", "TJ", "MAR", 2015)],
+                            columns=["lname", "fname", "team", "season"])
+        expected = pd.DataFrame([("Jaquez", "Ty", "AUR", 2014),
+                                 ("Jaquez", "Ty", "AUR", 2015),
+                                 ("Jaquez", "Ty", "AUR", 2016),
+                                 ("Jaquez", "Ty", "AUR", 2017),
+                                 ("Ackerman", "Kamren", "BEN", 2015),
+                                 ("Ackerman", "Kamren", "BEN", 2016),
+                                 ("Ackerman", "Kamren", "BEN", 2017),
+                                 ("Lo Dolce", "Dan", "CUC", 2014),
+                                 ("Lo Dolce", "Dan", "CUC", 2015),
+                                 ("McCoy", "TJ", "MAR", 2013),
+                                 ("McCoy", "TJ", "MAR", 2014),
+                                 ("McCoy", "TJ", "MAR", 2015)],
+                                columns=["lname", "fname", "team", "season"])
+
+        self.assertTrue(cf.apply_corrections(data, corrections).equals(expected))
 
     def test_convert_ip(self):
         values = [{"raw": "10.0", "expected": 10.0},

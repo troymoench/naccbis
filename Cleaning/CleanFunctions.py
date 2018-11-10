@@ -34,8 +34,7 @@ def apply_corrections(data, corrections, verbose=False):
     # Return a copy of the DataFrame instead of modifying
     data = data.copy()
 
-    for i in range(len(corrections)):
-        row = corrections.iloc[i]
+    for _, row in corrections.iterrows():
         # print(row)
         need_update = pd.Series((data["fname"] == row["uc_fname"]) &
                                 (data["lname"] == row["uc_lname"]) &
