@@ -1,5 +1,6 @@
 """ This module provides utility functions """
 # Standard library imports
+import logging
 import sys
 # Third party imports
 from sqlalchemy import create_engine
@@ -34,3 +35,11 @@ def connect_db(config):
         print(e)
         sys.exit(1)
     return conn
+
+
+def init_logging():
+    """ Initialize logging """
+    logging.basicConfig(level=logging.WARNING,
+                        format='%(asctime)s %(levelname)s %(message)s  <%(funcName)s %(module)s.py:%(lineno)d>',
+                        datefmt='%H:%M:%S')
+    logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
