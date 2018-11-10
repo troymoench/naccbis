@@ -33,24 +33,26 @@ def apply_corrections(data, corrections, verbose=False):
     """
     # Return a copy of the DataFrame instead of modifying
     data = data.copy()
+    corrections = corrections.copy()
 
-    for _, row in corrections.iterrows():
-        # print(row)
-        need_update = pd.Series((data["fname"] == row["uc_fname"]) &
-                                (data["lname"] == row["uc_lname"]) &
-                                (data["team"] == row["uc_team"]) &
-                                (data["season"] == row["uc_season"]))
+    corrections.rename(columns={"uc_fname": "fname", "uc_lname": "lname", "uc_team": "team",
+                                "uc_season": "season"}, inplace=True)
+    data = pd.merge(data, corrections, how="left", on=["fname", "lname", "team", "season"])
 
-        if need_update.sum() == 0:
-            print("No update")
-            continue
-        if verbose:
+    need_fname_update = ~data["c_fname"].isnull()
+    need_lname_update = ~data["c_lname"].isnull()
+    if verbose:
+        if need_fname_update.sum() == 0 and need_lname_update.sum() == 0:
+            print("No name corrections needed")
+        else:
             print("Row(s) to be updated:")
-            print(data[need_update], "\n")
+            print(data[need_fname_update | need_lname_update])
 
-        # update first name and last name with corrections
-        data.loc[need_update, 'fname'] = row["c_fname"]
-        data.loc[need_update, 'lname'] = row["c_lname"]
+    data.loc[need_fname_update, "fname"] = data["c_fname"].dropna()
+    data.loc[need_lname_update, "lname"] = data["c_lname"].dropna()
+
+    data.drop(columns=["c_fname", "c_lname"], inplace=True)
+
     return data
 
 

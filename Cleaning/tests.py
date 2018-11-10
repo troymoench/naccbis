@@ -49,6 +49,7 @@ class TestCleanFunctions(unittest.TestCase):
         # 4           Dan      Lodolce     CUC       2015          Dan          Lo Dolce
         # 5            Tj        McCoy     MAR       2013           TJ             McCoy
         # 6            Tj        McCoy     MAR       2014           TJ             McCoy
+        # 7            Aj       Alessi     MAR       2014           AJ            Alessi
 
         corrections = pd.DataFrame([("Steven", "Jaquez", "AUR", 2014, "Ty", "Jaquez"),
                                     ("Steven", "Jaquez", "AUR", 2015, "Ty", "Jaquez"),
@@ -56,7 +57,8 @@ class TestCleanFunctions(unittest.TestCase):
                                     ("Dan", "Lo dolce", "CUC", 2014, "Dan", "Lo Dolce"),
                                     ("Dan", "Lodolce", "CUC", 2015, "Dan", "Lo Dolce"),
                                     ("Tj", "McCoy", "MAR", 2013, "TJ", "McCoy"),
-                                    ("Tj", "McCoy", "MAR", 2014, "TJ", "McCoy"),],
+                                    ("Tj", "McCoy", "MAR", 2014, "TJ", "McCoy"),
+                                    ("Aj", "Alessi", "MAR", 2014, "AJ", "Alessi")],
                                    columns=["uc_fname", "uc_lname", "uc_team",
                                             "uc_season", "c_fname", "c_lname"])
 
@@ -67,6 +69,7 @@ class TestCleanFunctions(unittest.TestCase):
                              ("Ackerman", "Kamren", "BEN", 2015),
                              ("Ackerman", "Kamren", "BEN", 2016),
                              ("Ackerman", "Kamren", "BEN", 2017),
+                             ("Lo dolce", "Dan", "CUC", 2014),
                              ("Lo dolce", "Dan", "CUC", 2014),
                              ("Lodolce", "Dan", "CUC", 2015),
                              ("McCoy", "Tj", "MAR", 2013),
@@ -81,12 +84,15 @@ class TestCleanFunctions(unittest.TestCase):
                                  ("Ackerman", "Kamren", "BEN", 2016),
                                  ("Ackerman", "Kamren", "BEN", 2017),
                                  ("Lo Dolce", "Dan", "CUC", 2014),
+                                 ("Lo Dolce", "Dan", "CUC", 2014),
                                  ("Lo Dolce", "Dan", "CUC", 2015),
                                  ("McCoy", "TJ", "MAR", 2013),
                                  ("McCoy", "TJ", "MAR", 2014),
                                  ("McCoy", "TJ", "MAR", 2015)],
                                 columns=["lname", "fname", "team", "season"])
-
+        # make sure apply_corrections doesn't remove any columns
+        data["pos"] = "INF"
+        expected["pos"] = "INF"
         self.assertTrue(cf.apply_corrections(data, corrections).equals(expected))
 
     def test_convert_ip(self):
