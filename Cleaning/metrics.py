@@ -1,6 +1,7 @@
 """ This module provides metrics and related functions """
 # Standard library imports
 # Third party imports
+import numpy as np
 import pandas as pd
 # Local imports
 
@@ -11,7 +12,7 @@ def avg(data):
 
 def obp(data):
     numerator = data["h"] + data["bb"] + data["hbp"]
-    denominator = data["ab"] + data["bb"] + data["hbp"] + data["sf"] + data["sh"]
+    denominator = data["ab"] + data["bb"] + data["hbp"] + data["sf"]
     return numerator / denominator
 
 
@@ -147,3 +148,166 @@ def basic_pitching_metrics(data, conference=False, inplace=False):
     data["hr_9"] = hr_9(data)
     data["whip"] = whip(data)
     return data
+
+
+# *********************
+# * Advanced Metrics **
+# *********************
+
+def bsr(data, bmult=1.0):
+    """ Base Runs
+    BsR = A(B/(B+C)) + D
+    requires ab, h, 2b, 3b, hr, bb, hbp, sf, sh, gdp, sb, cs
+    """
+
+    x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
+
+    a = data["h"] + data["bb"] + data["hbp"] - data["hr"] - data["cs"] - data["gdp"]
+    b = (.777*x1b + 2.61*data["x2b"] + 4.29*data["x3b"] + 2.43*data["hr"]
+         + 0.03*(data["bb"] + data["hbp"]) + 1.30*data["sb"] + .13*data["cs"]
+         + 1.08*data["sh"] + 1.81*data["sf"] + 0.70*data["gdp"] - 0.04*(data["ab"] - data["h"]))
+    c = data["ab"] - data["h"] + data["sh"] + data["sf"]
+    d = data["hr"]
+
+    b = b*bmult
+
+    return a*(b/(b+c)) + d
+
+
+def bsr_bmult(data):
+    """ Base Runs B multiplier """
+
+    x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
+
+    a = data["h"] + data["bb"] + data["hbp"] - data["hr"] - data["cs"] - data["gdp"]
+    a = data["h"] + data["bb"] + data["hbp"] - data["hr"] - data["cs"] - data["gdp"]
+    b = (.777*x1b + 2.61*data["x2b"] + 4.29*data["x3b"] + 2.43*data["hr"]
+         + 0.03*(data["bb"] + data["hbp"]) + 1.30*data["sb"] + .13*data["cs"]
+         + 1.08*data["sh"] + 1.81*data["sf"] + 0.70*data["gdp"] - 0.04*(data["ab"] - data["h"]))
+    c = data["ab"] - data["h"] + data["sh"] + data["sf"]
+    d = data["hr"]
+
+    b_act = c*(d - data["r"])/(data["r"] - d - a)
+    b_est = b
+    return b_act/b_est
+
+
+def linear_weights_incr(data, incr=0.00000001):
+    """ Calculate Linear Weights using the increment method (plus one method)
+    :param data: A Series with league totals
+    :param incr: Increment value
+    :returns: A Series with linear weights
+    """
+
+    cols = ["bb", "hbp", "ab", "h", "x2b", "x3b", "hr", "sb", "cs", "sf", "sh", "gdp"]
+    v_input = data[cols]
+
+    M_incr = pd.DataFrame([
+                    [0, incr, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # hbp
+                    [incr, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # bb
+                    [0, 0, incr, incr, 0, 0, 0, 0, 0, 0, 0, 0],  # 1b
+                    [0, 0, incr, incr, incr, 0, 0, 0, 0, 0, 0, 0],  # 2b
+                    [0, 0, incr, incr, 0, incr, 0, 0, 0, 0, 0, 0],  # 3b
+                    [0, 0, incr, incr, 0, 0, incr, 0, 0, 0, 0, 0],  # hr
+                    [0, 0, 0, 0, 0, 0, 0, incr, 0, 0, 0, 0],  # sb
+                    [0, 0, 0, 0, 0, 0, 0, 0, incr, 0, 0, 0],  # cs
+                    [0, 0, incr, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # out
+                    ], index=["lw_hbp", "lw_bb", "lw_x1b", "lw_x2b", "lw_x3b", "lw_hr", "lw_sb", "lw_cs", "lw_out"],
+                    columns=cols)
+
+    M_input = M_incr + v_input
+    bmult = bsr_bmult(data)
+    baseruns = bsr(data, bmult=bmult)
+
+    # NOTE: The following are equivalent:
+    # [(bsr(row, bmult) - baseruns) * (1 / incr) for _, row in M_input.iterrows()])
+    return M_input.apply(lambda row: (bsr(row, bmult) - baseruns) * (1 / incr), axis=1)
+
+
+def woba_weights(data, target):
+    """ Calculate the woba weights for hbp, bb, 1b, 2b, 3b, hr
+    :param
+    :returns:
+    """
+    data = data.copy()
+    data["x1b"] = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
+    lw = data.loc[:, "lw_hbp":"lw_out"]
+
+    # subtract the value of the out
+    lw = (lw.T - lw["lw_out"]).T
+
+    lw.drop(columns=["lw_sb", "lw_cs", "lw_out"], inplace=True)
+    lw.columns = ["hbp", "bb", "x1b", "x2b", "x3b", "hr"]
+
+    totals = data[["hbp", "bb", "x1b", "x2b", "x3b", "hr"]]
+
+    # calculate the dot product
+    acc = totals.mul(lw).apply(np.sum, axis=1)
+    raw = acc / data["pa"]
+    scale = target / raw
+    ww = (lw.T * scale).T
+    ww.columns = ["ww_hbp", "ww_bb", "ww_x1b", "ww_x2b", "ww_x3b", "ww_hr"]
+    ww["woba_scale"] = scale
+    return ww
+
+
+def woba(data, weights):
+    """ Weighted On-Base Average (wOBA)
+    :param data: DataFrame or Series of player, team, or league totals
+    :param weights: DataFrame or Series of wOBA weights
+    :returns: Series of wOBA values
+    """
+    x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
+    return (weights["ww_hbp"]*data["hbp"] + weights["ww_bb"]*data["bb"] + weights["ww_x1b"]*x1b
+            + weights["ww_x2b"]*data["x2b"] + weights["ww_x3b"]*data["x3b"]
+            + weights["ww_hr"]*data["hr"]) / data["pa"]
+
+
+def sbr(data, weights):
+    """ Stolen Base Runs (SBR)
+    SBR = runSB * SB + runCS * CS
+    :param data: DataFrame or Series of player, team, or league totals
+    :param weights: DataFrame or Series of linear weights
+    :returns: Series of SBR values
+    """
+    return weights["lw_sb"]*data["sb"] + weights["lw_cs"]*data["cs"]
+
+
+def lg_wsb(data, weights):
+    """ lgwSB = (SB * runSB + CS * runCS) / (1B + BB + HBP – IBB)
+    Used in the calculation of wSB.
+    :param data: DataFrame or Series of league totals
+    :param weights: DataFrame or Series of linear weights
+    :returns: Series of lgwSB values
+    """
+    x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
+    return ((weights["lw_sb"]*data["sb"] + weights["lw_cs"]*data["cs"])
+            / (x1b + data["bb"] + data["hbp"]))
+
+
+def wsb(data, lg_wsb):
+    """ Weighted Stolen Base Runs (wSB)
+    wSB = (SB * runSB) + (CS * runCS) – (lgwSB * (1B + BB + HBP – IBB))
+    OR
+    wSB = SBR - (lgwSB * (1B + BB + HBP – IBB))
+    """
+    x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
+    return data["sbr"] - lg_wsb * (x1b + data["bb"] + data["hbp"])
+
+
+def wraa(data, lg_woba, scale):
+    """ Weighted Runs Above Average (wRAA)
+    wRAA = ((wOBA - league wOBA) / wOBA scale) * PA
+    :param
+    :returns:
+    """
+    return ((data["woba"] - lg_woba) / scale) * data["pa"]
+
+
+def off(data):
+    """ Offensive Runs Above Average (OFF)
+    OFF = wSB + wRAA
+    :param
+    :returns:
+    """
+    return data["wsb"] + data["wraa"]
