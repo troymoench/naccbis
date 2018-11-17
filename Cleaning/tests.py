@@ -51,16 +51,16 @@ class TestCleanFunctions(unittest.TestCase):
         # 6            Tj        McCoy     MAR       2014           TJ             McCoy
         # 7            Aj       Alessi     MAR       2014           AJ            Alessi
 
-        corrections = pd.DataFrame([("Steven", "Jaquez", "AUR", 2014, "Ty", "Jaquez"),
-                                    ("Steven", "Jaquez", "AUR", 2015, "Ty", "Jaquez"),
-                                    ("Steven", "Jaquez", "AUR", 2016, "Ty", "Jaquez"),
-                                    ("Dan", "Lo dolce", "CUC", 2014, "Dan", "Lo Dolce"),
-                                    ("Dan", "Lodolce", "CUC", 2015, "Dan", "Lo Dolce"),
-                                    ("Tj", "McCoy", "MAR", 2013, "TJ", "McCoy"),
-                                    ("Tj", "McCoy", "MAR", 2014, "TJ", "McCoy"),
-                                    ("Aj", "Alessi", "MAR", 2014, "AJ", "Alessi")],
+        corrections = pd.DataFrame([("Steven", "Jaquez", "AUR", 2014, "Ty", "Jaquez", "C"),
+                                    ("Steven", "Jaquez", "AUR", 2015, "Ty", "Jaquez", "C"),
+                                    ("Steven", "Jaquez", "AUR", 2016, "Ty", "Jaquez", "C"),
+                                    ("Dan", "Lo dolce", "CUC", 2014, "Dan", "Lo Dolce", "T"),
+                                    ("Dan", "Lodolce", "CUC", 2015, "Dan", "Lo Dolce", "T"),
+                                    ("Tj", "McCoy", "MAR", 2013, "TJ", "McCoy", "T"),
+                                    ("Tj", "McCoy", "MAR", 2014, "TJ", "McCoy", "T"),
+                                    ("Aj", "Alessi", "MAR", 2014, "AJ", "Alessi", "T")],
                                    columns=["uc_fname", "uc_lname", "uc_team",
-                                            "uc_season", "c_fname", "c_lname"])
+                                            "uc_season", "c_fname", "c_lname", "type"])
 
         data = pd.DataFrame([("Jaquez", "Steven", "AUR", 2014),
                              ("Jaquez", "Steven", "AUR", 2015),

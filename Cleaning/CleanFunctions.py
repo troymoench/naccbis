@@ -34,7 +34,8 @@ def apply_corrections(data, corrections, verbose=False):
     # Return a copy of the DataFrame instead of modifying
     data = data.copy()
     corrections = corrections.copy()
-
+    # select only the columns we care about
+    corrections = corrections[["uc_fname", "uc_lname", "uc_team", "uc_season", "c_fname", "c_lname"]]
     corrections.rename(columns={"uc_fname": "fname", "uc_lname": "lname", "uc_team": "team",
                                 "uc_season": "season"}, inplace=True)
     data = pd.merge(data, corrections, how="left", on=["fname", "lname", "team", "season"])
