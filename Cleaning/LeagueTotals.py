@@ -1,0 +1,76 @@
+""" This script is used to calculate league totals for offense and pitching
+and load into database """
+# Standard library imports
+import json
+# Third party imports
+import pandas as pd
+# Local imports
+import metrics
+import utils
+
+
+def select_bench_players(data):
+    data.sort_values(by=["pa"], ascending=False)
+    return data[9:]
+
+
+def calc_replacement_level(totals, conn):
+    # TODO: Need woba weights and advanced metrics
+    data = pd.read_sql_table("batters_overall", conn)
+
+    for _, group in data.groupby("season"):
+        # print(group)
+        # for _, subgroup in group.groupby("team"):
+        #     subgroup.sort_values(by=["pa"], ascending=False)
+        #     # print(subgroup)
+        #     print(subgroup[9:])
+        #     exit()
+        #     # print(subgroup.head())
+        # print(group.groupby("team").head())
+        print(group.groupby("team").apply(select_bench_players))
+
+
+if __name__ == "__main__":
+    with open("../config.json") as f:
+        config = json.load(f)
+    utils.init_logging()
+
+    conn = utils.connect_db(config)
+    data = pd.read_sql_table("team_offense_overall", conn)
+    # conn.close()
+
+    # print(data)
+    # print(data.columns.tolist())
+
+    cols = ['season', 'g', 'pa', 'ab', 'r', 'h', 'x2b', 'x3b', 'hr', 'rbi', 'bb',
+            'so', 'sb', 'cs', 'hbp', 'sf', 'sh', 'tb', 'xbh', 'gdp', 'go', 'fo']
+
+    totals = data[cols].groupby("season").sum()
+    # print(totals)
+    totals = metrics.basic_offensive_metrics(totals)
+
+    totals["lg_r_pa"] = totals["r"] / totals["pa"]
+    totals["bsr_bmult"] = metrics.bsr_bmult(totals)
+    totals["bsr"] = metrics.bsr(totals, bmult=totals["bsr_bmult"])
+    # print(totals)
+    # print(metrics.linear_weights_incr(totals.loc[2018]))
+    lw = totals.apply(metrics.linear_weights_incr, axis=1)
+    # print(lw)
+    totals = totals.join(lw)
+    # print(totals)
+    ww = metrics.woba_weights(totals, totals["obp"])
+    # print(ww)
+    totals = totals.join(ww)
+    totals["woba"] = metrics.woba(totals, ww)
+    totals["sbr"] = metrics.sbr(totals, lw)
+    totals["lgwsb"] = metrics.lg_wsb(totals, lw)
+    totals["wsb"] = metrics.wsb(totals, totals["lgwsb"])
+    totals["wraa"] = metrics.wraa(totals, totals["woba"], totals["woba_scale"])
+    totals["off"] = metrics.off(totals)
+    totals["wrc"] = metrics.wrc(totals, totals["woba"], totals["woba_scale"], totals["lg_r_pa"])
+    totals["wrc_p"] = metrics.wrc_p(totals, totals["lg_r_pa"])
+    totals["off_p"] = metrics.off_p(totals, totals["lg_r_pa"])
+    # print(totals)
+    # TODO: Add replacement level (OFF/PA), RAR
+    # calc_replacement_level(totals, conn)
+    totals.to_csv("csv/league_offense_overall.csv")
