@@ -311,3 +311,33 @@ def off(data):
     :returns:
     """
     return data["wsb"] + data["wraa"]
+
+
+def wrc(data, lg_woba, woba_scale, lg_r_pa):
+    """ Weighted Runs Created (wRC)
+    wRC = (((wOBA - league wOBA)/wOBA Scale) + (league R/PA))*PA
+    :param
+    :returns:
+    """
+    return (((data["woba"] - lg_woba) / woba_scale) + lg_r_pa) * data["pa"]
+
+
+def wrc_p(data, lg_r_pa):
+    """ Weighted Runs Created Plus (wRC+)
+    Official formula:
+    wRC+ = (((wRAA/PA + lgR/PA) + (lgR/PA - (park factor * lgR/PA))) / lgwRC/PA excluding pitchers)*100
+    For our purposes:
+    wRC+ = (((wRAA/PA) + lgR/PA) / lgR/PA)*100
+    :param
+    :returns:
+    """
+    return (((data["wraa"] / data["pa"]) + lg_r_pa) / lg_r_pa)*100
+
+
+def off_p(data, lg_r_pa):
+    """ Offensive Runs Plus (OFF+)
+    OFF+ = (((OFF/PA) + lgR/PA) / lgR/PA)*100
+    :param
+    :returns:
+    """
+    return (((data["off"] / data["pa"]) + lg_r_pa) / lg_r_pa)*100
