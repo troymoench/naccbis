@@ -341,3 +341,30 @@ def off_p(data, lg_r_pa):
     :returns:
     """
     return (((data["off"] / data["pa"]) + lg_r_pa) / lg_r_pa)*100
+
+
+def advanced_offensive_metrics(data, totals, inplace=False):
+    """ Calculate advanced offensive metrics. These metrics do depend on league
+    wide metrics.
+    :param data: A DataFrame
+    :param totals: A DataFrame or Series of league wide totals and weights
+    :param inplace: modify the DataFrame inplace?
+    :returns: A DataFrame
+    """
+    if not inplace:
+        data = data.copy()
+    df = pd.DataFrame()
+    for name, group in data.groupby("season"):
+        temp = pd.DataFrame(group)
+        totals_season = totals.loc[name]
+        temp["sbr"] = sbr(group, totals_season)
+        temp["wsb"] = wsb(temp, totals_season["lg_wsb"])
+        temp["woba"] = woba(temp, totals_season)
+        temp["wraa"] = wraa(temp, totals_season["woba"], totals_season["woba_scale"])
+        temp["off"] = off(temp)
+        temp["wrc"] = wrc(temp, totals_season["woba"], totals_season["woba_scale"], totals_season["lg_r_pa"])
+        temp["wrc_p"] = wrc_p(temp, totals_season["lg_r_pa"])
+        temp["off_p"] = off_p(temp, totals_season["lg_r_pa"])
+        df = df.append(temp)
+
+    return df
