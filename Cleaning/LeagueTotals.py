@@ -15,19 +15,23 @@ def select_bench_players(data):
 
 
 def calc_replacement_level(totals, conn):
-    # TODO: Need woba weights and advanced metrics
+    """ Calculate Replacement Level metrics
+    Replacement Level is defined as the average bench player
+    :param
+    :returns:
+    """
     data = pd.read_sql_table("batters_overall", conn)
+    data = data.loc[:, "fname":"fo"]
+    # data = data[data["season"] == 2017]
+    bench = data.groupby(["season", "team"]).apply(select_bench_players)
+    bench = bench.reset_index(drop=True)
 
-    for _, group in data.groupby("season"):
-        # print(group)
-        # for _, subgroup in group.groupby("team"):
-        #     subgroup.sort_values(by=["pa"], ascending=False)
-        #     # print(subgroup)
-        #     print(subgroup[9:])
-        #     exit()
-        #     # print(subgroup.head())
-        # print(group.groupby("team").head())
-        print(group.groupby("team").apply(select_bench_players))
+    bench_totals = bench.groupby("season").sum()
+    bench_totals = metrics.basic_offensive_metrics(bench_totals)
+    bench_totals = metrics.advanced_offensive_metrics(bench_totals, totals)
+
+    bench_totals["off_pa"] = bench_totals["off"] / bench_totals["pa"]
+    return bench_totals
 
 
 if __name__ == "__main__":
@@ -63,8 +67,8 @@ if __name__ == "__main__":
     totals = totals.join(ww)
     totals["woba"] = metrics.woba(totals, ww)
     totals["sbr"] = metrics.sbr(totals, lw)
-    totals["lgwsb"] = metrics.lg_wsb(totals, lw)
-    totals["wsb"] = metrics.wsb(totals, totals["lgwsb"])
+    totals["lg_wsb"] = metrics.lg_wsb(totals, lw)
+    totals["wsb"] = metrics.wsb(totals, totals["lg_wsb"])
     totals["wraa"] = metrics.wraa(totals, totals["woba"], totals["woba_scale"])
     totals["off"] = metrics.off(totals)
     totals["wrc"] = metrics.wrc(totals, totals["woba"], totals["woba_scale"], totals["lg_r_pa"])
@@ -72,5 +76,8 @@ if __name__ == "__main__":
     totals["off_p"] = metrics.off_p(totals, totals["lg_r_pa"])
     # print(totals)
     # TODO: Add replacement level (OFF/PA), RAR
-    # calc_replacement_level(totals, conn)
+    replacement_totals = calc_replacement_level(totals, conn)
+    replacement_totals.to_sql("replacement_level", conn, if_exists="append", index=True)
+
+    totals["rep_level"] = replacement_totals["off_pa"]
     totals.to_csv("csv/league_offense_overall.csv")
