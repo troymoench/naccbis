@@ -10,6 +10,7 @@ import utils
 
 
 def select_bench_players(data):
+    # TODO: Write a test for this
     data.sort_values(by=["pa"], ascending=False)
     return data[9:]
 
@@ -77,7 +78,22 @@ if __name__ == "__main__":
     # print(totals)
     # TODO: Add replacement level (OFF/PA), RAR
     replacement_totals = calc_replacement_level(totals, conn)
-    replacement_totals.to_sql("replacement_level", conn, if_exists="append", index=True)
+
+    # Load replacement level totals in database
+    try:
+        replacement_totals.to_sql("replacement_level", conn, if_exists="append", index=True)
+    except Exception as e:
+        print("Unable to load data into replacement_level table")
+    else:
+        print("Successfully loaded data into replacement_level table")
 
     totals["rep_level"] = replacement_totals["off_pa"]
-    totals.to_csv("csv/league_offense_overall.csv")
+    totals["rar"] = metrics.rar(totals, totals["rep_level"])
+    try:
+        totals.to_sql("league_offense_overall", conn, if_exists="append", index=True)
+    except Exception as e:
+        print("Unable to load data into league_offense_overall table")
+    else:
+        print("Successfully loaded data into league_offense_overall table")
+
+    # totals.to_csv("csv/league_offense_overall.csv")
