@@ -343,6 +343,15 @@ def off_p(data, lg_r_pa):
     return (((data["off"] / data["pa"]) + lg_r_pa) / lg_r_pa)*100
 
 
+def rar(data, replacement_level):
+    """ Runs Above Replacement (RAR)
+    RAR = OFF - (repl level * PA)
+    :param
+    :returns:
+    """
+    return data["off"] - (replacement_level * data["pa"])
+
+
 def advanced_offensive_metrics(data, totals, inplace=False):
     """ Calculate advanced offensive metrics. These metrics do depend on league
     wide metrics.
