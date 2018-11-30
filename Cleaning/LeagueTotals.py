@@ -38,6 +38,16 @@ def calc_replacement_level(totals, conn):
     return bench_totals
 
 
+def db_load_data(data, table, conn, **kwargs):
+    try:
+        data.to_sql(table, conn, **kwargs)
+    except Exception as e:
+        print("Unable to load data into", table, "table")
+        print(e)
+    else:
+        print("Successfully loaded data into", table, "table")
+
+
 if __name__ == "__main__":
     with open("../config.json") as f:
         config = json.load(f)
@@ -45,7 +55,6 @@ if __name__ == "__main__":
 
     conn = utils.connect_db(config)
     data = pd.read_sql_table("team_offense_overall", conn)
-    # conn.close()
 
     # print(data)
     # print(data.columns.tolist())
@@ -78,25 +87,16 @@ if __name__ == "__main__":
     totals["wrc"] = metrics.wrc(totals, totals["woba"], totals["woba_scale"], totals["lg_r_pa"])
     totals["wrc_p"] = metrics.wrc_p(totals, totals["lg_r_pa"])
     totals["off_p"] = metrics.off_p(totals, totals["lg_r_pa"])
-    # print(totals)
-    # TODO: Add replacement level (OFF/PA), RAR
+
     replacement_totals = calc_replacement_level(totals, conn)
 
     # Load replacement level totals in database
-    try:
-        replacement_totals.to_sql("replacement_level", conn, if_exists="append", index=True)
-    except Exception as e:
-        print("Unable to load data into replacement_level table")
-    else:
-        print("Successfully loaded data into replacement_level table")
+    db_load_data(replacement_totals, "replacement_level", conn, if_exists="append", index=True)
 
     totals["rep_level"] = replacement_totals["off_pa"]
     totals["rar"] = metrics.rar(totals, totals["rep_level"])
-    try:
-        totals.to_sql("league_offense_overall", conn, if_exists="append", index=True)
-    except Exception as e:
-        print("Unable to load data into league_offense_overall table")
-    else:
-        print("Successfully loaded data into league_offense_overall table")
+
+    db_load_data(totals, "league_offense_overall", conn, if_exists="append", index=True)
 
     # totals.to_csv("csv/league_offense_overall.csv")
+    conn.close()
