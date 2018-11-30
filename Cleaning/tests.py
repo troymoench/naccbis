@@ -9,6 +9,7 @@ import CleanFunctions as cf
 import CleanGameLogs as cgl
 import GenerateIds as gi
 import CleanIndividualPitching as cip
+import LeagueTotals as lt
 
 
 class TestCleanFunctions(unittest.TestCase):
@@ -208,13 +209,64 @@ class TestCleanGameLogs(unittest.TestCase):
         pass
 
 
-# class TestCleanIndividualPitching(unittest.TestCase):
-#
-#     def setUp(self):
-#         pass
-#
-#     def tearDown(self):
-#         pass
+class TestLeagueTotals(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_select_bench_players(self):
+        # print([tuple(x) for x in data.loc[:, "fname":"pa"].values])
+
+        team = pd.DataFrame([('Kyle', 'Spooner', 'AUR', 2010, 'Fr', 'C', 1, 1),
+                             ('Anthony', 'Amedei', 'AUR', 2010, 'Jr', 'IF', 43, 210),
+                             ('Bobby', 'Wilson', 'AUR', 2010, 'So', 'IF', 43, 206),
+                             ('Kirk', 'Williamson', 'AUR', 2010, 'Sr', 'C', 43, 198),
+                             ('Joe', 'Singraber', 'AUR', 2010, 'Jr', 'OF', 43, 183),
+                             ('Tony', 'Wellner', 'AUR', 2010, 'Sr', 'OF', 43, 202),
+                             ('Josh', 'Davidson', 'AUR', 2010, 'Jr', 'OF', 40, 182),
+                             ('Tim', 'Mackey', 'AUR', 2010, 'So', 'IF', 42, 183),
+                             ('Matt', 'Anklam', 'AUR', 2010, 'Sr', 'DH', 41, 169),
+                             ('Matt', 'Mulvaney', 'AUR', 2010, 'Sr', 'OF', 39, 119),
+                             ('Steve', 'Brauer', 'AUR', 2010, 'Sr', 'IF', 22, 67),
+                             ('Brad', 'Brandenburg', 'AUR', 2010, 'So', 'OF', 8, 18),
+                             ('Tony', 'Gliffe', 'AUR', 2010, 'Fr', None, 4, 13),
+                             ('Brennan', 'Moroni', 'AUR', 2010, 'Jr', 'C', 4, 13),
+                             ('Mike', 'Foley', 'AUR', 2010, 'Fr', 'IF', 5, 4),
+                             ('Chris', 'Galovic', 'AUR', 2010, 'So', 'OF', 3, 5),
+                             ('Justin', 'Aloisio', 'AUR', 2010, 'Fr', 'OF', 1, 1),
+                             ('Brian', 'Claesson', 'AUR', 2010, 'So', 'C', 1, 1),
+                             ('Steven', 'Karasewski', 'AUR', 2010, 'Fr', 'IF', 4, 1),
+                             ('Deric', 'Punke', 'AUR', 2010, 'Fr', 'C', 2, 2),
+                             ('Jacob', 'Blackburn', 'AUR', 2010, 'Fr', 'IF', 1, 1),
+                             ('Thomas', 'Ozlanski', 'AUR', 2010, 'Fr', 'P/IF', 7, 1)],
+                            columns=["fname", "lname", "team", "season", "yr", "pos", "g", "pa"])
+
+        expected = pd.DataFrame([('Steve', 'Brauer', 'AUR', 2010, 'Sr', 'IF', 22, 67),
+                                 ('Brad', 'Brandenburg', 'AUR', 2010, 'So', 'OF', 8, 18),
+                                 ('Tony', 'Gliffe', 'AUR', 2010, 'Fr', None, 4, 13),
+                                 ('Brennan', 'Moroni', 'AUR', 2010, 'Jr', 'C', 4, 13),
+                                 ('Chris', 'Galovic', 'AUR', 2010, 'So', 'OF', 3, 5),
+                                 ('Mike', 'Foley', 'AUR', 2010, 'Fr', 'IF', 5, 4),
+                                 ('Deric', 'Punke', 'AUR', 2010, 'Fr', 'C', 2, 2),
+                                 ('Kyle', 'Spooner', 'AUR', 2010, 'Fr', 'C', 1, 1),
+                                 ('Thomas', 'Ozlanski', 'AUR', 2010, 'Fr', 'P/IF', 7, 1),
+                                 ('Steven', 'Karasewski', 'AUR', 2010, 'Fr', 'IF', 4, 1),
+                                 ('Brian', 'Claesson', 'AUR', 2010, 'So', 'C', 1, 1),
+                                 ('Jacob', 'Blackburn', 'AUR', 2010, 'Fr', 'IF', 1, 1),
+                                 ('Justin', 'Aloisio', 'AUR', 2010, 'Fr', 'OF', 1, 1)],
+                                 columns=["fname", "lname", "team", "season", "yr", "pos", "g", "pa"])
+
+        temp = lt.select_bench_players(team)
+
+        temp.sort_values(by=["pa", "lname"], ascending=False, inplace=True)
+        temp.reset_index(drop=True, inplace=True)
+        expected.sort_values(by=["pa", "lname"], ascending=False, inplace=True)
+        expected.reset_index(drop=True, inplace=True)
+
+        self.assertTrue(temp.equals(expected))
+
+    def tearDown(self):
+        pass
 
 
 if __name__ == "__main__":

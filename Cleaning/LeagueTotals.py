@@ -10,8 +10,11 @@ import utils
 
 
 def select_bench_players(data):
-    # TODO: Write a test for this
-    data.sort_values(by=["pa"], ascending=False)
+    """ Select bench players. Used for determining replacement level
+    :param data: A DataFrame of a team's player stats
+    :returns: A DataFrame of players that weren't in the top 9 in PA
+    """
+    data = data.sort_values(by=["pa"], ascending=False)
     return data[9:]
 
 
