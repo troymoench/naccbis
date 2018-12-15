@@ -5,28 +5,19 @@ import pandas as pd
 # import Cleaning.metrics as metrics
 
 
-def to_dataframe(query_set):
-    fields = [field.name for field in query_set.model._meta.fields]
-    values = [row.__dict__ for row in query_set]
-    df = pd.DataFrame.from_records(values, columns=fields, coerce_float=True)
-    df.fillna(value=pd.np.nan, inplace=True)
-    return df
-
-
 # Create your views here.
 def index(request):
 
     # guts = Guts.objects.using('data').all()
-    # print(to_dataframe(guts))
+
     player_id = PlayerId.objects.using('data').filter(season=2018)
-    ids = to_dataframe(player_id)
-    # data = BattersOverall.objects.using('data').select_related()
+    ids = player_id.as_dataframe()
     data = BattersOverall.objects.using('data').filter(season=2018)
     data = data.filter(pa__gt=100)
 
     # convert to DataFrame
-    df = to_dataframe(data)
-    # print(df)
+    df = data.as_dataframe()
+
     df = ids.merge(df)
     # sort
     df.sort_values(by=["ops"], ascending=False, inplace=True)

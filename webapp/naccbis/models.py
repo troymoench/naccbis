@@ -6,6 +6,7 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from naccbis.query import PandasQuerySet
 
 
 class Guts(models.Model):
@@ -30,6 +31,8 @@ class Guts(models.Model):
     woba_scale = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
     rep_level = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
 
+    objects = PandasQuerySet.as_manager()
+
     class Meta:
         managed = False
         db_table = 'guts'
@@ -41,6 +44,8 @@ class PlayerId(models.Model):
     team = models.CharField(max_length=5)
     season = models.IntegerField()
     player_id = models.CharField(max_length=10, blank=True, null=True)
+
+    objects = PandasQuerySet.as_manager()
 
     class Meta:
         managed = False
@@ -92,6 +97,8 @@ class BattersOverall(models.Model):
     slg = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
     ops = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
     sar = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+
+    objects = PandasQuerySet.as_manager()
 
     class Meta:
         managed = False
