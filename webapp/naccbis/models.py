@@ -8,12 +8,56 @@
 from django.db import models
 
 
+class Guts(models.Model):
+    season = models.IntegerField(primary_key=True)
+    lg_r_pa = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    bsr_bmult = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    lw_hbp = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    lw_bb = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    lw_x1b = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    lw_x2b = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    lw_x3b = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    lw_hr = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    lw_sb = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    lw_cs = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    lw_out = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    ww_hbp = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    ww_bb = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    ww_x1b = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    ww_x2b = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    ww_x3b = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    ww_hr = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    woba_scale = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    rep_level = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'guts'
+
+
+class PlayerId(models.Model):
+    fname = models.CharField(primary_key=True, max_length=20)
+    lname = models.CharField(max_length=20)
+    team = models.CharField(max_length=5)
+    season = models.IntegerField()
+    player_id = models.CharField(max_length=10, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'player_id'
+        unique_together = (('fname', 'lname', 'team', 'season'),)
+
+
 class BattersOverall(models.Model):
     no = models.IntegerField(blank=True, null=True)
     fname = models.CharField(primary_key=True, max_length=20)
     lname = models.CharField(max_length=20)
     team = models.CharField(max_length=5)
     season = models.IntegerField()
+    # fname = models.OneToOneField(PlayerId, related_name="+", on_delete=models.PROTECT)
+    # lname = models.OneToOneField(PlayerId, related_name="+", on_delete=models.PROTECT)
+    # team = models.OneToOneField(PlayerId, related_name="+", on_delete=models.PROTECT)
+    # season = models.OneToOneField(PlayerId, related_name="+", on_delete=models.PROTECT)
     yr = models.CharField(max_length=2, blank=True, null=True)
     pos = models.CharField(max_length=15, blank=True, null=True)
     g = models.IntegerField(blank=True, null=True)
@@ -181,19 +225,6 @@ class Nicknames(models.Model):
         managed = False
         db_table = 'nicknames'
         unique_together = (('name', 'nickname'),)
-
-
-class PlayerId(models.Model):
-    fname = models.CharField(primary_key=True, max_length=20)
-    lname = models.CharField(max_length=20)
-    team = models.CharField(max_length=5)
-    season = models.IntegerField()
-    player_id = models.CharField(max_length=10, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'player_id'
-        unique_together = (('fname', 'lname', 'team', 'season'),)
 
 
 class RawBattersConference(models.Model):
