@@ -356,16 +356,23 @@ def advanced_offensive_metrics(data, totals, inplace=False):
     """ Calculate advanced offensive metrics. These metrics do depend on league
     wide metrics.
     :param data: A DataFrame
-    :param totals: A DataFrame or Series of league wide totals and weights
+    :param totals: A DataFrame of league wide totals and weights
     :param inplace: modify the DataFrame inplace?
     :returns: A DataFrame
     """
     if not inplace:
         data = data.copy()
+
+    new_totals = totals.copy()
+    if new_totals.index.name != "season":
+        new_totals = new_totals.set_index("season")
+
     df = pd.DataFrame()
     for name, group in data.groupby("season"):
         temp = pd.DataFrame(group)
-        totals_season = totals.loc[name]
+
+        # totals_season must be a Series
+        totals_season = new_totals.loc[name]
         temp["sbr"] = sbr(group, totals_season)
         temp["wsb"] = wsb(temp, totals_season["lg_wsb"])
         temp["woba"] = woba(temp, totals_season)
