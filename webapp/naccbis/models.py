@@ -1062,12 +1062,12 @@ class ReplacementLevel(Base):
         db_table = 'replacement_level'
 
 
-# class TeamIds(Base):
-#     name = models.CharField(max_length=30, blank=True, null=True)
-#     id = models.CharField(max_length=5, blank=True, null=True)
-#
-#     class Meta(Base.Meta):
-#         db_table = 'team_ids'
+class TeamIds(Base):
+    name = models.CharField(max_length=30, blank=True, null=True)
+    id = models.CharField(primary_key=True, max_length=5)
+
+    class Meta(Base.Meta):
+        db_table = 'team_ids'
 
 
 class TeamOffenseOverall(Base):
