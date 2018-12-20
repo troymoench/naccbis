@@ -56,16 +56,12 @@ class PlayerId(Base):
         unique_together = (('fname', 'lname', 'team', 'season'),)
 
 
-class BattersOverall(Base):
+class Batters(Base):
     no = models.IntegerField(blank=True, null=True)
     fname = models.CharField(primary_key=True, max_length=20)
     lname = models.CharField(max_length=20)
     team = models.CharField(max_length=5)
     season = models.IntegerField()
-    # fname = models.OneToOneField(PlayerId, related_name="+", on_delete=models.PROTECT)
-    # lname = models.OneToOneField(PlayerId, related_name="+", on_delete=models.PROTECT)
-    # team = models.OneToOneField(PlayerId, related_name="+", on_delete=models.PROTECT)
-    # season = models.OneToOneField(PlayerId, related_name="+", on_delete=models.PROTECT)
     yr = models.CharField(max_length=2, blank=True, null=True)
     pos = models.CharField(max_length=15, blank=True, null=True)
     g = models.IntegerField(blank=True, null=True)
@@ -102,8 +98,18 @@ class BattersOverall(Base):
     sar = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
 
     class Meta(Base.Meta):
-        db_table = 'batters_overall'
+        abstract = True
         unique_together = (('fname', 'lname', 'team', 'season'),)
+
+
+class BattersOverall(Batters):
+    class Meta(Batters.Meta):
+        db_table = 'batters_overall'
+
+
+class BattersConference(Batters):
+    class Meta(Batters.Meta):
+        db_table = 'batters_conference'
 
 
 class DuplicateNames(Base):
