@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from naccbis.models import BattersOverall, PlayerId
+from naccbis.models import BattersOverall, BattersConference, PlayerId
 from naccbis.forms import MyForm
 import pandas as pd
 # import Cleaning.metrics as metrics
@@ -12,14 +12,24 @@ def index(request):
     filter_team = request.GET.get("team")
     filter_pa = request.GET.get("min_pa")
     filter_season = request.GET.get("season")
+    split = request.GET.get("split")
+
     # set the form field values
-    if filter_team or filter_pa or filter_season:
-        form = MyForm({"team": filter_team, "min_pa": filter_pa, "season": filter_season})
+    if filter_team or filter_pa or filter_season or split:
+        form = MyForm({"team": filter_team, "min_pa": filter_pa,
+                       "season": filter_season, "split": split})
     else:
         form = MyForm()
 
+    # retrieve data from database
     player_id = PlayerId.objects.using('data')
-    data = BattersOverall.objects.using('data')
+    if split and split == "ALL":
+        data = BattersOverall.objects.using('data')
+    elif split == "CONF":
+        data = BattersConference.objects.using('data')
+    else:
+        data = BattersOverall.objects.using('data')
+
     if filter_pa:
         data = data.filter(pa__gte=filter_pa)
     if filter_team and filter_team != "ALL":
