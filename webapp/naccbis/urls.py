@@ -1,7 +1,7 @@
 from django.urls import path
 
-from . import views
+from naccbis.views import LeaderboardView
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', LeaderboardView.as_view()),
 ]
