@@ -7,33 +7,28 @@ from naccbis.forms import MyForm
 
 class LeaderboardView(View):
     def get(self, request):
-        # parse the request parameters
-        filter_team = request.GET.get("team")
-        filter_pa = request.GET.get("min_pa")
-        filter_season = request.GET.get("season")
-        split = request.GET.get("split")
+        params = self.parse_request_params(request)
 
         # set the form field values
-        if filter_team or filter_pa or filter_season or split:
-            form = MyForm({"team": filter_team, "min_pa": filter_pa,
-                           "season": filter_season, "split": split})
+        if params:
+            form = MyForm(params)
         else:
             form = MyForm()
 
         # retrieve data from database
-        if split and split == "ALL":
+        if params and params["split"] == "ALL":
             data = BattersOverall.objects.using('data')
-        elif split == "CONF":
+        elif params and params["split"] == "CONF":
             data = BattersConference.objects.using('data')
         else:
             data = BattersOverall.objects.using('data')
 
-        if filter_pa:
-            data = data.filter(pa__gte=filter_pa)
-        if filter_team and filter_team != "ALL":
-            data = data.filter(team=filter_team)
-        if filter_season and filter_season != "ALL":
-            data = data.filter(season=filter_season)
+        if params and params["min_pa"]:
+            data = data.filter(pa__gte=params["min_pa"])
+        if params and params["team"] != "ALL":
+            data = data.filter(team=params["team"])
+        if params and params["season"] != "ALL":
+            data = data.filter(season=params["season"])
 
         # convert to DataFrame
         df = data.as_dataframe()
@@ -54,3 +49,7 @@ class LeaderboardView(View):
                                       index=True, na_rep=""),
                    'form': form}
         return render(request, 'naccbis/index.html', context)
+
+    def parse_request_params(self, request):
+        """ Parse the request parameters """
+        return request.GET
