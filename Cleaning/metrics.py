@@ -352,6 +352,50 @@ def rar(data, replacement_level):
     return data["off"] - (replacement_level * data["pa"])
 
 
+def multi_season(data, totals, func, inplace=False):
+    """ Calculate metrics for multiple seasons
+    :param
+    :returns:
+    """
+    if not inplace:
+        data = data.copy()
+
+    new_totals = totals.copy()
+    if new_totals.index.name != "season":
+        new_totals = new_totals.set_index("season")
+
+    df = pd.DataFrame()
+    for name, group in data.groupby("season"):
+        temp = pd.DataFrame(group)
+
+        # totals_season must be a Series
+        totals_season = new_totals.loc[name]
+        temp = func(temp, totals_season)
+        df = df.append(temp)
+
+    return df
+
+
+def season_offensive_metrics(data, totals_season):
+    """ Calculate offensive metrics for a single season
+    :param data: A DataFrame of single season data
+    :param totals_season: A Series of league totals
+    :returns: A DataFrame
+    """
+    if not isinstance(totals_season, pd.Series):
+        raise TypeError("Expected {}. Got {}.".format(pd.Series, type(totals_season)))
+    temp = data.copy()
+    temp["sbr"] = sbr(temp, totals_season)
+    temp["wsb"] = wsb(temp, totals_season["lg_wsb"])
+    temp["woba"] = woba(temp, totals_season)
+    temp["wraa"] = wraa(temp, totals_season["woba"], totals_season["woba_scale"])
+    temp["off"] = off(temp)
+    temp["wrc"] = wrc(temp, totals_season["woba"], totals_season["woba_scale"], totals_season["lg_r_pa"])
+    temp["wrc_p"] = wrc_p(temp, totals_season["lg_r_pa"])
+    temp["off_p"] = off_p(temp, totals_season["lg_r_pa"])
+    return temp
+
+
 def advanced_offensive_metrics(data, totals, inplace=False):
     """ Calculate advanced offensive metrics. These metrics do depend on league
     wide metrics.
