@@ -15,8 +15,11 @@ OUTPUT = "csv"
 
 class IndividualOffenseCleaner:
     """ ETL class for individual offense """
+    VALID_SPLITS = ["overall", "conference"]
 
     def __init__(self, split, conn):
+        if split not in self.VALID_SPLITS:
+            raise ValueError("Invalid split: {}".format(split))
         self.split = split
         self.conn = conn
 
@@ -49,7 +52,7 @@ class IndividualOffenseCleaner:
 if __name__ == "__main__":
     with open('../config.json') as f:
         config = json.load(f)
-
+    utils.init_logging()
     conn = utils.connect_db(config)
     cleaner = IndividualOffenseCleaner(SPLIT, conn)
     cleaner.run()
