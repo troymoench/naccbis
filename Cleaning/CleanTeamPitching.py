@@ -17,9 +17,9 @@ if __name__ == "__main__":
     utils.init_logging()
 
     conn = utils.connect_db(config)
-    with conn:
-        data = pd.read_sql_table("raw_team_pitching_{}".format(SPLIT), conn)
-    data.rename(columns={"name": "team"}, inplace=True)
+    data = pd.read_sql_table("raw_team_pitching_{}".format(SPLIT), conn)
     data["ip"] = data["ip"].apply(cf.convert_ip)
-    data = metrics.basic_pitching_metrics(data, conference=True)
-    print(data)
+    data = metrics.basic_pitching_metrics(data, conference=(SPLIT == "conference"))
+    # print(data.info())
+    data.to_sql("team_pitching_{}".format(SPLIT), conn, if_exists="append", index=False)
+    conn.close()
