@@ -6,7 +6,7 @@ import unittest
 import pandas as pd
 # Local imports
 import CleanFunctions as cf
-import CleanGameLogs as cgl
+from CleanGameLogs import GameLogCleaner as glc
 import GenerateIds as gi
 import CleanIndividualPitching as cip
 import LeagueTotals as lt
@@ -158,7 +158,7 @@ class TestCleanGameLogs(unittest.TestCase):
                   {"raw": "W, 5-4", "expected": "W"},
                   {"raw": "L, 5-4", "expected": "L"}]
         for score in scores:
-            self.assertEqual(cgl.extract_result(score["raw"]), score["expected"])
+            self.assertEqual(glc.extract_result(score["raw"]), score["expected"])
 
     def test_extract_runs(self):
         scores = [{"raw": "L, 10-8", "expected": [8, 10]},
@@ -166,7 +166,7 @@ class TestCleanGameLogs(unittest.TestCase):
                   {"raw": "W, 5-4", "expected": [5, 4]},
                   {"raw": "L, 5-4", "expected": [4, 5]}]
         for score in scores:
-            self.assertEqual(cgl.extract_runs(score["raw"]), score["expected"])
+            self.assertEqual(glc.extract_runs(score["raw"]), score["expected"])
 
     def test_extract_opponent(self):
         opponents = [{"raw": "at Benedictine", "expected": "Benedictine"},
@@ -175,14 +175,14 @@ class TestCleanGameLogs(unittest.TestCase):
                      {"raw": "Benedictine", "expected": "Benedictine"},
                      {"raw": "vs. St. Lawrence", "expected": "St. Lawrence"}]
         for opponent in opponents:
-            self.assertEqual(cgl.extract_opponent(opponent["raw"]), opponent["expected"])
+            self.assertEqual(glc.extract_opponent(opponent["raw"]), opponent["expected"])
 
     def test_extract_home(self):
         opponents = [{"raw": "at Benedictine", "expected": False},
                      {"raw": "vs. Benedictine", "expected": True},
                      {"raw": "Benedictine", "expected": True}]
         for opponent in opponents:
-            self.assertEqual(cgl.extract_home(opponent["raw"]), opponent["expected"])
+            self.assertEqual(glc.extract_home(opponent["raw"]), opponent["expected"])
 
     def test_extract_conference(self):
         values = [{"opponent": "Maranatha", "season": 2013, "expected": True},
@@ -192,7 +192,7 @@ class TestCleanGameLogs(unittest.TestCase):
         teams = ["Aurora", "Benedictine", "Concordia Chicago", "Concordia Wisconsin", "Dominican",
                  "Edgewood", "Lakeland", "MSOE", "Marian", "Maranatha", "Rockford", "Wisconsin Lutheran"]
         for value in values:
-            self.assertEqual(cgl.extract_conference(value["opponent"], value["season"], teams), value["expected"])
+            self.assertEqual(glc.extract_conference(value["opponent"], value["season"], teams), value["expected"])
 
     def test_extract_date(self):
         values = [{"date_str": "Mar 6", "season": 2010, "expected": datetime.datetime(2010, 3, 6)},
@@ -203,7 +203,7 @@ class TestCleanGameLogs(unittest.TestCase):
                   {"date_str": "Apr 30", "season": 2018, "expected": datetime.datetime(2018, 4, 30)}]
 
         for value in values:
-            self.assertEqual(cgl.extract_date(value["date_str"], value["season"]), value["expected"])
+            self.assertEqual(glc.extract_date(value["date_str"], value["season"]), value["expected"])
 
     def tearDown(self):
         pass

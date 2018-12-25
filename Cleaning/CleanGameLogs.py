@@ -3,108 +3,143 @@
 import argparse
 import datetime
 import json
+import os
 import re
 import sys
 # Third party imports
 import pandas as pd
 from sqlalchemy.exc import SQLAlchemyError
 # Local imports
-import CleanFunctions as cf
 import utils
 
 
-def extract_runs(score):
-    """ Extract the runs scored and runs against from the score
-    :param score: The score
-    :returns: A list where first element is runs scored and
-     second element is runs against. Format: [rs, ra]
-    """
-    split_score = score.split(',')
-    result = split_score[0].strip()
-    run_list = split_score[1].split('-')
-    run_list = list(map(lambda x: int(x.strip()), run_list))
+class GameLogCleaner:
+    """ ETL class for game logs """
+    CONFERENCE_TEAMS = ["Aurora", "Benedictine", "Concordia Chicago", "Concordia Wisconsin",
+                        "Dominican", "Edgewood", "Lakeland", "MSOE", "Marian", "Maranatha",
+                        "Rockford", "Wisconsin Lutheran"]
+    CSV_DIR = "csv/"
 
-    if result == 'W':
-        run_list.sort(reverse=True)
-    else:
-        run_list.sort()
-    return run_list
+    def __init__(self, load_db, conn):
+        self.load_db = load_db
+        self.conn = conn
 
+    def extract(self):
+        self.data = pd.read_sql_table("raw_game_log_hitting", self.conn)
 
-def extract_result(score):
-    """ Extract the result (W/L) from the score
-    :param score: The score
-    :returns: The result (W/L)
-    """
-    return score.split(',')[0].strip()
+    def transform(self):
+        self.data = self.data[["game_num", "date", "season", "name", "opponent", "score"]]
+        self.data["result"] = self.data["score"].apply(self.extract_result)
+        # runs scored, runs against
 
+        self.data["inter"] = self.data["score"].apply(self.extract_runs)  # intermediate column
+        self.data["rs"] = [x[0] for x in self.data["inter"]]
+        self.data["ra"] = [x[1] for x in self.data["inter"]]
 
-def extract_home(opponent):
-    """ Extract home/away from the opponent
-    :param opponent: The opponent
-    :returns: True for home, False for away
-    """
-    opponent = opponent.strip()
-    if re.match(r"\b[Aa][Tt]\b", opponent):
-        home = False
-    else:
-        home = True
-    return home
+        self.data.drop(columns=["inter"], inplace=True)
 
+        # home/away
 
-def extract_opponent(opponent):
-    """ Extract the team name from the raw opponent
-    :param opponent: The opponent
-    :returns: The team name of the opponent
-    """
-    opponent = opponent.strip()
-    return re.sub(r"\b[Aa][Tt]\b|\b[Vv][Ss][.]*", "", opponent).strip()
+        self.data["home"] = self.data["opponent"].apply(self.extract_home)
 
+        # conference/non-conference
 
-def extract_conference(opponent, season, teams):
-    # Maranatha is non-conference after 2013
-    if opponent == "Maranatha" and season > 2013:
-        return False
+        self.data["conference"] = list(map(lambda x, y: self.extract_conference(x, y, self.CONFERENCE_TEAMS),
+                                           self.data["opponent"], self.data["season"]))
+        self.data["opponent"] = self.data["opponent"].apply(self.extract_opponent)
+        self.data.rename(columns={"name": "team"}, inplace=True)
+        self.data.drop(columns=["score"], inplace=True)
 
-    matched = False
-    for team in teams:
-        if re.search(team, opponent):
-            matched = True
-    return matched
+        self.data["date"] = list(map(lambda x, y: self.extract_date(x, y),
+                                     self.data["date"], self.data["season"]))
 
+    def load(self):
+        if self.load_db:
+            print("Loading data into database")
+            try:
+                self.data.to_sql("game_log", self.conn, if_exists="append", index=False)
+            except SQLAlchemyError as e:
+                print("Failed to load data into database")
+                print(e)
+                conn.close()
+                sys.exit(1)
+            print("Loaded", len(self.data), "records successfully")
+        else:
+            print("Dumping to csv")
+            self.data.to_csv(os.path.join(self.CSV_DIR, "game_log.csv"), index=False)
 
-def extract_date(date_str, season):
-    date_str = "{} {}".format(date_str, season)
-    return datetime.datetime.strptime(date_str, "%b %d %Y")
+    def run(self):
+        self.extract()
+        self.transform()
+        self.load()
 
+    @staticmethod
+    def extract_runs(score):
+        """ Extract the runs scored and runs against from the score
+        :param score: The score
+        :returns: A list where first element is runs scored and
+         second element is runs against. Format: [rs, ra]
+        """
+        split_score = score.split(',')
+        result = split_score[0].strip()
+        run_list = split_score[1].split('-')
+        run_list = list(map(lambda x: int(x.strip()), run_list))
 
-def clean(data):
-    data = data.copy()
-    data["result"] = data["score"].apply(extract_result)
-    # runs scored, runs against
+        if result == 'W':
+            run_list.sort(reverse=True)
+        else:
+            run_list.sort()
+        return run_list
 
-    data["inter"] = data["score"].apply(extract_runs)  # intermediate column
-    data["rs"] = [x[0] for x in data["inter"]]
-    data["ra"] = [x[1] for x in data["inter"]]
+    @staticmethod
+    def extract_result(score):
+        """ Extract the result (W/L) from the score
+        :param score: The score
+        :returns: The result (W/L)
+        """
+        return score.split(',')[0].strip()
 
-    data.drop(columns=["inter"], inplace=True)
+    @staticmethod
+    def extract_home(opponent):
+        """ Extract home/away from the opponent
+        :param opponent: The opponent
+        :returns: True for home, False for away
+        """
+        opponent = opponent.strip()
+        if re.match(r"\b[Aa][Tt]\b", opponent):
+            home = False
+        else:
+            home = True
+        return home
 
-    # home/away
+    @staticmethod
+    def extract_opponent(opponent):
+        """ Extract the team name from the raw opponent
+        :param opponent: The opponent
+        :returns: The team name of the opponent
+        """
+        opponent = opponent.strip()
+        return re.sub(r"\b[Aa][Tt]\b|\b[Vv][Ss][.]*", "", opponent).strip()
 
-    data["home"] = data["opponent"].apply(extract_home)
+    @staticmethod
+    def extract_conference(opponent, season, teams):
+        """ Determine if the opponent is conference or non-conference """
+        # TODO: Get list of conference teams from database
 
-    # conference/non-conference
+        # Maranatha is non-conference after 2013
+        if opponent == "Maranatha" and season > 2013:
+            return False
 
-    conf = ["Aurora", "Benedictine", "Concordia Chicago", "Concordia Wisconsin", "Dominican",
-            "Edgewood", "Lakeland", "MSOE", "Marian", "Maranatha", "Rockford", "Wisconsin Lutheran"]
+        matched = False
+        for team in teams:
+            if re.search(team, opponent):
+                matched = True
+        return matched
 
-    data["conference"] = list(map(lambda x, y: extract_conference(x, y, conf), data["opponent"], data["season"]))
-    data["opponent"] = data["opponent"].apply(extract_opponent)
-    data.rename(columns={"name": "team"}, inplace=True)
-    data.drop(columns=["score"], inplace=True)
-
-    data["date"] = list(map(lambda x, y: extract_date(x, y), data["date"], data["season"]))
-    return data
+    @staticmethod
+    def extract_date(date_str, season):
+        date_str = "{} {}".format(date_str, season)
+        return datetime.datetime.strptime(date_str, "%b %d %Y")
 
 
 if __name__ == "__main__":
@@ -115,27 +150,8 @@ if __name__ == "__main__":
 
     with open('../config.json') as f:
         config = json.load(f)
-
-    CSV_DIR = "csv/"
-
+    utils.init_logging()
     conn = utils.connect_db(config)
-
-    data = pd.read_sql_table("raw_game_log_hitting", conn)
-
-    data = data[["game_num", "date", "season", "name", "opponent", "score"]]
-    # print(data)
-    data = clean(data)
-    if args.load:
-        print("Loading data into database")
-        try:
-            data.to_sql("game_log", conn, if_exists="append", index=False)
-        except SQLAlchemyError as e:
-            print("Failed to load data into database")
-            print(e)
-            conn.close()
-            sys.exit(1)
-        print("Loaded successfully")
-    else:
-        print("Dumping to csv")
-        data.to_csv(CSV_DIR + "game_log.csv", index=False)
+    cleaner = GameLogCleaner(args.load, conn)
+    cleaner.run()
     conn.close()
