@@ -5,10 +5,8 @@ import datetime
 import json
 import os
 import re
-import sys
 # Third party imports
 import pandas as pd
-from sqlalchemy.exc import SQLAlchemyError
 # Local imports
 import utils
 
@@ -56,14 +54,7 @@ class GameLogCleaner:
     def load(self):
         if self.load_db:
             print("Loading data into database")
-            try:
-                self.data.to_sql("game_log", self.conn, if_exists="append", index=False)
-            except SQLAlchemyError as e:
-                print("Failed to load data into database")
-                print(e)
-                conn.close()
-                sys.exit(1)
-            print("Loaded", len(self.data), "records successfully")
+            utils.db_load_data(self.data, "game_log", self.conn, if_exists="append", index=False)
         else:
             print("Dumping to csv")
             self.data.to_csv(os.path.join(self.CSV_DIR, "game_log.csv"), index=False)

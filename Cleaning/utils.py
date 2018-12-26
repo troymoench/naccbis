@@ -37,6 +37,20 @@ def connect_db(config):
     return conn
 
 
+def db_load_data(data, table, conn, exit=False, **kwargs):
+    """ Load DataFrame into database table """
+    try:
+        data.to_sql(table, conn, **kwargs)
+    except Exception as e:
+        print("Unable to load data into", table, "table")
+        print(e)
+        if exit:
+            conn.close()
+            sys.exit(1)
+    else:
+        print("Successfully loaded", len(data), "records into", table, "table")
+
+
 def init_logging():
     """ Initialize logging """
     logging.basicConfig(level=logging.WARNING,

@@ -38,16 +38,6 @@ def calc_replacement_level(totals, conn):
     return bench_totals
 
 
-def db_load_data(data, table, conn, **kwargs):
-    try:
-        data.to_sql(table, conn, **kwargs)
-    except Exception as e:
-        print("Unable to load data into", table, "table")
-        print(e)
-    else:
-        print("Successfully loaded data into", table, "table")
-
-
 if __name__ == "__main__":
     with open("../config.json") as f:
         config = json.load(f)
@@ -55,9 +45,6 @@ if __name__ == "__main__":
 
     conn = utils.connect_db(config)
     data = pd.read_sql_table("team_offense_overall", conn)
-
-    # print(data)
-    # print(data.columns.tolist())
 
     cols = ['season', 'g', 'pa', 'ab', 'r', 'h', 'x2b', 'x3b', 'hr', 'rbi', 'bb',
             'so', 'sb', 'cs', 'hbp', 'sf', 'sh', 'tb', 'xbh', 'gdp', 'go', 'fo']
@@ -91,12 +78,12 @@ if __name__ == "__main__":
     replacement_totals = calc_replacement_level(totals, conn)
 
     # Load replacement level totals in database
-    db_load_data(replacement_totals, "replacement_level", conn, if_exists="append", index=True)
+    utils.db_load_data(replacement_totals, "replacement_level", conn, if_exists="append", index=True)
 
     totals["rep_level"] = replacement_totals["off_pa"]
     totals["rar"] = metrics.rar(totals, totals["rep_level"])
 
-    db_load_data(totals, "league_offense_overall", conn, if_exists="append", index=True)
+    utils.db_load_data(totals, "league_offense_overall", conn, if_exists="append", index=True)
 
     # totals.to_csv("csv/league_offense_overall.csv")
     conn.close()
