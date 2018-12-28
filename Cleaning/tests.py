@@ -8,8 +8,7 @@ import pandas as pd
 import CleanFunctions as cf
 from CleanGameLogs import GameLogCleaner as glc
 import GenerateIds as gi
-import CleanIndividualPitching as cip
-import LeagueTotals as lt
+from LeagueTotals import LeagueOffenseETL as lo
 
 
 class TestCleanFunctions(unittest.TestCase):
@@ -256,7 +255,7 @@ class TestLeagueTotals(unittest.TestCase):
                                  ('Justin', 'Aloisio', 'AUR', 2010, 'Fr', 'OF', 1, 1)],
                                  columns=["fname", "lname", "team", "season", "yr", "pos", "g", "pa"])
 
-        temp = lt.select_bench_players(team)
+        temp = lo.select_bench_players(team)
 
         temp.sort_values(by=["pa", "lname"], ascending=False, inplace=True)
         temp.reset_index(drop=True, inplace=True)
