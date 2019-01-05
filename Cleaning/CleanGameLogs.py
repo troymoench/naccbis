@@ -11,7 +11,7 @@ import pandas as pd
 import utils
 
 
-class GameLogCleaner:
+class GameLogETL:
     """ ETL class for game logs """
     CONFERENCE_TEAMS = ["Aurora", "Benedictine", "Concordia Chicago", "Concordia Wisconsin",
                         "Dominican", "Edgewood", "Lakeland", "MSOE", "Marian", "Maranatha",
@@ -143,6 +143,6 @@ if __name__ == "__main__":
         config = json.load(f)
     utils.init_logging()
     conn = utils.connect_db(config)
-    cleaner = GameLogCleaner(args.load, conn)
-    cleaner.run()
+    game_log = GameLogETL(args.load, conn)
+    game_log.run()
     conn.close()

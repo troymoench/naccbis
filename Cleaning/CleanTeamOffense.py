@@ -11,7 +11,7 @@ SPLIT = "overall"
 OUTPUT = "csv"
 
 
-class TeamOffenseCleaner:
+class TeamOffenseETL:
     """ ETL class for team offense """
     VALID_SPLITS = ["overall", "conference"]
 
@@ -46,6 +46,6 @@ if __name__ == "__main__":
         config = json.load(f)
     utils.init_logging()
     conn = utils.connect_db(config)
-    cleaner = TeamOffenseCleaner(SPLIT, conn)
-    cleaner.run()
+    team_offense = TeamOffenseETL(SPLIT, conn)
+    team_offense.run()
     conn.close()

@@ -11,7 +11,7 @@ import metrics
 SPLIT = "overall"
 
 
-class TeamPichingCleaner:
+class TeamPitchingETL:
     """ ETL class for team pitching """
     VALID_SPLITS = ["overall", "conference"]
 
@@ -43,6 +43,6 @@ if __name__ == "__main__":
         config = json.load(f)
     utils.init_logging()
     conn = utils.connect_db(config)
-    cleaner = TeamPichingCleaner(SPLIT, conn)
-    cleaner.run()
+    team_pitching = TeamPitchingETL(SPLIT, conn)
+    team_pitching.run()
     conn.close()

@@ -11,7 +11,7 @@ import utils
 SPLIT = "overall"
 
 
-class IndividualPitchingCleaner:
+class IndividualPitchingETL:
     """ ETL class for individual pitching """
     VALID_SPLITS = ["overall", "conference"]
 
@@ -60,6 +60,6 @@ if __name__ == "__main__":
         config = json.load(f)
     utils.init_logging()
     conn = utils.connect_db(config)
-    cleaner = IndividualPitchingCleaner(SPLIT, conn)
-    cleaner.run()
+    individual_pitching = IndividualPitchingETL(SPLIT, conn)
+    individual_pitching.run()
     conn.close()

@@ -13,7 +13,7 @@ SPLIT = "overall"
 OUTPUT = "csv"
 
 
-class IndividualOffenseCleaner:
+class IndividualOffenseETL:
     """ ETL class for individual offense """
     VALID_SPLITS = ["overall", "conference"]
 
@@ -54,6 +54,6 @@ if __name__ == "__main__":
         config = json.load(f)
     utils.init_logging()
     conn = utils.connect_db(config)
-    cleaner = IndividualOffenseCleaner(SPLIT, conn)
-    cleaner.run()
+    individual_offense = IndividualOffenseETL(SPLIT, conn)
+    individual_offense.run()
     conn.close()
