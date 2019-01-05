@@ -92,11 +92,73 @@ class LeagueOffenseETL:
         return bench_totals
 
 
+class LeaguePitchingETL:
+    """ ETL class for league pitching """
+    VALID_SPLITS = ["overall", "conference"]
+
+    def __init__(self, split, conn):
+        if split not in self.VALID_SPLITS:
+            raise ValueError("Invalid split: {}".format(split))
+        self.split = split
+        self.conn = conn
+
+    def extract(self):
+        self.team_data = pd.read_sql_table("team_pitching_{}".format(self.split), self.conn)
+
+    def transform(self):
+        if self.split == "overall":
+            cols = ['season', 'g', 'w', 'l', 'sv', 'cg', 'sho', 'ip', 'h', 'r', 'er',
+                    'bb', 'so', 'x2b', 'x3b', 'hr', 'ab', 'wp', 'hbp', 'bk', 'sf', 'sh', 'pa']
+            totals = self.team_data[cols].groupby("season").sum()
+            totals = metrics.basic_pitching_metrics(totals)
+            totals["lg_r_pa"] = totals["r"] / totals["pa"]
+            totals["bsr_bmult"] = metrics.bsr_pitch_bmult(totals)
+            totals["bsr"] = metrics.bsr_pitch(totals, totals["bsr_bmult"])
+            totals["bsr_9"] = metrics.bsr_9(totals)
+            # ra/bf-
+            # bsr/bf-
+            totals["fip_constant"] = metrics.fip_constant(totals)
+            totals["fip"] = metrics.fip(totals, totals["fip_constant"])
+            totals["raa"] = metrics.raa(totals, totals["ra_9"])
+            totals["bsraa"] = metrics.bsraa(totals, totals["bsr_9"])
+            totals["fipraa"] = metrics.fipraa(totals, totals["fip"])
+            totals["era_minus"] = metrics.era_minus(totals, totals["era"])
+            totals["fip_minus"] = metrics.fip_minus(totals, totals["fip"])
+            totals["bsr_minus"] = metrics.bsr_minus(totals, totals["bsr_9"])
+
+        if self.split == "conference":
+            cols = ['season', 'g', 'ip', 'h', 'r', 'er', 'bb', 'so', 'hr']
+            totals = self.team_data[cols].groupby("season").sum()
+            conference = self.split == "conference"
+            totals = metrics.basic_pitching_metrics(totals, conference)
+            # totals["fip_constant"] = metrics.fip_constant(totals)
+            # totals["fip"] = metrics.fip(totals, totals["fip_constant"])
+            totals["raa"] = metrics.raa(totals, totals["ra_9"])
+            # totals["fipraa"] = metrics.fipraa(totals, totals["fip"])
+            totals["era_minus"] = metrics.era_minus(totals, totals["era"])
+            # totals["fip_minus"] = metrics.fip_minus(totals, totals["fip"])
+
+        # print(totals)
+        # print(totals.info())
+        self.totals = totals
+
+    def load(self):
+        utils.db_load_data(self.totals, "league_pitching_{}".format(self.split),
+                           self.conn, if_exists="append", index=True)
+
+    def run(self):
+        self.extract()
+        self.transform()
+        self.load()
+
+
 if __name__ == "__main__":
     with open("../config.json") as f:
         config = json.load(f)
     utils.init_logging()
     conn = utils.connect_db(config)
-    league_offense = LeagueOffenseETL("conference", conn)
+    league_offense = LeagueOffenseETL("overall", conn)
     league_offense.run()
+    league_pitching = LeaguePitchingETL("overall", conn)
+    league_pitching.run()
     conn.close()

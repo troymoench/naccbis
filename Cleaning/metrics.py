@@ -428,3 +428,81 @@ def advanced_offensive_metrics(data, totals, inplace=False):
         df = df.append(temp)
 
     return df
+
+
+# *********************
+# * Pitching Metrics **
+# *********************
+def fip(data, constant):
+    """ Fielding Independent Pitching (FIP)
+    :param
+    :returns:
+    """
+    return ((13*data["hr"] + 3*(data["bb"] + data["hbp"]) - 2*data["so"]) / data["ip"]) + constant
+
+
+def fip_constant(data):
+    """ FIP Constant = lgERA – (((13*lgHR)+(3*(lgBB+lgHBP))-(2*lgK))/lgIP)
+    :param
+    :returns:
+    """
+    return data["era"] - (((13*data["hr"]) + (3*(data["bb"] + data["hbp"])) - 2*data["so"]) / data["ip"])
+
+
+def fip_minus(data, lg_fip):
+    """ FIP- = FIP / lgFIP * 100
+    :param
+    :returns:
+    """
+    return data["fip"] / lg_fip * 100
+
+
+def era_minus(data, lg_era):
+    """ ERA- = ERA / lgERA * 100
+    :param
+    :returns:
+    """
+    return data["era"] / lg_era * 100
+
+
+def bsr_pitch(data, bmult=1.0):
+    x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
+
+    a = data["h"] + data["bb"] + data["hbp"] - data["hr"]
+    b = .78*x1b + 2.34*data["x2b"] + 3.9*data["x3b"] + 2.34*data["hr"] + .039*(data["bb"] + data["hbp"])
+    c = data["ab"] - data["h"]
+    d = data["hr"]
+    return a*(b*bmult/(b*bmult+c)) + d
+
+
+def bsr_pitch_bmult(data):
+    x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
+
+    a = data["h"] + data["bb"] + data["hbp"] - data["hr"]
+    b = .78*x1b + 2.34*data["x2b"] + 3.9*data["x3b"] + 2.34*data["hr"] + .039*(data["bb"] + data["hbp"])
+    c = data["ab"] - data["h"]
+    d = data["hr"]
+
+    b_act = c*(d - data["r"])/(data["r"] - d - a)
+    b_est = b
+    return b_act/b_est
+
+
+def bsr_9(data):
+    return data["bsr"] / data["ip"] * 9
+
+
+def bsr_minus(data, lg_bsr_9):
+    return data["bsr_9"] / lg_bsr_9 * 100
+
+
+def bsraa(data, lg_bsr_9):
+    return (lg_bsr_9 - data["bsr_9"]) * data["ip"] / 9
+
+
+def raa(data, lg_ra_9):
+    return (lg_ra_9 - data["ra_9"]) * data["ip"] / 9
+
+
+def fipraa(data, lg_fip):
+    return (lg_fip - data["fip"]) * data["ip"] / 9
