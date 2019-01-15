@@ -18,12 +18,15 @@ class GameLogETL:
                         "Rockford", "Wisconsin Lutheran"]
     CSV_DIR = "csv/"
 
-    def __init__(self, load_db, conn):
+    def __init__(self, year, load_db, conn):
+        self.year = year
         self.load_db = load_db
         self.conn = conn
 
     def extract(self):
         self.data = pd.read_sql_table("raw_game_log_hitting", self.conn)
+        if self.year:
+            self.data = self.data[self.data["season"] == self.year]
 
     def transform(self):
         self.data = self.data[["game_num", "date", "season", "name", "opponent", "score"]]
@@ -135,6 +138,7 @@ class GameLogETL:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Extract, Transform, Load Game Log data")
+    parser.add_argument("--year", type=int, default=None, help="Filter by year")
     parser.add_argument("--load", action="store_true",
                         help="Load data into database")
     args = parser.parse_args()
@@ -143,6 +147,6 @@ if __name__ == "__main__":
         config = json.load(f)
     utils.init_logging()
     conn = utils.connect_db(config)
-    game_log = GameLogETL(args.load, conn)
+    game_log = GameLogETL(args.year, args.load, conn)
     game_log.run()
     conn.close()

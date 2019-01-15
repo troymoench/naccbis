@@ -1,28 +1,32 @@
 """ This script is used to clean team offense data and load into database """
 # Standard library imports
+import argparse
 import json
+import os
 # Third party imports
 import pandas as pd
 # Local imports
 import metrics
 import utils
 
-SPLIT = "overall"
-OUTPUT = "csv"
-
 
 class TeamOffenseETL:
     """ ETL class for team offense """
     VALID_SPLITS = ["overall", "conference"]
+    CSV_DIR = "csv/"
 
-    def __init__(self, split, conn):
+    def __init__(self, year, split, load_db, conn):
+        self.year = year
         if split not in self.VALID_SPLITS:
             raise ValueError("Invalid split: {}".format(split))
         self.split = split
+        self.load_db = load_db
         self.conn = conn
 
     def extract(self):
         self.data = pd.read_sql_table("raw_team_offense_{}".format(self.split), self.conn)
+        if self.year:
+            self.data = self.data[self.data["season"] == self.year]
 
     def transform(self):
         self.data = metrics.basic_offensive_metrics(self.data)
@@ -33,7 +37,13 @@ class TeamOffenseETL:
         self.data = self.data[columns]
 
     def load(self):
-        self.data.to_sql("team_offense_{}".format(self.split), self.conn, if_exists="append", index=False)
+        table_name = "team_offense_{}".format(self.split)
+        if self.load_db:
+            print("Loading data into database")
+            utils.db_load_data(self.data, table_name, self.conn, if_exists="append", index=False)
+        else:
+            print("Dumping to csv")
+            self.data.to_csv(os.path.join(self.CSV_DIR, "{}.csv".format(table_name)), index=False)
 
     def run(self):
         self.extract()
@@ -42,10 +52,17 @@ class TeamOffenseETL:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Extract, Transform, Load Team Offense data")
+    parser.add_argument("--year", type=int, default=None, help="Filter by year")
+    parser.add_argument("--split", type=str, default="overall", help="Filter by split")
+    parser.add_argument("--load", action="store_true",
+                        help="Load data into database")
+    args = parser.parse_args()
+
     with open('../config.json') as f:
         config = json.load(f)
     utils.init_logging()
     conn = utils.connect_db(config)
-    team_offense = TeamOffenseETL(SPLIT, conn)
+    team_offense = TeamOffenseETL(args.year, args.split, args.load, conn)
     team_offense.run()
     conn.close()
