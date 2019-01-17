@@ -1,7 +1,9 @@
 """ This script is used to calculate league totals for offense and pitching
 and load into database """
 # Standard library imports
+import argparse
 import json
+import os
 # Third party imports
 import pandas as pd
 # Local imports
@@ -12,16 +14,23 @@ import utils
 class LeagueOffenseETL:
     """ ETL class for league offense """
     VALID_SPLITS = ["overall", "conference"]
+    CSV_DIR = "csv/"
 
-    def __init__(self, split, conn):
+    def __init__(self, year, split, load_db, conn):
+        self.year = year
         if split not in self.VALID_SPLITS:
             raise ValueError("Invalid split: {}".format(split))
         self.split = split
+        self.load_db = load_db
         self.conn = conn
 
     def extract(self):
         self.team_data = pd.read_sql_table("team_offense_{}".format(self.split), self.conn)
+        if self.year:
+            self.team_data = self.team_data[self.team_data["season"] == self.year]
         self.batters = pd.read_sql_table("batters_{}".format(self.split), self.conn)
+        if self.year:
+            self.batters = self.batters[self.batters["season"] == self.year]
 
     def transform(self):
         cols = ['season', 'g', 'pa', 'ab', 'r', 'h', 'x2b', 'x3b', 'hr', 'rbi', 'bb',
@@ -55,10 +64,22 @@ class LeagueOffenseETL:
         self.totals = totals
 
     def load(self):
-        utils.db_load_data(self.replacement_totals, "replacement_level_{}".format(self.split),
-                           self.conn, if_exists="append", index=True)
-        utils.db_load_data(self.totals, "league_offense_{}".format(self.split),
-                           self.conn, if_exists="append", index=True)
+        repl_table_name = "replacement_level_{}".format(self.split)
+        if self.load_db:
+            print("Loading data into database")
+            utils.db_load_data(self.replacement_totals, repl_table_name, self.conn,
+                               if_exists="append", index=True)
+        else:
+            print("Dumping to csv")
+            self.replacement_totals.to_csv(os.path.join(self.CSV_DIR, "{}.csv".format(repl_table_name)), index=True)
+
+        table_name = "league_offense_{}".format(self.split)
+        if self.load_db:
+            print("Loading data into database")
+            utils.db_load_data(self.totals, table_name, self.conn, if_exists="append", index=True)
+        else:
+            print("Dumping to csv")
+            self.totals.to_csv(os.path.join(self.CSV_DIR, "{}.csv".format(table_name)), index=True)
 
     def run(self):
         self.extract()
@@ -95,15 +116,20 @@ class LeagueOffenseETL:
 class LeaguePitchingETL:
     """ ETL class for league pitching """
     VALID_SPLITS = ["overall", "conference"]
+    CSV_DIR = "csv/"
 
-    def __init__(self, split, conn):
+    def __init__(self, year, split, load_db, conn):
+        self.year = year
         if split not in self.VALID_SPLITS:
             raise ValueError("Invalid split: {}".format(split))
         self.split = split
+        self.load_db = load_db
         self.conn = conn
 
     def extract(self):
         self.team_data = pd.read_sql_table("team_pitching_{}".format(self.split), self.conn)
+        if self.year:
+            self.team_data = self.team_data[self.team_data["season"] == self.year]
 
     def transform(self):
         if self.split == "overall":
@@ -143,8 +169,13 @@ class LeaguePitchingETL:
         self.totals = totals
 
     def load(self):
-        utils.db_load_data(self.totals, "league_pitching_{}".format(self.split),
-                           self.conn, if_exists="append", index=True)
+        table_name = "league_pitching_{}".format(self.split)
+        if self.load_db:
+            print("Loading data into database")
+            utils.db_load_data(self.totals, table_name, self.conn, if_exists="append", index=True)
+        else:
+            print("Dumping to csv")
+            self.totals.to_csv(os.path.join(self.CSV_DIR, "{}.csv".format(table_name)), index=True)
 
     def run(self):
         self.extract()
@@ -153,12 +184,19 @@ class LeaguePitchingETL:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Extract, Transform, Load League Offense and Pitching data")
+    parser.add_argument("--year", type=int, default=None, help="Filter by year")
+    parser.add_argument("--split", type=str, default="overall", help="Filter by split")
+    parser.add_argument("--load", action="store_true",
+                        help="Load data into database")
+    args = parser.parse_args()
+
     with open("../config.json") as f:
         config = json.load(f)
     utils.init_logging()
     conn = utils.connect_db(config)
-    league_offense = LeagueOffenseETL("overall", conn)
+    league_offense = LeagueOffenseETL(args.year, args.split, args.load, conn)
     league_offense.run()
-    league_pitching = LeaguePitchingETL("overall", conn)
+    league_pitching = LeaguePitchingETL(args.year, args.split, args.load, conn)
     league_pitching.run()
     conn.close()
