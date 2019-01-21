@@ -156,25 +156,6 @@ def get_team_list(base_url, year, team_ids):
 # ****************************
 # ***** Helper Functions *****
 # ****************************
-def year_to_season(yr):
-    """ Converts a school year into a season
-    e.g. year_to_season("2016-17") returns 2017
-
-    :param yr: String
-    :returns: Int
-    """
-    return int(yr[0:4]) + 1
-
-
-def season_to_year(season):
-    """ Converts a season into a school year
-    e.g. season_to_year(2017) returns "2016-17"
-
-    :param season: Int
-    :returns: String
-    """
-    return str(season - 1) + '-' + str(season - 2000)
-
 
 def to_int(x):
     if x is None:

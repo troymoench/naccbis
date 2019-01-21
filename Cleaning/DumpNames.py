@@ -14,7 +14,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from Levenshtein import distance
 # Local imports
 import CleanFunctions
-import utils
+import Common.utils as utils
 
 
 def levenshtein_analysis(data, levenshtein_first, levenshtein_last):

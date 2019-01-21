@@ -8,7 +8,7 @@ import re
 # Third party imports
 import pandas as pd
 # Local imports
-import utils
+import Common.utils as utils
 
 
 class GameLogETL:

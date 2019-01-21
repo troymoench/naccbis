@@ -10,6 +10,7 @@ import pandas as pd
 # Local imports
 import ScrapeFunctions as sf
 from ScrapeBase import BaseScraper
+import Common.utils as utils
 
 YEAR = "2017-18"
 SPLIT = "overall"
@@ -129,7 +130,7 @@ class IndividualPitchingScraper(BaseScraper):
             data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))  # replace 'inf' with None
 
             data["Team"] = team_id
-            data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+            data["Season"] = str(utils.year_to_season(self._year))  # converts to str for now, should be numpy.int64
             if self._inseason:
                 data["Date"] = str(date.today())
             data["Yr"] = data["Yr"].apply(sf.strip_dots)
@@ -155,7 +156,7 @@ class IndividualPitchingScraper(BaseScraper):
             data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))  # replace 'inf' with None
 
             data["Team"] = team_id
-            data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+            data["Season"] = str(utils.year_to_season(self._year))  # converts to str for now, should be numpy.int64
             if self._inseason:
                 data["Date"] = str(date.today())
             data["Yr"] = data["Yr"].apply(sf.strip_dots)

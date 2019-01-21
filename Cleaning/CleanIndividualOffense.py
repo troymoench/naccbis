@@ -7,8 +7,8 @@ import os
 import pandas as pd
 # Local imports
 import CleanFunctions as cf
-import utils
-import metrics
+import Common.utils as utils
+import Common.metrics as metrics
 
 
 class IndividualOffenseETL:

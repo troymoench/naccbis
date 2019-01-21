@@ -97,7 +97,7 @@ class BaseScraper:
                             index=False)
                     else:
                         self._data.to_csv("{}{}{}.csv".format(self._config["csv_path"], tableName,
-                                                              sf.year_to_season(self._year)), index=False)
+                                                              utils.year_to_season(self._year)), index=False)
                 except Exception as e:
                     print("Unable to export to CSV")
                     print(e)

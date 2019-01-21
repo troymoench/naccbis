@@ -7,8 +7,8 @@ import os
 # Third party imports
 import pandas as pd
 # Local imports
-import metrics
-import utils
+import Common.metrics as metrics
+import Common.utils as utils
 
 
 class LeagueOffenseETL:

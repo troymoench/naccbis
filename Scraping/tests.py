@@ -75,14 +75,6 @@ class TestScrapeFunctions(unittest.TestCase):
         with self.assertRaises(IndexError):
             sf.scrape_table(soup, 2)
 
-    def test_year_to_season(self):
-        year = "2016-17"
-        self.assertEqual(sf.year_to_season(year), 2017)
-
-    def test_season_to_year(self):
-        season = 2017
-        self.assertEqual(sf.season_to_year(season), "2016-17")
-
     def test_strip_dots(self):
         name = "Jeffrey Mayes......."
         self.assertEqual(sf.strip_dots(name), "Jeffrey Mayes")

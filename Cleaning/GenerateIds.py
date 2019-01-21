@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 # Local imports
 import CleanFunctions as cf
-import utils
+import Common.utils as utils
 
 
 def make_full_name(fname, lname):

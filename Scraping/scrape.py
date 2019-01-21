@@ -7,47 +7,13 @@ import logging
 # Third party imports
 # Local imports
 import config
-import ScrapeFunctions as sf
 from ScrapeGameLog import GameLogScraper
 from ScrapeIndividualOffense import IndividualOffenseScraper
 from ScrapeIndividualPitching import IndividualPitchingScraper
 from ScrapeTeamFielding import TeamFieldingScraper
 from ScrapeTeamOffense import TeamOffenseScraper
 from ScrapeTeamPitching import TeamPitchingScraper
-
-
-def parse_year(year):
-    """ Parse a string of year(s), e.g. 2017, 2015:2017
-    :param year: The string representation of a year or range of years
-    :returns: List of years (integers)
-    """
-    # if no colon exists, single year
-    if ':' not in year:
-        return [int(year)]
-    else:
-        temp = [int(yr) for yr in year.split(':')]
-        temp.sort()  # ascending
-        rng = list(range(temp[0], temp[1]+1))
-        # rng.sort(reverse=True)  # descending
-        return rng
-
-
-def parse_stat(stats, accepted_values):
-    """ Parse a string of stat options, e.g. 1,2 all
-    :param stats: String of stat options to parse
-    :param accepted_values: List of accepted stat options
-    :returns: List of stat options (integers)
-    """
-    if stats == "all":
-        return accepted_values
-    else:
-        temp = stats.replace(" ", "")
-        temp = [int(stat) for stat in stats.split(',')]
-        if set(temp).issubset(set(accepted_values)):
-            temp.sort()  # ascending
-            return temp
-        else:
-            return list()  # should raise an exception
+import Common.utils as utils
 
 
 def run_scrapers(scraper_nums, year, splits, output, inseason, verbose):
@@ -86,9 +52,9 @@ def final(args):
     :param args: Arguments for the scrapers
     """
     # parse year
-    seasons = parse_year(args.year)
+    seasons = utils.parse_year(args.year)
     # print(seasons)
-    years = [sf.season_to_year(x) for x in seasons]
+    years = [utils.season_to_year(x) for x in seasons]
     # print(years)
 
     # parse split
@@ -100,7 +66,7 @@ def final(args):
 
     # parse stat
     accepted = list(range(1, 7))
-    scrapers = parse_stat(args.stat, accepted)
+    scrapers = utils.parse_stat(args.stat, accepted)
     # print(scrapers)
     if len(scrapers) == 0:
         print("Unrecognized stat option")
@@ -119,7 +85,7 @@ def inseason(args):
     """
     # current year
     year = date.today().year
-    year = sf.season_to_year(year)
+    year = utils.season_to_year(year)
     # print(year)
 
     # parse split
@@ -131,7 +97,7 @@ def inseason(args):
 
     # parse stat
     accepted = list(range(1, 7))
-    scrapers = parse_stat(args.stat, accepted)
+    scrapers = utils.parse_stat(args.stat, accepted)
     # print(scrapers)
     if len(scrapers) == 0:
         print("Unrecognized stat option")

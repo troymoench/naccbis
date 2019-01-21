@@ -9,6 +9,7 @@ import pandas as pd
 # Local imports
 import ScrapeFunctions as sf
 from ScrapeBase import BaseScraper
+import Common.utils as utils
 
 YEAR = "2017-18"
 SPLIT = "hitting"  # hitting/pitching/fielding
@@ -141,7 +142,7 @@ class GameLogScraper(BaseScraper):
         data["Date"] = [x.replace("#", "").strip() for x in data["Date"]]
 
         data["Name"] = team
-        data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+        data["Season"] = str(utils.year_to_season(self._year))  # converts to str for now, should be numpy.int64
         if self._inseason:
             data["ScrapeDate"] = str(date.today())
         data["GameNum"] = list(range(1, len(data) + 1))

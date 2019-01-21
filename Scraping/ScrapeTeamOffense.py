@@ -9,6 +9,7 @@ import pandas as pd
 # Local imports
 import ScrapeFunctions as sf
 from ScrapeBase import BaseScraper
+import Common.utils as utils
 
 YEAR = "2017-18"
 SPLIT = "conference"
@@ -103,7 +104,7 @@ class TeamOffenseScraper(BaseScraper):
         # convert column names to a friendlier format
         data.columns = newColNames
 
-        data["Season"] = str(sf.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+        data["Season"] = str(utils.year_to_season(self._year))  # converts to str for now, should be numpy.int64
         if self._inseason:
             data["Date"] = str(date.today())
         # data = data.sort_values(ascending=False, by=["PA"])  # This doesn't work currently
