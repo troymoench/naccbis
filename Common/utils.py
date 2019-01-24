@@ -6,6 +6,7 @@ import sys
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 # Local imports
+import Common.conf as conf
 
 
 def connect_db(config):
@@ -52,12 +53,21 @@ def db_load_data(data, table, conn, exit=False, **kwargs):
         print("Successfully loaded", len(data), "records into", table, "table")
 
 
-def init_logging():
+def init_config():
+    """ Initialize configuration """
+    config = {
+        "DB": conf.DB,
+        "LOGGING": conf.LOGGING
+    }
+    return config
+
+
+def init_logging(config):
     """ Initialize logging """
-    logging.basicConfig(level=logging.WARNING,
-                        format='%(asctime)s %(levelname)s %(message)s  <%(funcName)s %(module)s.py:%(lineno)d>',
-                        datefmt='%H:%M:%S')
-    logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+    logging.basicConfig(level=config["level"],
+                        format=config["format"],
+                        datefmt=config["datefmt"])
+    logging.getLogger('sqlalchemy.engine').setLevel("WARNING")
 
 
 def parse_year(year):

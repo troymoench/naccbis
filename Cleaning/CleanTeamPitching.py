@@ -1,7 +1,6 @@
 """ This script is used to clean team pitching data and load into database """
 # Standard library imports
 import argparse
-import json
 import os
 # Third party imports
 import pandas as pd
@@ -57,10 +56,9 @@ if __name__ == "__main__":
                         help="Load data into database")
     args = parser.parse_args()
 
-    with open('../config.json') as f:
-        config = json.load(f)
-    utils.init_logging()
-    conn = utils.connect_db(config)
+    config = utils.init_config()
+    utils.init_logging(config["LOGGING"])
+    conn = utils.connect_db(config["DB"])
     team_pitching = TeamPitchingETL(args.year, args.split, args.load, conn)
     team_pitching.run()
     conn.close()

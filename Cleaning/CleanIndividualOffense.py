@@ -1,7 +1,6 @@
 """ This script is used to clean individual offense data and load into database """
 # Standard library imports
 import argparse
-import json
 import os
 # Third party imports
 import pandas as pd
@@ -66,10 +65,9 @@ if __name__ == "__main__":
                         help="Load data into database")
     args = parser.parse_args()
 
-    with open('../config.json') as f:
-        config = json.load(f)
-    utils.init_logging()
-    conn = utils.connect_db(config)
+    config = utils.init_config()
+    utils.init_logging(config["LOGGING"])
+    conn = utils.connect_db(config["DB"])
     individual_offense = IndividualOffenseETL(args.year, args.split, args.load, conn)
     individual_offense.run()
     conn.close()

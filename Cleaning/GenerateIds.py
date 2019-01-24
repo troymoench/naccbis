@@ -1,11 +1,9 @@
 """ This script is used to generate player ids """
 # Standard library imports
 import argparse
-import json
 import sys
 # Third party imports
 import pandas as pd
-from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 # Local imports
 import CleanFunctions as cf
@@ -134,12 +132,11 @@ if __name__ == "__main__":
                         help="Load data into database")
     args = parser.parse_args()
 
-    with open('../config.json') as f:
-        config = json.load(f)
-
     CSV_DIR = "csv/"
 
-    conn = utils.connect_db(config)
+    config = utils.init_config()
+    utils.init_logging(config["LOGGING"])
+    conn = utils.connect_db(config["DB"])
 
     batters = pd.read_sql_table("raw_batters_overall", conn)
     pitchers = pd.read_sql_table("raw_pitchers_overall", conn)
