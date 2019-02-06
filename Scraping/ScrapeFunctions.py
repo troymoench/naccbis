@@ -16,7 +16,7 @@ import requests
 # ********************************
 # ** General Scraping Functions **
 # ********************************
-def get_soup(url, backoff=.5, verbose=False):
+def get_soup(url, backoff=1, verbose=False):
     """ Create a BeautifulSoup object from a web page with the requested URL
 
     :param url: A string with the requested URL
@@ -29,7 +29,7 @@ def get_soup(url, backoff=.5, verbose=False):
     if verbose:
         print("GET " + url)
     try:
-        request = requests.get(url, timeout=10)  # give the server 10 seconds to respond
+        request = requests.get(url, timeout=15)
     except requests.exceptions.RequestException:
         print("Error: Unable to connect to", url)
         logging.critical("Error: Unable to connect to", url)
