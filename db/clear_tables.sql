@@ -1,0 +1,15 @@
+delete from batters_conference;
+delete from batters_overall;
+delete from game_log;
+delete from league_offense_conference;
+delete from league_offense_overall;
+delete from league_pitching_conference;
+delete from league_pitching_overall;
+delete from pitchers_conference;
+delete from pitchers_overall;
+delete from replacement_level_conference;
+delete from replacement_level_overall;
+delete from team_offense_conference;
+delete from team_offense_overall;
+delete from team_pitching_conference;
+delete from team_pitching_overall;
