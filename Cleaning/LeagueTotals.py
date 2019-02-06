@@ -2,6 +2,7 @@
 and load into database """
 # Standard library imports
 import argparse
+import logging
 import os
 # Third party imports
 import pandas as pd
@@ -65,22 +66,24 @@ class LeagueOffenseETL:
     def load(self):
         repl_table_name = "replacement_level_{}".format(self.split)
         if self.load_db:
-            print("Loading data into database")
+            logging.info("Loading data into database")
             utils.db_load_data(self.replacement_totals, repl_table_name, self.conn,
                                if_exists="append", index=True)
         else:
-            print("Dumping to csv")
+            logging.info("Dumping to csv")
             self.replacement_totals.to_csv(os.path.join(self.CSV_DIR, "{}.csv".format(repl_table_name)), index=True)
 
         table_name = "league_offense_{}".format(self.split)
         if self.load_db:
-            print("Loading data into database")
+            logging.info("Loading data into database")
             utils.db_load_data(self.totals, table_name, self.conn, if_exists="append", index=True)
         else:
-            print("Dumping to csv")
+            logging.info("Dumping to csv")
             self.totals.to_csv(os.path.join(self.CSV_DIR, "{}.csv".format(table_name)), index=True)
 
     def run(self):
+        logging.info("Running %s", type(self).__name__)
+        logging.info("Year: %s Split: %s Load: %s", self.year, self.split, self.load_db)
         self.extract()
         self.transform()
         self.load()
@@ -170,13 +173,15 @@ class LeaguePitchingETL:
     def load(self):
         table_name = "league_pitching_{}".format(self.split)
         if self.load_db:
-            print("Loading data into database")
+            logging.info("Loading data into database")
             utils.db_load_data(self.totals, table_name, self.conn, if_exists="append", index=True)
         else:
-            print("Dumping to csv")
+            logging.info("Dumping to csv")
             self.totals.to_csv(os.path.join(self.CSV_DIR, "{}.csv".format(table_name)), index=True)
 
     def run(self):
+        logging.info("Running %s", type(self).__name__)
+        logging.info("Year: %s Split: %s Load: %s", self.year, self.split, self.load_db)
         self.extract()
         self.transform()
         self.load()

@@ -25,17 +25,23 @@ def connect_db(config):
                     config["port"],
                     config["database"])
     except KeyError as e:
-        print("Database connection parameter error")
-        print(e)
+        logging.error("Database connection parameter error")
+        logging.error(e)
         sys.exit(1)
 
     engine = create_engine(conn_str)
     try:
         conn = engine.connect()
     except SQLAlchemyError as e:
-        print("Failed to connect to database")
-        print(e)
+        logging.error("Failed to connect to database")
+        logging.error(e)
         sys.exit(1)
+    else:
+        logging.info("Successfully connected to database %s", config["database"])
+        logging.debug("DB Name: %s", config["database"])
+        logging.debug("DB Host: %s", config["host"])
+        logging.debug("DB Port: %s", config["port"])
+        logging.debug("DB User: %s", config["user"])
     return conn
 
 
@@ -44,13 +50,13 @@ def db_load_data(data, table, conn, exit=False, **kwargs):
     try:
         data.to_sql(table, conn, **kwargs)
     except Exception as e:
-        print("Unable to load data into", table, "table")
-        print(e)
+        logging.error("Unable to load data into %s table", table)
+        logging.error(e)
         if exit:
             conn.close()
             sys.exit(1)
     else:
-        print("Successfully loaded", len(data), "records into", table, "table")
+        logging.info("Successfully loaded %s records into %s table", len(data), table)
 
 
 def init_config():

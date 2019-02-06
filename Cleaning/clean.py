@@ -56,6 +56,7 @@ def final(args, conn):
         sys.exit(1)
 
     for year in years:
+        logging.info("Running ETLs for %s", year)
         run_etls(etls, year, splits, args.load, conn)
 
 
@@ -71,7 +72,7 @@ def add_common_args(parser):
     # be added to the top level parser because the subcommand parser parses all
     # args after the subcommand.
     parser.add_argument("-s", "--split", type=str, choices=["overall", "conference", "all"],
-                        default="overall", metavar="SPLIT", help="Filter by split")
+                        default="all", metavar="SPLIT", help="Filter by split")
     parser.add_argument("-S", "--stat", type=str, default="all", metavar="STAT",
                         help="Select ETL(s) to run. Provide comma separated list or all for multiple")
 

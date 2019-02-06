@@ -2,6 +2,7 @@
 # Standard library imports
 import argparse
 import datetime
+import logging
 import os
 import re
 # Third party imports
@@ -55,13 +56,15 @@ class GameLogETL:
 
     def load(self):
         if self.load_db:
-            print("Loading data into database")
+            logging.info("Loading data into database")
             utils.db_load_data(self.data, "game_log", self.conn, if_exists="append", index=False)
         else:
-            print("Dumping to csv")
+            logging.info("Dumping to csv")
             self.data.to_csv(os.path.join(self.CSV_DIR, "game_log.csv"), index=False)
 
     def run(self):
+        logging.info("Running %s", type(self).__name__)
+        logging.info("Year: %s Load: %s", self.year, self.load_db)
         self.extract()
         self.transform()
         self.load()

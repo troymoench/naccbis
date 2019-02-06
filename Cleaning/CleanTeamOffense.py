@@ -1,6 +1,7 @@
 """ This script is used to clean team offense data and load into database """
 # Standard library imports
 import argparse
+import logging
 import os
 # Third party imports
 import pandas as pd
@@ -38,13 +39,15 @@ class TeamOffenseETL:
     def load(self):
         table_name = "team_offense_{}".format(self.split)
         if self.load_db:
-            print("Loading data into database")
+            logging.info("Loading data into database")
             utils.db_load_data(self.data, table_name, self.conn, if_exists="append", index=False)
         else:
-            print("Dumping to csv")
+            logging.info("Dumping to csv")
             self.data.to_csv(os.path.join(self.CSV_DIR, "{}.csv".format(table_name)), index=False)
 
     def run(self):
+        logging.info("Running %s", type(self).__name__)
+        logging.info("Year: %s Split: %s Load: %s", self.year, self.split, self.load_db)
         self.extract()
         self.transform()
         self.load()
