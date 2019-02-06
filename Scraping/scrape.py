@@ -6,7 +6,6 @@ import sys
 import logging
 # Third party imports
 # Local imports
-import config
 from ScrapeGameLog import GameLogScraper
 from ScrapeIndividualOffense import IndividualOffenseScraper
 from ScrapeIndividualPitching import IndividualPitchingScraper
@@ -173,6 +172,9 @@ if __name__ == "__main__":
     add_common_args(inseason_parser)
     # set the callback function for this subcommand
     inseason_parser.set_defaults(func=inseason)
+
+    config = utils.init_config()
+    utils.init_logging(config["LOGGING"])
 
     # log that the script has started
     logging.info("Initializing scraping controller script")
