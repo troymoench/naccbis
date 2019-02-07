@@ -1,6 +1,5 @@
 # Standard library imports
 from datetime import date
-import json
 import logging
 import sys
 from urllib.parse import urljoin
@@ -40,10 +39,6 @@ class GameLogScraper(BaseScraper):
         self._name = "Game Log Scraper"
         self._data = pd.DataFrame()
         self._runnable = True
-
-        # TODO: Add error handling
-        with open('../config.json') as f:
-            self._config = json.load(f)
 
     def run(self):
         # run the scraper

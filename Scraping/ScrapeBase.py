@@ -2,13 +2,13 @@
 # Standard library imports
 from datetime import date
 import sys
-import json
 import logging
 # Third party imports
 import pandas as pd
 import psycopg2
 # Local imports
 import ScrapeFunctions as sf
+import Common.utils as utils
 
 
 class BaseScraper:
@@ -59,10 +59,8 @@ class BaseScraper:
         self._verbose = verbose
         self._data = pd.DataFrame()
         self._runnable = True
-
-        # TODO: Add error handling
-        with open('../config.json') as f:
-            self._config = json.load(f)
+        self._config = utils.init_config()["DB"]
+        self._config["csv_path"] = ""
 
     def info(self):
         """ Print the scraper information to standard out

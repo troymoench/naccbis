@@ -1,7 +1,6 @@
 """ This module provides the TeamPitchingScraper class """
 # Standard library imports
 from datetime import date
-import json
 import logging
 import sys
 from urllib.parse import urljoin
@@ -39,10 +38,6 @@ class TeamPitchingScraper(BaseScraper):
         self._name = "Team Pitching Scraper"
         self._data = pd.DataFrame()
         self._runnable = True
-
-        # TODO: Add error handling
-        with open('../config.json') as f:
-            self._config = json.load(f)
 
     def run(self):
         # run the scraper

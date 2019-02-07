@@ -1,7 +1,6 @@
 """ This module provides the TeamFieldingScraper class """
 # Standard library imports
 from datetime import date
-import json
 import logging
 import sys
 # Third party imports
@@ -36,10 +35,6 @@ class TeamFieldingScraper(BaseScraper):
         self._name = "Team Fielding Scraper"
         self._data = pd.DataFrame()
         self._runnable = True
-
-        # TODO: Add error handling
-        with open('../config.json') as f:
-            self._config = json.load(f)
 
     def run(self):
         # run the scraper

@@ -1,6 +1,5 @@
 .idea
 __pycache__
-config.json
 junk
 TODO.txt
 *.log
