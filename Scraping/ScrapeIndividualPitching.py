@@ -131,7 +131,9 @@ class IndividualPitchingScraper(BaseScraper):
             data["Yr"] = data["Yr"].apply(sf.strip_dots)
             data["Pos"] = data["Pos"].apply(sf.to_none)
 
-            return data[finalColNames]
+            data = data[finalColNames]
+            data.columns = data.columns.to_series().str.lower()
+            return data
         elif self._split == "conference":
             renameCols = {'No.': 'No', 'app': 'g', 'k': 'so', 'k/9': 'so_9'}
             intCols = ['No', 'g', 'gs', 'w', 'l', 'sv', 'cg', 'h', 'r', 'er', 'bb', 'so', 'hr']
@@ -157,7 +159,9 @@ class IndividualPitchingScraper(BaseScraper):
             data["Yr"] = data["Yr"].apply(sf.strip_dots)
             data["Pos"] = data["Pos"].apply(sf.to_none)
 
-            return data[finalColNames]
+            data = data[finalColNames]
+            data.columns = data.columns.to_series().str.lower()
+            return data
         else:
             print("Invalid split:", self._split)
             sys.exit(1)

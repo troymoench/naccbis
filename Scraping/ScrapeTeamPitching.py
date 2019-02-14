@@ -162,7 +162,9 @@ class TeamPitchingScraper(BaseScraper):
             data["Season"] = str(utils.year_to_season(self._year))  # converts to str for now, should be numpy.int64
             if self._inseason:
                 data["Date"] = str(date.today())
-            return data[finalColNames]
+            data = data[finalColNames]
+            data.columns = data.columns.to_series().str.lower()
+            return data
         elif self._split == "conference":
             unnecessaryCols = ['Rk']
             renameCols = {'gp': 'g', 'k': 'so', 'k/9': 'so_9'}
@@ -187,7 +189,9 @@ class TeamPitchingScraper(BaseScraper):
             if self._inseason:
                 data["Date"] = str(date.today())
 
-            return data[finalColNames]
+            data = data[finalColNames]
+            data.columns = data.columns.to_series().str.lower()
+            return data
         else:
             print("Invalid split:", self._split)
             sys.exit(1)

@@ -104,7 +104,8 @@ class GameLogScraper(BaseScraper):
             intCols = ['ab', 'r', 'h', 'x2b', 'x3b', 'hr', 'rbi', 'bb', 'so', 'sb', 'cs', 'hbp', 'sf', 'sh', 'tb',
                        'xbh', 'gdp', 'go', 'fo', 'pa']
             floatCols = ['go_fo']
-            renameCols = {'2b': 'x2b', '3b': 'x3b', 'k': 'so', 'hdp': 'gdp', 'go/fo': 'go_fo'}
+            renameCols = {'2b': 'x2b', '3b': 'x3b', 'k': 'so',
+                          'hdp': 'gdp', 'go/fo': 'go_fo'}
 
         elif self._split == "pitching":
             intCols = ['w', 'l', 'sv', 'h', 'r', 'er', 'bb', 'so', 'hr']
@@ -139,24 +140,26 @@ class GameLogScraper(BaseScraper):
         data["Name"] = team
         data["Season"] = str(utils.year_to_season(self._year))  # converts to str for now, should be numpy.int64
         if self._inseason:
-            data["ScrapeDate"] = str(date.today())
-        data["GameNum"] = list(range(1, len(data) + 1))
-        data["GameNum"] = data["GameNum"].apply(str)
+            data["scrape_date"] = str(date.today())
+        data["game_num"] = list(range(1, len(data) + 1))
+        data["game_num"] = data["game_num"].apply(str)
 
         finalColNames = data.axes[1].tolist()
         finalColNames.remove("Season")
         finalColNames.remove("Name")
         if self._inseason:
-            finalColNames.remove("ScrapeDate")
+            finalColNames.remove("scrape_date")
 
         finalColNames.insert(1, "Season")
         finalColNames.insert(2, "Name")
         if self._inseason:
-            finalColNames.insert(0, "ScrapeDate")
+            finalColNames.insert(0, "scrape_date")
 
-        finalColNames.remove("GameNum")
-        finalColNames.insert(0, "GameNum")
-        return data[finalColNames]
+        finalColNames.remove("game_num")
+        finalColNames.insert(0, "game_num")
+        data = data[finalColNames]
+        data.columns = data.columns.to_series().str.lower()
+        return data
 
 
 # ***********************************

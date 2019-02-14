@@ -77,14 +77,14 @@ class TeamOffenseScraper(BaseScraper):
         intCols = ["gp", "ab", "r", "h", "2b", "3b", "hr", "rbi", "bb", "k",
                    "sb", "cs", "hbp", "sf", "sh", "tb", "xbh", "hdp", "go", "fo", "pa"]
         floatCols = ["avg", "obp", "slg", "go/fo"]
-        newColNames = ["Name", "GP", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB", "SO", "SB", "CS",
+        newColNames = ["Name", "G", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB", "SO", "SB", "CS",
                        "AVG", "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH", "GDP", "GO", "FO", "GO_FO", "PA"]
 
-        finalColNames = ["Name", "Season", "GP", "PA", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB",
+        finalColNames = ["Name", "Season", "G", "PA", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB",
                          "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH", "GDP", "GO", "FO",
                          "GO_FO"]
         if self._inseason:
-            finalColNames = ["Name", "Season", "Date", "GP", "PA", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB",
+            finalColNames = ["Name", "Season", "Date", "G", "PA", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB",
                              "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH", "GDP", "GO", "FO",
                              "GO_FO"]
 
@@ -104,7 +104,9 @@ class TeamOffenseScraper(BaseScraper):
             data["Date"] = str(date.today())
         # data = data.sort_values(ascending=False, by=["PA"])  # This doesn't work currently
 
-        return data[finalColNames]
+        data = data[finalColNames]
+        data.columns = data.columns.to_series().str.lower()
+        return data
 
 
 # ***********************************

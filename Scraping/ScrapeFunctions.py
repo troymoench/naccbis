@@ -8,7 +8,6 @@ from time import sleep
 # Third party imports
 from bs4 import BeautifulSoup
 import pandas as pd
-import psycopg2
 import requests
 # Local imports
 
@@ -194,73 +193,3 @@ def replace_inf(x, replacement):
 
 def strip_dots(x):
     return x.rstrip('.')
-
-
-def build_value_str(num_cols):
-    """ Build the values string of an `insert into` SQL query.
-
-    :param num_cols: The number of columns in the table
-    :returns: A formatted values string
-    """
-    tmp = ", ".join(["%s"]*num_cols)
-    return "({})".format(tmp)
-
-
-def build_insert_str(table, num_cols):
-    """ Build an `insert into` SQL query string.
-
-    :param table: Table to insert into. A string.
-    :param num_cols: The number of columns in the table
-    :returns: A formatted query string
-    """
-    valueStr = build_value_str(num_cols)
-    insertStr = "INSERT INTO {} VALUES {}".format(table, valueStr)
-    return insertStr
-
-
-def df_to_sql(con, data, table, verbose=False):
-    """ Insert a DataFrame into a database.
-
-    :param con: Database connection
-    :param data: DataFrame to insert into the database
-    :param table: Table to insert into. A string.
-    :param verbose: Print extra information to standard out?
-    :returns: None
-    """
-    # sqlalchemy was acting weird so I'm doing this by hand
-    # table must exist
-    # data will be appended to table
-    # TODO: Make sure that table columns and DataFrame columns have same names
-
-    try:
-        cur = con.cursor()
-    except psycopg2.Error as e:
-        print("Failed to obtain cursor:", e)
-        logging.error("Failed to obtain cursor")
-        con.close()
-        return
-
-    query = build_insert_str(table, data.shape[1])
-    acc = 0
-
-    # insert each row into database
-    for i in range(data.shape[0]):  # DataFrame.itertuples() could work as well
-        value = data.iloc[i].tolist()
-        # TODO: Convert data types to Postgres friendly types e.g. <class 'numpy.int64'> to <class 'int'>
-        # TODO: currently uses <class 'str'>, might need to change Postgres schema from numeric to double
-        if verbose:
-            print("Inserting ", value)
-        try:
-            cur.execute(query, value)
-        except psycopg2.Error as e:
-            print("Insert failed:", e)
-            logging.error("Insert failed: %s", e)
-            # print("Total inserted rows:", 0)
-            # cur.close()
-            # return
-            raise
-        acc += 1
-    print("Total inserted rows:", acc)
-    con.commit()
-    cur.close()
-    return

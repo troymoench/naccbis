@@ -121,7 +121,9 @@ class IndividualOffenseScraper(BaseScraper):
 
         # data = data.sort_values(ascending=False, by=["PA"])  # This doesn't work currently
 
-        return data[finalColNames]
+        data = data[finalColNames]
+        data.columns = data.columns.to_series().str.lower()
+        return data
 
 
 # ***********************************

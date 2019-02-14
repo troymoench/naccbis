@@ -5,7 +5,6 @@ import sys
 import logging
 # Third party imports
 import pandas as pd
-import psycopg2
 # Local imports
 import ScrapeFunctions as sf
 import Common.utils as utils
@@ -107,45 +106,14 @@ class BaseScraper:
                     logging.info("Successfully exported to CSV file")
 
             elif self._output == "sql":
-                print("Connecting to database")
                 logging.info("Connecting to database")
-
-                try:
-                    con = psycopg2.connect(host=self._config["host"], database=self._config["database"],
-                                           user=self._config["user"], password=self._config["password"])
-                except psycopg2.Error as e:
-                    print("Unable to connect to database")
-                    print(e)
-                    logging.error("Unable to connect to database")
-                    logging.error(e)
-                    logging.debug("DB HOST: %s", self._config["host"])
-                    logging.debug("DB USER: %s", self._config["user"])
-                    logging.debug("DB NAME: %s", self._config["database"])
-                    return
-                except KeyError as e:
-                    print("Config value {} not found".format(e))
-                    logging.critical("Config value {} not found".format(e))
-                    sys.exit(1)
-                else:
-                    if self._verbose:
-                        print("Connection established")
-                    logging.info("Connection established")
-                    logging.debug("DB HOST: %s", self._config["host"])
-                    logging.debug("DB USER: %s", self._config["user"])
-                    logging.debug("DB NAME: %s", self._config["database"])
+                conn = utils.connect_db(self._config)
 
                 if self._inseason:
                     tableName += "_inseason"
-                try:
-                    sf.df_to_sql(con, self._data, tableName, verbose=self._verbose)
-                except psycopg2.Error:
-                    print("Unable to export to database")
-                    logging.error("Unable to export to database")
-                    return
-                else:
-                    print("Successfully exported to database")
-                    logging.info("Successfully exported to database")
-                con.close()
+
+                utils.db_load_data(self._data, tableName, conn, if_exists="append", index=False)
+                conn.close()
             else:
                 print("Invalid output type:", self._output)
                 logging.critical("Invalid output type: %s", self._output)

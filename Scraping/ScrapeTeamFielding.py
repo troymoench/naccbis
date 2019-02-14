@@ -90,7 +90,9 @@ class TeamFieldingScraper(BaseScraper):
         if self._inseason:
             data["Date"] = str(date.today())
 
-        return data[finalColNames]
+        data = data[finalColNames]
+        data.columns = data.columns.to_series().str.lower()
+        return data
 
 
 # ***********************************
