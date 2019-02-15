@@ -41,8 +41,7 @@ class GameLogScraper(BaseScraper):
         self._runnable = True
 
     def run(self):
-        # run the scraper
-        # TODO: add argument export=True
+        """ Run the scraper """
         logging.info("%s", self._name)
 
         teamList = sf.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
@@ -50,10 +49,10 @@ class GameLogScraper(BaseScraper):
 
         # iterate over the teams
         for team in teamList:
-            print("Fetching", team['team'])
             logging.info("Fetching %s", team['team'])
 
-            teamSoup = sf.get_soup("{}{}/{}".format(self.BASE_URL, self._year, team['url']), verbose=self._verbose)
+            url = "{}{}/{}".format(self.BASE_URL, self._year, team['url'])
+            teamSoup = sf.get_soup(url, verbose=self._verbose)
             logging.info("Looking for game log table")
             df = self._scrape(teamSoup)
             logging.info("Cleaning scraped data")
@@ -63,7 +62,7 @@ class GameLogScraper(BaseScraper):
         self._runnable = False
 
     def _scrape(self, team_soup):
-        # scrape game logs for hitting, pitching, fielding
+        """ Scrape game logs for hitting, pitching, fielding """
 
         tags = team_soup.find_all('a', string="Game Log")
         if len(tags) != 1:
@@ -101,8 +100,9 @@ class GameLogScraper(BaseScraper):
 
     def _clean(self, data, team):
         if self._split == "hitting":
-            intCols = ['ab', 'r', 'h', 'x2b', 'x3b', 'hr', 'rbi', 'bb', 'so', 'sb', 'cs', 'hbp', 'sf', 'sh', 'tb',
-                       'xbh', 'gdp', 'go', 'fo', 'pa']
+            intCols = ['ab', 'r', 'h', 'x2b', 'x3b', 'hr', 'rbi', 'bb', 'so',
+                       'sb', 'cs', 'hbp', 'sf', 'sh', 'tb', 'xbh', 'gdp',
+                       'go', 'fo', 'pa']
             floatCols = ['go_fo']
             renameCols = {'2b': 'x2b', '3b': 'x3b', 'k': 'so',
                           'hdp': 'gdp', 'go/fo': 'go_fo'}
@@ -121,13 +121,11 @@ class GameLogScraper(BaseScraper):
             print("Invalid split:", self._split)
             sys.exit(1)
 
-        # rename columns
         data.rename(columns=renameCols, inplace=True)
 
-        # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
-        data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))  # replace '-' with '0'
-        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))  # replace '-' with None
-        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))  # replace 'inf' with None
+        data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))
+        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))
+        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))
 
         # replace tabs
         data["Opponent"] = [x.replace('\t', '') for x in data["Opponent"]]
@@ -138,7 +136,7 @@ class GameLogScraper(BaseScraper):
         data["Date"] = [x.replace("#", "").strip() for x in data["Date"]]
 
         data["Name"] = team
-        data["Season"] = str(utils.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+        data["Season"] = str(utils.year_to_season(self._year))
         if self._inseason:
             data["scrape_date"] = str(date.today())
         data["game_num"] = list(range(1, len(data) + 1))

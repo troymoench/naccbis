@@ -21,9 +21,10 @@ class IndividualPitchingScraper(BaseScraper):
 
     """ This scraper is responsible for scraping individual pitching stats. """
 
-    PITCHING_COLS = ['no.', 'name', 'yr', 'pos', 'app', 'gs', 'w', 'l', 'ip', 'h', 'r', 'er',
-                    'era']
-    COACHES_VIEW_COLS = ['no.', 'player', 'era', 'w', 'l', 'app', 'gs', 'ip', 'h', 'r', 'er', '2b', '3b', 'hr', 'ab']
+    PITCHING_COLS = ['no.', 'name', 'yr', 'pos', 'app', 'gs', 'w', 'l', 'ip', 'h',
+                     'r', 'er', 'era']
+    COACHES_VIEW_COLS = ['no.', 'player', 'era', 'w', 'l', 'app', 'gs', 'ip', 'h',
+                         'r', 'er', '2b', '3b', 'hr', 'ab']
     TABLES = {"overall": "raw_pitchers_overall", "conference": "raw_pitchers_conference"}
 
     def __init__(self, year, split, output, inseason=False, verbose=False):
@@ -40,8 +41,7 @@ class IndividualPitchingScraper(BaseScraper):
         self._runnable = True
 
     def run(self):
-        # run the scraper
-        # TODO: add argument export=True
+        """ Run the scraper """
         logging.info("%s", self._name)
 
         teamList = sf.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
@@ -49,10 +49,10 @@ class IndividualPitchingScraper(BaseScraper):
 
         # iterate over the teams
         for team in teamList:
-            print("Fetching", team['team'])
             logging.info("Fetching %s", team['team'])
 
-            teamSoup = sf.get_soup("{}{}/{}".format(self.BASE_URL, self._year, team['url']), verbose=self._verbose)
+            url = "{}{}/{}".format(self.BASE_URL, self._year, team['url'])
+            teamSoup = sf.get_soup(url, verbose=self._verbose)
             logging.info("Looking for pitching tables")
             df = self._scrape(teamSoup)
             logging.info("Cleaning scraped data")
@@ -100,32 +100,37 @@ class IndividualPitchingScraper(BaseScraper):
 
     def _clean(self, data, team_id):
         if self._split == "overall":
-            unnecessaryCols = ['app', 'gs', 'w', 'l', 'sv', 'cg', 'ip', 'h', 'r', 'er', 'bb', 'k', 'hr', 'era']
-            intCols = ['No', 'Yr', 'G', 'GS', 'W', 'L', 'SV', 'CG', 'SHO', 'IP', 'H', 'R', 'ER', 'BB', 'SO',
-                       'x2B', 'x3B', 'HR', 'AB', 'WP', 'HBP', 'BK', 'SF', 'SH']
+            unnecessaryCols = ['app', 'gs', 'w', 'l', 'sv', 'cg', 'ip', 'h', 'r',
+                               'er', 'bb', 'k', 'hr', 'era']
+            intCols = ['No', 'Yr', 'G', 'GS', 'W', 'L', 'SV', 'CG', 'SHO', 'IP',
+                       'H', 'R', 'ER', 'BB', 'SO', 'x2B', 'x3B', 'HR', 'AB',
+                       'WP', 'HBP', 'BK', 'SF', 'SH']
             floatCols = ['ERA', 'AVG', 'SO_9']
-            newColNames = ['No', 'Name', 'ERA', 'W', 'L', 'G', 'GS', 'CG', 'SHO', 'SV', 'IP', 'H', 'R', 'ER', 'BB', 'SO',
-                           'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP', 'HBP', 'BK', 'SF', 'SH', 'Yr', 'Pos', 'SO_9']
-            finalColNames = ['No', 'Name', 'Team', 'Season', 'Yr', 'Pos', 'G', 'GS', 'W', 'L', 'SV', 'CG', 'SHO', 'IP',
-                             'H', 'R', 'ER', 'BB', 'SO', 'ERA', 'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP', 'HBP',
-                             'BK', 'SF', 'SH', 'SO_9']
+            newColNames = ['No', 'Name', 'ERA', 'W', 'L', 'G', 'GS', 'CG',
+                           'SHO', 'SV', 'IP', 'H', 'R', 'ER', 'BB', 'SO',
+                           'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP', 'HBP', 'BK',
+                           'SF', 'SH', 'Yr', 'Pos', 'SO_9']
+            finalColNames = ['No', 'Name', 'Team', 'Season', 'Yr', 'Pos', 'G',
+                             'GS', 'W', 'L', 'SV', 'CG', 'SHO', 'IP', 'H', 'R',
+                             'ER', 'BB', 'SO', 'ERA', 'x2B', 'x3B', 'HR', 'AB',
+                             'AVG', 'WP', 'HBP', 'BK', 'SF', 'SH', 'SO_9']
             if self._inseason:
-                finalColNames = ['No', 'Name', 'Team', 'Season', 'Date', 'Yr', 'Pos', 'G', 'GS', 'W', 'L', 'SV', 'CG',
-                                 'SHO', 'IP', 'H', 'R', 'ER', 'BB', 'SO', 'ERA', 'x2B', 'x3B', 'HR', 'AB', 'AVG', 'WP',
+                finalColNames = ['No', 'Name', 'Team', 'Season', 'Date', 'Yr',
+                                 'Pos', 'G', 'GS', 'W', 'L', 'SV', 'CG', 'SHO',
+                                 'IP', 'H', 'R', 'ER', 'BB', 'SO', 'ERA', 'x2B',
+                                 'x3B', 'HR', 'AB', 'AVG', 'WP',
                                  'HBP', 'BK', 'SF', 'SH', 'SO_9']
 
-            # remove unnecessary columns
             data.drop(columns=unnecessaryCols, inplace=True)
 
             data.columns = newColNames
 
-            # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
-            data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))  # replace '-' with '0'
-            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))  # replace '-' with None
-            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))  # replace 'inf' with None
+            data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))
+            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))
+            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))
 
             data["Team"] = team_id
-            data["Season"] = str(utils.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+            data["Season"] = str(utils.year_to_season(self._year))
             if self._inseason:
                 data["Date"] = str(date.today())
             data["Yr"] = data["Yr"].apply(sf.strip_dots)
@@ -138,22 +143,22 @@ class IndividualPitchingScraper(BaseScraper):
             renameCols = {'No.': 'No', 'app': 'g', 'k': 'so', 'k/9': 'so_9'}
             intCols = ['No', 'g', 'gs', 'w', 'l', 'sv', 'cg', 'h', 'r', 'er', 'bb', 'so', 'hr']
             floatCols = ['so_9', 'era']
-            finalColNames = ['No', 'Name', 'Team', 'Season', 'Yr', 'Pos', 'g', 'gs', 'w', 'l', 'sv', 'cg', 'ip', 'h',
+            finalColNames = ['No', 'Name', 'Team', 'Season', 'Yr', 'Pos', 'g',
+                             'gs', 'w', 'l', 'sv', 'cg', 'ip', 'h',
                              'r', 'er', 'bb', 'so', 'so_9', 'hr', 'era']
 
             if self._inseason:
-                finalColNames = ['No', 'Name', 'Team', 'Season', 'Date', 'Yr', 'Pos', 'g', 'gs', 'w', 'l', 'sv', 'cg',
-                                 'ip', 'h', 'r', 'er', 'bb', 'so', 'so_9', 'hr', 'era']
-            # rename columns
+                finalColNames = ['No', 'Name', 'Team', 'Season', 'Date', 'Yr',
+                                 'Pos', 'g', 'gs', 'w', 'l', 'sv', 'cg', 'ip',
+                                 'h', 'r', 'er', 'bb', 'so', 'so_9', 'hr', 'era']
             data.rename(columns=renameCols, inplace=True)
 
-            # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
-            data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))  # replace '-' with '0'
-            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))  # replace '-' with None
-            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))  # replace 'inf' with None
+            data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))
+            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))
+            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))
 
             data["Team"] = team_id
-            data["Season"] = str(utils.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+            data["Season"] = str(utils.year_to_season(self._year))
             if self._inseason:
                 data["Date"] = str(date.today())
             data["Yr"] = data["Yr"].apply(sf.strip_dots)

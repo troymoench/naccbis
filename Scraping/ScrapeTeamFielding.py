@@ -21,7 +21,8 @@ class TeamFieldingScraper(BaseScraper):
     """ This scraper is responsible for scraping team fielding stats. """
 
     FIELDING_COLS = ['name', 'gp', 'tc', 'po', 'a', 'e', 'fpct', 'dp']
-    TABLES = {"overall": "raw_team_fielding_overall", "conference": "raw_team_fielding_conference"}
+    TABLES = {"overall": "raw_team_fielding_overall",
+              "conference": "raw_team_fielding_conference"}
 
     def __init__(self, year, split, output, inseason=False, verbose=False):
         """ Class constructor
@@ -37,11 +38,11 @@ class TeamFieldingScraper(BaseScraper):
         self._runnable = True
 
     def run(self):
-        # run the scraper
-        # TODO: add argument export=True
+        """ Run the scraper """
         logging.info("%s", self._name)
         logging.info("Fetching teams")
-        soup = sf.get_soup(self.BASE_URL + self._year + "/teams", verbose=self._verbose)
+        url = "{}{}/teams".format(self.BASE_URL, self._year)
+        soup = sf.get_soup(url, verbose=self._verbose)
         logging.info("Looking for fielding table")
         df = self._scrape(soup)
         logging.info("Cleaning scraped data")
@@ -70,23 +71,20 @@ class TeamFieldingScraper(BaseScraper):
         renameCols = {'gp': 'g', 'rcs': 'cs', 'rcs%': 'cspct'}
         intCols = ['g', 'tc', 'po', 'a', 'e', 'dp', 'sba', 'cs', 'pb', 'ci']
         floatCols = ['fpct', 'cspct']
-        finalColNames = ['Name', 'Season', 'g', 'tc', 'po', 'a', 'e', 'fpct', 'dp', 'sba', 'cs', 'cspct', 'pb', 'ci']
+        finalColNames = ['Name', 'Season', 'g', 'tc', 'po', 'a', 'e', 'fpct',
+                         'dp', 'sba', 'cs', 'cspct', 'pb', 'ci']
         if self._inseason:
-            finalColNames = ['Name', 'Season', 'Date', 'g', 'tc', 'po', 'a', 'e', 'fpct', 'dp', 'sba', 'cs', 'cspct',
-                             'pb', 'ci']
+            finalColNames = ['Name', 'Season', 'Date', 'g', 'tc', 'po', 'a',
+                             'e', 'fpct', 'dp', 'sba', 'cs', 'cspct', 'pb', 'ci']
 
-        # remove unnecessary columns
         data.drop(columns=unnecessaryCols, inplace=True)
-
-        # rename columns
         data.rename(columns=renameCols, inplace=True)
 
-        # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
-        data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))  # replace '-' with '0'
-        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))  # replace '-' with None
-        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))  # replace 'inf' with None
+        data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))
+        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))
+        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))
 
-        data["Season"] = str(utils.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+        data["Season"] = str(utils.year_to_season(self._year))
         if self._inseason:
             data["Date"] = str(date.today())
 

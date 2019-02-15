@@ -39,8 +39,7 @@ class IndividualOffenseScraper(BaseScraper):
         self._runnable = True
 
     def run(self):
-        # run the scraper
-        # TODO: add argument export=True
+        """ Run the scraper """
         logging.info("%s", self._name)
 
         teamList = sf.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
@@ -48,10 +47,10 @@ class IndividualOffenseScraper(BaseScraper):
 
         # iterate over the teams
         for team in teamList:
-            print("Fetching", team['team'])
             logging.info("Fetching %s", team['team'])
 
-            teamSoup = sf.get_soup("{}{}/{}".format(self.BASE_URL, self._year, team['url']), verbose=self._verbose)
+            url = "{}{}/{}".format(self.BASE_URL, self._year, team['url'])
+            teamSoup = sf.get_soup(url, verbose=self._verbose)
             logging.info("Looking for hitting tables")
             df = self._scrape(teamSoup)
             logging.info("Cleaning scraped data")
@@ -61,8 +60,7 @@ class IndividualOffenseScraper(BaseScraper):
         self._runnable = False
 
     def _scrape(self, team_soup):
-        # Scrape both the hitting table and extended hitting table
-        # and merge
+        """ Scrape both the hitting table and extended hitting table and merge """
 
         # Note: Finding the links for overall vs conference probably isn't necessary
         # because the html doesn't change based on the url choice
@@ -94,32 +92,32 @@ class IndividualOffenseScraper(BaseScraper):
         intCols = ["No.", "g", "ab", "r", "h", "2b", "3b", "hr", "rbi", "bb", "k",
                    "sb", "cs", "hbp", "sf", "sh", "tb", "xbh", "hdp", "go", "fo", "pa"]
         floatCols = ["avg", "obp", "slg", "go/fo"]
-        newColNames = ["No", "Name", "Yr", "Pos", "G", "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB", "SO", "SB", "CS",
-                       "AVG", "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH", "GDP", "GO", "FO", "GO_FO", "PA"]
-        finalColNames = ["No", "Name", "Team", "Season", "Yr", "Pos", "G", "PA", "AB", "R", "H", "x2B",
-                         "x3B", "HR", "RBI", "BB", "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP", "SF", "SH",
+        newColNames = ["No", "Name", "Yr", "Pos", "G", "AB", "R", "H", "x2B",
+                       "x3B", "HR", "RBI", "BB", "SO", "SB", "CS",
+                       "AVG", "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH",
+                       "GDP", "GO", "FO", "GO_FO", "PA"]
+        finalColNames = ["No", "Name", "Team", "Season", "Yr", "Pos", "G", "PA",
+                         "AB", "R", "H", "x2B", "x3B", "HR", "RBI", "BB", "SO",
+                         "SB", "CS", "AVG", "OBP", "SLG", "HBP", "SF", "SH",
                          "TB", "XBH", "GDP", "GO", "FO", "GO_FO"]
         if self._inseason:
-            finalColNames = ["No", "Name", "Team", "Season", "Date", "Yr", "Pos", "G", "PA", "AB", "R", "H", "x2B",
-                             "x3B", "HR", "RBI", "BB",  "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP", "SF", "SH",
-                             "TB", "XBH", "GDP", "GO", "FO", "GO_FO"]
+            finalColNames = ["No", "Name", "Team", "Season", "Date", "Yr", "Pos",
+                             "G", "PA", "AB", "R", "H", "x2B", "x3B", "HR", "RBI",
+                             "BB",  "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP",
+                             "SF", "SH", "TB", "XBH", "GDP", "GO", "FO", "GO_FO"]
 
-        # TODO: clean() should convert to <class 'numpy.int64'> and <class 'numpy.float'>
-
-        data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))  # replace '-' with '0'
-        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))  # replace '-' with None
+        data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))
+        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))
 
         # convert column names to a friendlier format
         data.columns = newColNames
 
         data["Team"] = team_id
-        data["Season"] = str(utils.year_to_season(self._year))  # converts to str for now, should be numpy.int64
+        data["Season"] = str(utils.year_to_season(self._year))
         if self._inseason:
             data["Date"] = str(date.today())
         data["Yr"] = data["Yr"].apply(sf.strip_dots)
         data["Pos"] = data["Pos"].apply(sf.to_none)
-
-        # data = data.sort_values(ascending=False, by=["PA"])  # This doesn't work currently
 
         data = data[finalColNames]
         data.columns = data.columns.to_series().str.lower()

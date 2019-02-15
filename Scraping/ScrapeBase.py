@@ -6,7 +6,6 @@ import logging
 # Third party imports
 import pandas as pd
 # Local imports
-import ScrapeFunctions as sf
 import Common.utils as utils
 
 
@@ -75,49 +74,46 @@ class BaseScraper:
         print("--------------------------")
 
     def export(self):
-        """ Export scraped and cleaned data to csv or database
+        """ Export scraped and cleaned data to csv or database.
+        If exporting to database, the table must already exist
         :returns: None
         """
-        # export scraped and cleaned data to csv or database
-        # NOTE: If exporting to database, the table must already be created.
         logging.info("Exporting data from %s", self._name)
         if self._runnable:
             print("Cannot export. Scraper has not been run yet. Use run() to do so.")
             sys.exit(1)
-        else:
-            tableName = self.TABLES[self._split]
-            if self._output == "csv":
-                try:
-                    if self._inseason:
-                        self._data.to_csv(
-                            "{}{}{}.csv".format(self._config["csv_path"], tableName, str(date.today())),
-                            index=False)
-                    else:
-                        self._data.to_csv("{}{}{}.csv".format(self._config["csv_path"], tableName,
-                                                              utils.year_to_season(self._year)), index=False)
-                except Exception as e:
-                    print("Unable to export to CSV")
-                    print(e)
-                    logging.error("Unable to export to CSV")
-                    logging.error(e)
-                    return
-                else:
-                    print("Successfully exported to CSV file")
-                    logging.info("Successfully exported to CSV file")
-
-            elif self._output == "sql":
-                logging.info("Connecting to database")
-                conn = utils.connect_db(self._config)
-
+        tableName = self.TABLES[self._split]
+        if self._output == "csv":
+            try:
                 if self._inseason:
-                    tableName += "_inseason"
-
-                utils.db_load_data(self._data, tableName, conn, if_exists="append", index=False)
-                conn.close()
+                    filename = "{}{}{}.csv".format(self._config["csv_path"],
+                                                   tableName,
+                                                   str(date.today()))
+                    self._data.to_csv(filename, index=False)
+                else:
+                    filename = "{}{}{}.csv".format(self._config["csv_path"],
+                                                   tableName,
+                                                   utils.year_to_season(self._year))
+                    self._data.to_csv(filename, index=False)
+            except Exception as e:
+                logging.error("Unable to export to CSV")
+                logging.error(e)
+                return
             else:
-                print("Invalid output type:", self._output)
-                logging.critical("Invalid output type: %s", self._output)
-                sys.exit(1)
+                logging.info("Successfully exported to CSV file")
+
+        elif self._output == "sql":
+            logging.info("Connecting to database")
+            conn = utils.connect_db(self._config)
+
+            if self._inseason:
+                tableName += "_inseason"
+
+            utils.db_load_data(self._data, tableName, conn, if_exists="append", index=False)
+            conn.close()
+        else:
+            logging.critical("Invalid output type: %s", self._output)
+            sys.exit(1)
 
     def get_data(self):
         return self._data
