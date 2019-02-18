@@ -759,6 +759,21 @@ create table game_log (
   primary key (game_num, season, team)
 );
 
+create table game_log_inseason (
+  scrape_date date,
+  game_num integer,
+  date date,
+  season integer,
+  team varchar(30),
+  opponent varchar(30),
+  result varchar(1),
+  rs integer,
+  ra integer,
+  home boolean,
+  conference boolean,
+  primary key (scrape_date, game_num, season, team)
+);
+
 create table batters_overall (
   no integer,
   fname varchar(20),

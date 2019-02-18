@@ -18,18 +18,28 @@ class GameLogETL:
                         "Rockford", "Wisconsin Lutheran"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year, load_db, conn):
+    def __init__(self, year, load_db, conn, inseason=False):
         self.year = year
         self.load_db = load_db
         self.conn = conn
+        self.inseason = inseason
 
     def extract(self):
-        self.data = pd.read_sql_table("raw_game_log_hitting", self.conn)
+        table = "raw_game_log_hitting"
+        if self.inseason:
+            table += "_inseason"
+
+        logging.info("Reading data from %s", table)
+        self.data = pd.read_sql_table(table, self.conn)
+        logging.info("Read %s records from %s", len(self.data), table)
         if self.year:
             self.data = self.data[self.data["season"] == self.year]
 
     def transform(self):
-        self.data = self.data[["game_num", "date", "season", "name", "opponent", "score"]]
+        columns = ["game_num", "date", "season", "name", "opponent", "score"]
+        if self.inseason:
+            columns = ["scrape_date"] + columns
+        self.data = self.data[columns]
         self.data["result"] = self.data["score"].apply(self.extract_result)
         # runs scored, runs against
 
@@ -55,12 +65,17 @@ class GameLogETL:
                                      self.data["date"], self.data["season"]))
 
     def load(self):
+        table = "game_log"
+        if self.inseason:
+            table += "_inseason"
+
         if self.load_db:
             logging.info("Loading data into database")
-            utils.db_load_data(self.data, "game_log", self.conn, if_exists="append", index=False)
+            utils.db_load_data(self.data, table, self.conn, if_exists="append", index=False)
         else:
+            filename = table + ".csv"
             logging.info("Dumping to csv")
-            self.data.to_csv(os.path.join(self.CSV_DIR, "game_log.csv"), index=False)
+            self.data.to_csv(os.path.join(self.CSV_DIR, filename), index=False)
 
     def run(self):
         logging.info("Running %s", type(self).__name__)
@@ -148,6 +163,6 @@ if __name__ == "__main__":
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
     conn = utils.connect_db(config["DB"])
-    game_log = GameLogETL(args.year, args.load, conn)
+    game_log = GameLogETL(args.year, args.load, conn, inseason=True)
     game_log.run()
     conn.close()
