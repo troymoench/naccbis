@@ -15,16 +15,22 @@ class TeamOffenseETL:
     VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year, split, load_db, conn):
+    def __init__(self, year, split, load_db, conn, inseason=False):
         self.year = year
         if split not in self.VALID_SPLITS:
             raise ValueError("Invalid split: {}".format(split))
         self.split = split
         self.load_db = load_db
         self.conn = conn
+        self.inseason = inseason
 
     def extract(self):
-        self.data = pd.read_sql_table("raw_team_offense_{}".format(self.split), self.conn)
+        table = "raw_team_offense_{}".format(self.split)
+        if self.inseason:
+            table += "_inseason"
+        logging.info("Reading data from %s", table)
+        self.data = pd.read_sql_table(table, self.conn)
+        logging.info("Read %s records from %s", len(self.data), table)
         if self.year:
             self.data = self.data[self.data["season"] == self.year]
 
@@ -34,16 +40,22 @@ class TeamOffenseETL:
                    "bb", "so", "hbp", "tb", "xbh", "sf", "sh", "gdp", "sb", "cs", "go", "fo",
                    "go_fo", "hbp_p", "bb_p", "so_p", "iso", "babip", "avg", "obp", "slg",
                    "ops", "sar"]
+        if self.inseason:
+            columns.insert(2, "date")
         self.data = self.data[columns]
 
     def load(self):
-        table_name = "team_offense_{}".format(self.split)
+        table = "team_offense_{}".format(self.split)
+        if self.inseason:
+            table += "_inseason"
+
         if self.load_db:
             logging.info("Loading data into database")
-            utils.db_load_data(self.data, table_name, self.conn, if_exists="append", index=False)
+            utils.db_load_data(self.data, table, self.conn, if_exists="append", index=False)
         else:
+            filename = table + ".csv"
             logging.info("Dumping to csv")
-            self.data.to_csv(os.path.join(self.CSV_DIR, "{}.csv".format(table_name)), index=False)
+            self.data.to_csv(os.path.join(self.CSV_DIR, filename), index=False)
 
     def run(self):
         logging.info("Running %s", type(self).__name__)
@@ -64,6 +76,6 @@ if __name__ == "__main__":
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
     conn = utils.connect_db(config["DB"])
-    team_offense = TeamOffenseETL(args.year, args.split, args.load, conn)
+    team_offense = TeamOffenseETL(args.year, args.split, args.load, conn, inseason=True)
     team_offense.run()
     conn.close()
