@@ -1138,6 +1138,51 @@ create table team_pitching_overall (
   primary key (name, season)
 );
 
+create table team_pitching_overall_inseason (
+  name varchar(30),
+  season integer,
+  date date,
+  g integer,
+  w integer,
+  l integer,
+  sv integer,
+  cg integer,
+  sho integer,
+  ip numeric,
+  h integer,
+  r integer,
+  er integer,
+  bb integer,
+  so integer,
+  era numeric,
+  x2b integer,
+  x3b integer,
+  hr integer,
+  ab integer,
+  avg numeric,
+  wp integer,
+  hbp integer,
+  bk integer,
+  sf integer,
+  sh integer,
+  so_9 numeric,
+  pa integer,
+  obp numeric,
+  slg numeric,
+  ops numeric,
+  hbp_p numeric,
+  bb_p numeric,
+  so_p numeric,
+  iso  numeric,
+  babip numeric,
+  lob_p numeric,
+  ra_9 numeric,
+  bb_9 numeric,
+  hr_9 numeric,
+  whip numeric,
+  primary key (name, season, date)
+);
+
 create table team_pitching_conference (
   name varchar(30),
   season integer,
@@ -1156,6 +1201,27 @@ create table team_pitching_conference (
   hr_9 numeric,
   whip numeric,
   primary key(name, season)
+);
+
+create table team_pitching_conference_inseason (
+  name varchar(30),
+  season integer,
+  date date,
+  g integer,
+  ip numeric,
+  h integer,
+  r integer,
+  er integer,
+  bb integer,
+  so integer,
+  so_9 numeric,
+  hr integer,
+  era numeric,
+  ra_9 numeric,
+  bb_9 numeric,
+  hr_9 numeric,
+  whip numeric,
+  primary key(name, season, date)
 );
 
 create table replacement_level_overall (
