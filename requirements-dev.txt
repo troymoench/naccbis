@@ -26,6 +26,7 @@ rope==0.11.0
 six==1.11.0
 snowballstemmer==1.2.1
 soupsieve==1.7.3
+Sphinx==1.8.4
 SQLAlchemy==1.2.12
 urllib3==1.24.1
 yapf==0.24.0
