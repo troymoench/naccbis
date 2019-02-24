@@ -32,6 +32,7 @@ class BaseScraper:
         'Concordia Wisconsin': 'CUW',
         'Dominican': 'DOM',
         'Edgewood': 'EDG',
+        'Illinois Tech': 'ILLT',
         'Lakeland': 'LAK',
         'MSOE': 'MSOE',
         'Marian': 'MAR',

@@ -11,6 +11,7 @@ insert into team_ids (name, id) values ('Concordia Chicago', 'CUC');
 insert into team_ids (name, id) values ('Concordia Wisconsin', 'CUW');
 insert into team_ids (name, id) values ('Dominican', 'DOM');
 insert into team_ids (name, id) values ('Edgewood', 'EDG');
+insert into team_ids (name, id) values ('Illinois Tech', 'ILLT');
 insert into team_ids (name, id) values ('Lakeland', 'LAK');
 insert into team_ids (name, id) values ('MSOE', 'MSOE');
 insert into team_ids (name, id) values ('Marian', 'MAR');
