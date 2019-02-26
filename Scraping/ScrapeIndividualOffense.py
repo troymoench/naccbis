@@ -51,6 +51,8 @@ class IndividualOffenseScraper(BaseScraper):
 
             url = "{}{}/{}".format(self.BASE_URL, self._year, team['url'])
             teamSoup = sf.get_soup(url, verbose=self._verbose)
+            if sf.skip_team(teamSoup):
+                continue
             logging.info("Looking for hitting tables")
             df = self._scrape(teamSoup)
             logging.info("Cleaning scraped data")

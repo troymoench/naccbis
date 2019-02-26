@@ -3,6 +3,7 @@ some utility functions used in the scraping process.
 """
 # Standard library imports
 import logging
+import re
 import sys
 from time import sleep
 # Third party imports
@@ -150,6 +151,19 @@ def get_team_list(base_url, year, team_ids):
             'url': get_href(link)
         })
     return teamList
+
+
+def skip_team(soup):
+    """ Skip team if no players meet the minimum
+
+    :param soup: BeautifulSoup object for a team
+    :returns: True if the team should be skipped, False otherwise
+    """
+    pattern = re.compile("No players meet the minimum")
+    skip = len(soup.find_all(string=pattern)) > 0
+    if skip:
+        logging.warning("No players meet the minimum. Skipping team")
+    return skip
 
 
 # ****************************

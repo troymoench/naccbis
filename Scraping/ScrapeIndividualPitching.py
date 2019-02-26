@@ -53,6 +53,8 @@ class IndividualPitchingScraper(BaseScraper):
 
             url = "{}{}/{}".format(self.BASE_URL, self._year, team['url'])
             teamSoup = sf.get_soup(url, verbose=self._verbose)
+            if sf.skip_team(teamSoup):
+                continue
             logging.info("Looking for pitching tables")
             df = self._scrape(teamSoup)
             logging.info("Cleaning scraped data")
@@ -84,7 +86,6 @@ class IndividualPitchingScraper(BaseScraper):
             coach_view['Player'] = coach_view['Player'].apply(sf.strip_dots)
             pitching['Name'] = [x.replace('  ', ' ') for x in pitching['Name']]
             coach_view = coach_view.rename(columns={'Player': 'Name'})
-
             return pd.merge(coach_view, pitching, on=['No.', 'Name'])
         elif self._split == "conference":
             index = 1
