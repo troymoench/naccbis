@@ -29,7 +29,7 @@ def get_soup(url, backoff=1, verbose=False):
     if verbose:
         print("GET " + url)
     try:
-        request = requests.get(url, timeout=15)
+        request = requests.get(url)
     except requests.exceptions.RequestException:
         print("Error: Unable to connect to", url)
         logging.critical("Error: Unable to connect to", url)
