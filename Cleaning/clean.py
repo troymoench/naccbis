@@ -127,10 +127,9 @@ if __name__ == "__main__":
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
 
+    args = parser.parse_args()
     logging.info("Initializing cleaning controller script")
     logging.info("Command line args received: %s", sys.argv[1:])
-
-    args = parser.parse_args()
     conn = utils.connect_db(config["DB"])
     args.func(args, conn)
 

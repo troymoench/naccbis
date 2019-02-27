@@ -176,12 +176,9 @@ if __name__ == "__main__":
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
 
-    # log that the script has started
+    args = parser.parse_args()
     logging.info("Initializing scraping controller script")
     logging.info("Command line args received: %s", sys.argv[1:])
-
-    # parse arguments and call the appropriate function
-    args = parser.parse_args()
     args.func(args)
 
     logging.info("Scraping completed")
