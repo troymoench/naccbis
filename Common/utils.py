@@ -14,6 +14,7 @@ def connect_db(config):
     :param config: Dictionary with connection parameters
     :returns: Database connection object
     """
+    logging.info("Connecting to database")
     if "port" not in config.keys():
         config["port"] = "5432"
 
