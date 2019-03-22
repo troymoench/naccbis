@@ -9,3 +9,6 @@ class MyForm(forms.Form):
     season_choices = [("ALL", "All Seasons")] + [(x.season, x.season) for x in LeagueOffenseOverall.objects.using('data').order_by('-season')]
     season = forms.ChoiceField(choices=season_choices)
     split = forms.ChoiceField(choices=[("ALL", "Overall"), ("CONF", "Conference")])
+    stat = forms.ChoiceField(choices=[("DB", "Dashboard"),
+                                      ("STD", "Standard"),
+                                      ("ADV", "Advanced")])
