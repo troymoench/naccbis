@@ -45,10 +45,8 @@ class LeaderboardView(View):
 
         # transform data
         df["name"] = list(map(lambda x, y: "{} {}".format(x, y), df["fname"], df["lname"]))
-        df = metrics.advanced_offensive_metrics(df, totals_df)
+        df = metrics.multi_season(df, totals_df, metrics.season_offensive_metrics_rar)
 
-        # Need to fix issue here
-        df["rar"] = metrics.rar(df, totals_df["rep_level"])
         # select columns based on stat view
         if params and params["stat"] == "DB":
             df = df[self.dashboard]

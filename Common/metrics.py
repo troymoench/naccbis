@@ -396,6 +396,17 @@ def season_offensive_metrics(data, totals_season):
     return temp
 
 
+def season_offensive_metrics_rar(data, totals_season):
+    """ Calculate offensive metrics for a single season including RAR
+    :param data: A DataFrame of single season data
+    :param totals_season: A Series of league totals
+    :returns: A DataFrame
+    """
+    temp = season_offensive_metrics(data, totals_season)
+    temp["rar"] = rar(temp, totals_season["rep_level"])
+    return temp
+
+
 def advanced_offensive_metrics(data, totals, inplace=False):
     """ Calculate advanced offensive metrics. These metrics do depend on league
     wide metrics.
