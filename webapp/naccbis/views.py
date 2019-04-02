@@ -62,12 +62,38 @@ class LeaderboardView(View):
         # df.reset_index(drop=True, inplace=True)
 
         # round float columns
-        # df = df.round({"go_fo": 2, "sar": 2, "hbp_p": 1, "bb_p": 1, "so_p": 1,
-                       # "babip": 3, "iso": 3, "avg": 3, "obp": 3, "slg": 3, "ops": 3})
+        df = df.round({"go_fo": 2,
+                       "sar": 2,
+                       "hbp_p": 1,
+                       "bb_p": 1,
+                       "so_p": 1,
+                       "babip": 3,
+                       "iso": 3,
+                       "avg": 3,
+                       "obp": 3,
+                       "slg": 3,
+                       "ops": 3,
+                       "woba": 3,
+                       "wsb": 1,
+                       "sbr": 1,
+                       "wraa": 1,
+                       "off": 1,
+                       "wrc_p": 1,
+                       "off_p": 1,
+                       "rar": 1})
         # rename columns based on stat view
-        # df.columns = [col.upper() for col in df.columns.tolist()]
-        # df.rename(columns={"GO_FO": "GO/FO", "HBP_P": "HBP%", "BB_P": "BB%", "SO_P": "SO%",
-                           # "X2B": "2B", "X3B": "3B"}, inplace=True)
+        df.columns = [col.upper() for col in df.columns.tolist()]
+        df.rename(columns={"GO_FO": "GO/FO",
+                           "HBP_P": "HBP%",
+                           "BB_P": "BB%",
+                           "SO_P": "SO%",
+                           "X2B": "2B",
+                           "X3B": "3B",
+                           "WOBA": "wOBA",
+                           "WSB": "wSB",
+                           "WRAA": "wRAA",
+                           "WRC_P": "wRC+",
+                           "OFF_P": "OFF+"}, inplace=True)
 
         context = {'data': df.to_html(classes="table table-bordered table-hover table-sm",
                                       index=True, na_rep=""),
