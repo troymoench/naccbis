@@ -112,6 +112,24 @@ class BattersConference(Batters):
         db_table = 'batters_conference'
 
 
+class BattersInseason(Batters):
+    date = models.DateField()
+
+    class Meta(Batters.Meta):
+        abstract = True
+        unique_together = (('fname', 'lname', 'team', 'season', 'date'),)
+
+
+class BattersOverallInseason(BattersInseason):
+    class Meta(BattersInseason.Meta):
+        db_table = 'batters_overall_inseason'
+
+
+class BattersConferenceInseason(BattersInseason):
+    class Meta(BattersInseason.Meta):
+        db_table = 'batters_conference_inseason'
+
+
 class DuplicateNames(Base):
     fname = models.CharField(primary_key=True, max_length=20)
     lname = models.CharField(max_length=20)
@@ -124,7 +142,7 @@ class DuplicateNames(Base):
         unique_together = (('fname', 'lname', 'team', 'season'),)
 
 
-class GameLog(Base):
+class GameLogBase(Base):
     game_num = models.IntegerField(primary_key=True)
     date = models.DateField(blank=True, null=True)
     season = models.IntegerField()
@@ -137,8 +155,21 @@ class GameLog(Base):
     conference = models.BooleanField(blank=True, null=True)
 
     class Meta(Base.Meta):
+        abstract = True
+
+
+class GameLog(GameLogBase):
+    class Meta(GameLogBase.Meta):
         db_table = 'game_log'
         unique_together = (('game_num', 'season', 'team'),)
+
+
+class GameLogInseason(GameLogBase):
+    scrape_date = models.DateField()
+
+    class Meta(GameLogBase.Meta):
+        db_table = 'game_log_inseason'
+        unique_together = (('game_num', 'season', 'team', 'scrape_date'),)
 
 
 class LeagueOffenseOverall(Base):
@@ -284,44 +315,10 @@ class RawBattersOverall(RawBatters):
         db_table = 'raw_batters_overall'
 
 
-class RawBattersInseason(Base):
-    """ Abstract class that holds fields for RawBattersOverallInseason and
-    RawBattersConferenceInseason
-    """
-    no = models.IntegerField(blank=True, null=True)
-    name = models.CharField(primary_key=True, max_length=35)
-    team = models.CharField(max_length=5)
-    season = models.IntegerField(blank=True, null=True)
+class RawBattersInseason(RawBatters):
     date = models.DateField()
-    yr = models.CharField(max_length=2, blank=True, null=True)
-    pos = models.CharField(max_length=15, blank=True, null=True)
-    g = models.IntegerField(blank=True, null=True)
-    pa = models.IntegerField(blank=True, null=True)
-    ab = models.IntegerField(blank=True, null=True)
-    r = models.IntegerField(blank=True, null=True)
-    h = models.IntegerField(blank=True, null=True)
-    x2b = models.IntegerField(blank=True, null=True)
-    x3b = models.IntegerField(blank=True, null=True)
-    hr = models.IntegerField(blank=True, null=True)
-    rbi = models.IntegerField(blank=True, null=True)
-    bb = models.IntegerField(blank=True, null=True)
-    so = models.IntegerField(blank=True, null=True)
-    sb = models.IntegerField(blank=True, null=True)
-    cs = models.IntegerField(blank=True, null=True)
-    avg = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    obp = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    slg = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    hbp = models.IntegerField(blank=True, null=True)
-    sf = models.IntegerField(blank=True, null=True)
-    sh = models.IntegerField(blank=True, null=True)
-    tb = models.IntegerField(blank=True, null=True)
-    xbh = models.IntegerField(blank=True, null=True)
-    gdp = models.IntegerField(blank=True, null=True)
-    go = models.IntegerField(blank=True, null=True)
-    fo = models.IntegerField(blank=True, null=True)
-    go_fo = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
 
-    class Meta(Base.Meta):
+    class Meta(RawBatters.Meta):
         abstract = True
         unique_together = (('name', 'team', 'date'),)
 
@@ -332,7 +329,7 @@ class RawBattersConferenceInseason(RawBattersInseason):
 
 
 class RawBattersOverallInseason(RawBattersInseason):
-    class Meta(Base.Meta):
+    class Meta(RawBattersInseason.Meta):
         db_table = 'raw_batters_overall_inseason'
 
 
@@ -723,7 +720,7 @@ class RawTeamFieldingOverallInseason(Base):
         unique_together = (('name', 'date'),)
 
 
-class RawTeamOffenseConference(Base):
+class RawTeamOffense(Base):
     name = models.CharField(primary_key=True, max_length=30)
     season = models.IntegerField()
     g = models.IntegerField(blank=True, null=True)
@@ -753,110 +750,35 @@ class RawTeamOffenseConference(Base):
     go_fo = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
 
     class Meta(Base.Meta):
-        db_table = 'raw_team_offense_conference'
+        abstract = True
         unique_together = (('name', 'season'),)
 
 
-class RawTeamOffenseConferenceInseason(Base):
-    name = models.CharField(primary_key=True, max_length=30)
-    season = models.IntegerField()
-    date = models.DateField()
-    g = models.IntegerField(blank=True, null=True)
-    pa = models.IntegerField(blank=True, null=True)
-    ab = models.IntegerField(blank=True, null=True)
-    r = models.IntegerField(blank=True, null=True)
-    h = models.IntegerField(blank=True, null=True)
-    x2b = models.IntegerField(blank=True, null=True)
-    x3b = models.IntegerField(blank=True, null=True)
-    hr = models.IntegerField(blank=True, null=True)
-    rbi = models.IntegerField(blank=True, null=True)
-    bb = models.IntegerField(blank=True, null=True)
-    so = models.IntegerField(blank=True, null=True)
-    sb = models.IntegerField(blank=True, null=True)
-    cs = models.IntegerField(blank=True, null=True)
-    avg = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    obp = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    slg = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    hbp = models.IntegerField(blank=True, null=True)
-    sf = models.IntegerField(blank=True, null=True)
-    sh = models.IntegerField(blank=True, null=True)
-    tb = models.IntegerField(blank=True, null=True)
-    xbh = models.IntegerField(blank=True, null=True)
-    gdp = models.IntegerField(blank=True, null=True)
-    go = models.IntegerField(blank=True, null=True)
-    fo = models.IntegerField(blank=True, null=True)
-    go_fo = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+class RawTeamOffenseConference(RawTeamOffense):
+    class Meta(RawTeamOffense.Meta):
+        db_table = 'raw_team_offense_conference'
 
-    class Meta(Base.Meta):
-        db_table = 'raw_team_offense_conference_inseason'
+
+class RawTeamOffenseOverall(RawTeamOffense):
+    class Meta(RawTeamOffense.Meta):
+        db_table = 'raw_team_offense_conference'
+
+
+class RawTeamOffenseInseason(RawTeamOffense):
+    date = models.DateField()
+
+    class Meta(RawTeamOffense.Meta):
+        abstract = True
         unique_together = (('name', 'season', 'date'),)
 
 
-class RawTeamOffenseOverall(Base):
-    name = models.CharField(primary_key=True, max_length=30)
-    season = models.IntegerField()
-    g = models.IntegerField(blank=True, null=True)
-    pa = models.IntegerField(blank=True, null=True)
-    ab = models.IntegerField(blank=True, null=True)
-    r = models.IntegerField(blank=True, null=True)
-    h = models.IntegerField(blank=True, null=True)
-    x2b = models.IntegerField(blank=True, null=True)
-    x3b = models.IntegerField(blank=True, null=True)
-    hr = models.IntegerField(blank=True, null=True)
-    rbi = models.IntegerField(blank=True, null=True)
-    bb = models.IntegerField(blank=True, null=True)
-    so = models.IntegerField(blank=True, null=True)
-    sb = models.IntegerField(blank=True, null=True)
-    cs = models.IntegerField(blank=True, null=True)
-    avg = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    obp = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    slg = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    hbp = models.IntegerField(blank=True, null=True)
-    sf = models.IntegerField(blank=True, null=True)
-    sh = models.IntegerField(blank=True, null=True)
-    tb = models.IntegerField(blank=True, null=True)
-    xbh = models.IntegerField(blank=True, null=True)
-    gdp = models.IntegerField(blank=True, null=True)
-    go = models.IntegerField(blank=True, null=True)
-    fo = models.IntegerField(blank=True, null=True)
-    go_fo = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-
-    class Meta(Base.Meta):
-        db_table = 'raw_team_offense_overall'
-        unique_together = (('name', 'season'),)
+class RawTeamOffenseConferenceInseason(RawTeamOffenseInseason):
+    class Meta(RawTeamOffenseInseason.Meta):
+        db_table = 'raw_team_offense_conference_inseason'
 
 
-class RawTeamOffenseOverallInseason(Base):
-    name = models.CharField(primary_key=True, max_length=30)
-    season = models.IntegerField()
-    date = models.DateField()
-    g = models.IntegerField(blank=True, null=True)
-    pa = models.IntegerField(blank=True, null=True)
-    ab = models.IntegerField(blank=True, null=True)
-    r = models.IntegerField(blank=True, null=True)
-    h = models.IntegerField(blank=True, null=True)
-    x2b = models.IntegerField(blank=True, null=True)
-    x3b = models.IntegerField(blank=True, null=True)
-    hr = models.IntegerField(blank=True, null=True)
-    rbi = models.IntegerField(blank=True, null=True)
-    bb = models.IntegerField(blank=True, null=True)
-    so = models.IntegerField(blank=True, null=True)
-    sb = models.IntegerField(blank=True, null=True)
-    cs = models.IntegerField(blank=True, null=True)
-    avg = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    obp = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    slg = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    hbp = models.IntegerField(blank=True, null=True)
-    sf = models.IntegerField(blank=True, null=True)
-    sh = models.IntegerField(blank=True, null=True)
-    tb = models.IntegerField(blank=True, null=True)
-    xbh = models.IntegerField(blank=True, null=True)
-    gdp = models.IntegerField(blank=True, null=True)
-    go = models.IntegerField(blank=True, null=True)
-    fo = models.IntegerField(blank=True, null=True)
-    go_fo = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-
-    class Meta(Base.Meta):
+class RawTeamOffenseOverallInseason(RawTeamOffenseInseason):
+    class Meta(RawTeamOffenseInseason.Meta):
         db_table = 'raw_team_offense_overall_inseason'
         unique_together = (('name', 'season', 'date'),)
 
@@ -1023,7 +945,7 @@ class TeamIds(Base):
         db_table = 'team_ids'
 
 
-class TeamOffenseOverall(Base):
+class TeamOffense(Base):
     name = models.CharField(primary_key=True, max_length=30)
     season = models.IntegerField()
     g = models.IntegerField(blank=True, null=True)
@@ -1060,5 +982,33 @@ class TeamOffenseOverall(Base):
     sar = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
 
     class Meta(Base.Meta):
-        db_table = 'team_offense_overall'
+        abstract = True
         unique_together = (('name', 'season'),)
+
+
+class TeamOffenseOverall(TeamOffense):
+    class Meta(TeamOffense.Meta):
+        db_table = 'team_offense_overall'
+
+
+class TeamOffenseConference(TeamOffense):
+    class Meta(TeamOffense.Meta):
+        db_table = 'team_offense_conference'
+
+
+class TeamOffenseInseason(TeamOffense):
+    date = models.DateField()
+
+    class Meta(TeamOffense.Meta):
+        abstract = True
+        unique_together = (('name', 'season', 'date'),)
+
+
+class TeamOffenseOverallInseason(TeamOffenseInseason):
+    class Meta(TeamOffenseInseason.Meta):
+        db_table = 'team_offense_overall_inseason'
+
+
+class TeamOffenseConferenceInseason(TeamOffenseInseason):
+    class Meta(TeamOffenseInseason.Meta):
+        db_table = 'team_offense_conference_inseason'
