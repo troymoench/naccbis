@@ -50,16 +50,20 @@ class LeaderboardView(View):
         # select columns based on stat view
         if params and params["stat"] == "DB":
             df = df[self.dashboard]
+            df.sort_values("rar", ascending=False, inplace=True)
+            df.reset_index(drop=True, inplace=True)
         elif params and params["stat"] == "STD":
             df = df[self.standard]
+            df.sort_values("avg", ascending=False, inplace=True)
+            df.reset_index(drop=True, inplace=True)
         elif params and params["stat"] == "ADV":
             df = df[self.advanced]
+            df.sort_values("rar", ascending=False, inplace=True)
+            df.reset_index(drop=True, inplace=True)
         else:
             df = df[self.dashboard]
-
-        # sort
-        # df.sort_values(by=["ops"], ascending=False, inplace=True)
-        # df.reset_index(drop=True, inplace=True)
+            df.sort_values("rar", ascending=False, inplace=True)
+            df.reset_index(drop=True, inplace=True)
 
         # round float columns
         df = df.round({"go_fo": 2,
@@ -95,7 +99,7 @@ class LeaderboardView(View):
                            "WRC_P": "wRC+",
                            "OFF_P": "OFF+"}, inplace=True)
 
-        context = {'data': df.to_html(classes="table table-bordered table-hover table-sm",
+        context = {'data': df.to_html(table_id="example", classes="table table-bordered table-hover",
                                       index=True, na_rep=""),
                    'form': form}
         return render(request, 'naccbis/index.html', context)
