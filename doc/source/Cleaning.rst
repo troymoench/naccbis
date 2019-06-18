@@ -84,14 +84,6 @@ Cleaning.clean module
     :undoc-members:
     :show-inheritance:
 
-Cleaning.tests module
----------------------
-
-.. automodule:: Cleaning.tests
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Module contents
 ---------------

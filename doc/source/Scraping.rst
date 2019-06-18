@@ -76,14 +76,6 @@ Scraping.scrape module
     :undoc-members:
     :show-inheritance:
 
-Scraping.tests module
----------------------
-
-.. automodule:: Scraping.tests
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Module contents
 ---------------

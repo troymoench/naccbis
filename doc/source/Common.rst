@@ -20,14 +20,6 @@ Common.metrics module
     :undoc-members:
     :show-inheritance:
 
-Common.tests module
--------------------
-
-.. automodule:: Common.tests
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 Common.utils module
 -------------------
 
