@@ -4,6 +4,7 @@ import logging
 import sys
 # Third party imports
 from sqlalchemy import create_engine
+from sqlalchemy.engine.url import URL
 from sqlalchemy.exc import SQLAlchemyError
 # Local imports
 import Common.conf as conf
@@ -15,34 +16,25 @@ def connect_db(config):
     :returns: Database connection object
     """
     logging.info("Connecting to database")
-    if "port" not in config.keys():
-        config["port"] = "5432"
 
     try:
-        conn_str = 'postgresql+psycopg2://{}:{}@{}:{}/{}'.format(
-                    config["user"],
-                    config["password"],
-                    config["host"],
-                    config["port"],
-                    config["database"])
-    except KeyError as e:
+        conn_url = URL(**config)
+    except TypeError:
         logging.error("Database connection parameter error")
-        logging.error(e)
-        sys.exit(1)
+        raise
 
-    engine = create_engine(conn_str)
+    engine = create_engine(conn_url)
     try:
         conn = engine.connect()
-    except SQLAlchemyError as e:
-        logging.error("Failed to connect to database")
-        logging.error(e)
-        sys.exit(1)
+    except SQLAlchemyError:
+        logging.error("Failed to connect to database %s", config.get("database"))
+        raise
     else:
-        logging.info("Successfully connected to database %s", config["database"])
-        logging.debug("DB Name: %s", config["database"])
-        logging.debug("DB Host: %s", config["host"])
-        logging.debug("DB Port: %s", config["port"])
-        logging.debug("DB User: %s", config["user"])
+        logging.info("Successfully connected to database %s", config.get("database"))
+        logging.debug("DB Name: %s", config.get("database"))
+        logging.debug("DB Host: %s", config.get("host"))
+        logging.debug("DB Port: %s", config.get("port"))
+        logging.debug("DB User: %s", config.get("username"))
     return conn
 
 

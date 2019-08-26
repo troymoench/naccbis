@@ -61,7 +61,7 @@ class BaseScraper:
         self._verbose = verbose
         self._data = pd.DataFrame()
         self._runnable = True
-        self._config = utils.init_config()["DB"]
+        self._config = utils.init_config()
         self._config["csv_path"] = ""
 
     def info(self):
@@ -114,7 +114,7 @@ class BaseScraper:
 
     def _export_db(self, table_name):
         """ Helper method to export data to a database """
-        conn = utils.connect_db(self._config)
+        conn = utils.connect_db(self._config["DB"])
 
         if self._inseason:
             table_name += "_inseason"
