@@ -23,13 +23,13 @@ class LeaderboardView(View):
 
         # retrieve data from database
         if params and params["split"] == "ALL":
-            data = BattersOverall.objects.using('data')
-            totals = LeagueOffenseOverall.objects.using('data')
+            data = BattersOverall.objects
+            totals = LeagueOffenseOverall.objects
         elif params and params["split"] == "CONF":
-            data = BattersConference.objects.using('data')
+            data = BattersConference.objects
         else:
-            data = BattersOverall.objects.using('data')
-            totals = LeagueOffenseOverall.objects.using('data')
+            data = BattersOverall.objects
+            totals = LeagueOffenseOverall.objects
 
         if params and params["min_pa"]:
             data = data.filter(pa__gte=params["min_pa"])

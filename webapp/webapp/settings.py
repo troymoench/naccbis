@@ -77,13 +77,6 @@ WSGI_APPLICATION = 'webapp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'djangodb',
-        'USER': 'django',
-        'PASSWORD': 'webapp',
-        'HOST': '192.168.1.2'
-    },
-    'data': {
-        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'naccbisdb',
         'USER': 'django',
         'PASSWORD': 'webapp',
