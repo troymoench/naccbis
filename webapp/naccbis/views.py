@@ -13,7 +13,8 @@ class LeaderboardView(View):
     advanced = ["name", "team", "season", "yr", "g", "pa", "woba", "sbr", "wsb", "wraa", "off", "wrc_p", "off_p", "rar"]
 
     def get(self, request):
-        params = self.parse_request_params(request)
+        # request parameters
+        params = request.GET
 
         # set the form field values
         if params:
@@ -22,20 +23,20 @@ class LeaderboardView(View):
             form = MyForm()
 
         # retrieve data from database
-        if params and params["split"] == "ALL":
+        if params.get("split") == "ALL":
             data = BattersOverall.objects
             totals = LeagueOffenseOverall.objects
-        elif params and params["split"] == "CONF":
+        elif params.get("split") == "CONF":
             data = BattersConference.objects
         else:
             data = BattersOverall.objects
             totals = LeagueOffenseOverall.objects
 
-        if params and params["min_pa"]:
+        if params.get("min_pa"):
             data = data.filter(pa__gte=params["min_pa"])
-        if params and params["team"] != "ALL":
+        if params.get("team") not in ("ALL", None):
             data = data.filter(team=params["team"])
-        if params and params["season"] != "ALL":
+        if params.get("season") not in ("ALL", None):
             data = data.filter(season=params["season"])
             totals = totals.filter(season=params["season"])
 
@@ -48,15 +49,15 @@ class LeaderboardView(View):
         df = metrics.multi_season(df, totals_df, metrics.season_offensive_metrics_rar)
 
         # select columns based on stat view
-        if params and params["stat"] == "DB":
+        if params.get("stat") == "DB":
             df = df[self.dashboard]
             df.sort_values("rar", ascending=False, inplace=True)
             df.reset_index(drop=True, inplace=True)
-        elif params and params["stat"] == "STD":
+        elif params.get("stat") == "STD":
             df = df[self.standard]
             df.sort_values("avg", ascending=False, inplace=True)
             df.reset_index(drop=True, inplace=True)
-        elif params and params["stat"] == "ADV":
+        elif params.get("stat") == "ADV":
             df = df[self.advanced]
             df.sort_values("rar", ascending=False, inplace=True)
             df.reset_index(drop=True, inplace=True)
@@ -103,7 +104,3 @@ class LeaderboardView(View):
                                       index=True, na_rep=""),
                    'form': form}
         return render(request, 'naccbis/index.html', context)
-
-    def parse_request_params(self, request):
-        """ Parse the request parameters """
-        return request.GET
