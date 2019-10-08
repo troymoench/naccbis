@@ -3,6 +3,5 @@ __pycache__
 junk
 TODO.txt
 *.log
-Common/conf.py
+conf.py
 doc/build
-
