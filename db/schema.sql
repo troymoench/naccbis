@@ -759,6 +759,21 @@ create table game_log (
   primary key (game_num, season, team)
 );
 
+create table game_log_inseason (
+  scrape_date date,
+  game_num integer,
+  date date,
+  season integer,
+  team varchar(30),
+  opponent varchar(30),
+  result varchar(1),
+  rs integer,
+  ra integer,
+  home boolean,
+  conference boolean,
+  primary key (scrape_date, game_num, season, team)
+);
+
 create table batters_overall (
   no integer,
   fname varchar(20),
@@ -802,6 +817,50 @@ create table batters_overall (
   primary key (fname, lname, team, season)
 );
 
+create table batters_overall_inseason (
+  no integer,
+  fname varchar(20),
+  lname varchar(20),
+  team varchar(5),
+  season integer,
+  date date,
+  yr char(2),
+  pos varchar(15),
+  g integer,
+  pa integer,
+  ab integer,
+  r integer,
+  h integer,
+  x2b integer,
+  x3b integer,
+  hr integer,
+  rbi integer,
+  bb integer,
+  so integer,
+  hbp integer,
+  tb integer,
+  xbh integer,
+  sf integer,
+  sh integer,
+  gdp integer,
+  sb integer,
+  cs integer,
+  go integer,
+  fo integer,
+  go_fo numeric,
+  hbp_p numeric,
+  bb_p numeric,
+  so_p numeric,
+  babip numeric,
+  iso numeric,
+  avg numeric,
+  obp numeric,
+  slg numeric,
+  ops numeric,
+  sar numeric,
+  primary key (fname, lname, team, season, date)
+);
+
 create table batters_conference (
   no integer,
   fname varchar(20),
@@ -843,6 +902,50 @@ create table batters_conference (
   ops numeric,
   sar numeric,
   primary key (fname, lname, team, season)
+);
+
+create table batters_conference_inseason (
+  no integer,
+  fname varchar(20),
+  lname varchar(20),
+  team varchar(5),
+  season integer,
+  date date,
+  yr char(2),
+  pos varchar(15),
+  g integer,
+  pa integer,
+  ab integer,
+  r integer,
+  h integer,
+  x2b integer,
+  x3b integer,
+  hr integer,
+  rbi integer,
+  bb integer,
+  so integer,
+  hbp integer,
+  tb integer,
+  xbh integer,
+  sf integer,
+  sh integer,
+  gdp integer,
+  sb integer,
+  cs integer,
+  go integer,
+  fo integer,
+  go_fo numeric,
+  hbp_p numeric,
+  bb_p numeric,
+  so_p numeric,
+  babip numeric,
+  iso numeric,
+  avg numeric,
+  obp numeric,
+  slg numeric,
+  ops numeric,
+  sar numeric,
+  primary key (fname, lname, team, season, date)
 );
 
 create table pitchers_overall (
@@ -895,6 +998,57 @@ create table pitchers_overall (
   primary key (fname, lname, team, season)
 );
 
+create table pitchers_overall_inseason (
+  no integer,
+  fname varchar(20),
+  lname varchar(20),
+  team varchar(5),
+  season integer,
+  date date,
+  yr char(2),
+  pos varchar(15),
+  g integer,
+  gs integer,
+  w integer,
+  l integer,
+  sv integer,
+  cg integer,
+  sho integer,
+  ip numeric,
+  h integer,
+  r integer,
+  er integer,
+  bb integer,
+  so integer,
+  x2b integer,
+  x3b integer,
+  hr integer,
+  ab integer,
+  wp integer,
+  hbp integer,
+  bk integer,
+  sf integer,
+  sh integer,
+  pa integer,
+  hbp_p numeric,
+  bb_p numeric,
+  so_p numeric,
+  iso numeric,
+  babip numeric,
+  avg numeric,
+  obp numeric,
+  slg numeric,
+  ops numeric,
+  lob_p numeric,
+  era numeric,
+  ra_9 numeric,
+  so_9 numeric,
+  bb_9 numeric,
+  hr_9 numeric,
+  whip numeric,
+  primary key (fname, lname, team, season, date)
+);
+
 create table pitchers_conference (
   no integer,
   fname varchar(20),
@@ -923,6 +1077,37 @@ create table pitchers_conference (
   hr_9 numeric,
   whip numeric,
   primary key (fname, lname, team, season)
+);
+
+create table pitchers_conference_inseason (
+  no integer,
+  fname varchar(20),
+  lname varchar(20),
+  team varchar(5),
+  season integer,
+  date date,
+  yr char(2),
+  pos varchar(15),
+  g integer,
+  gs integer,
+  w integer,
+  l integer,
+  sv integer,
+  cg integer,
+  ip numeric,
+  h integer,
+  r integer,
+  er integer,
+  bb integer,
+  so integer,
+  so_9 numeric,
+  hr integer,
+  era numeric,
+  ra_9 numeric,
+  bb_9 numeric,
+  hr_9 numeric,
+  whip numeric,
+  primary key (fname, lname, team, season, date)
 );
 
 create table team_offense_overall (
@@ -963,6 +1148,45 @@ create table team_offense_overall (
   primary key (name, season)
 );
 
+create table team_offense_overall_inseason (
+  name varchar(30),
+  season integer,
+  date date,
+  g integer,
+  pa integer,
+  ab integer,
+  r integer,
+  h integer,
+  x2b integer,
+  x3b integer,
+  hr integer,
+  rbi integer,
+  bb integer,
+  so integer,
+  hbp integer,
+  tb integer,
+  xbh integer,
+  sf integer,
+  sh integer,
+  gdp integer,
+  sb integer,
+  cs integer,
+  go integer,
+  fo integer,
+  go_fo numeric,
+  hbp_p numeric,
+  bb_p numeric,
+  so_p numeric,
+  babip numeric,
+  iso numeric,
+  avg numeric,
+  obp numeric,
+  slg numeric,
+  ops numeric,
+  sar numeric,
+  primary key (name, season, date)
+);
+
 create table team_offense_conference (
   name varchar(30),
   season integer,
@@ -999,6 +1223,45 @@ create table team_offense_conference (
   ops numeric,
   sar numeric,
   primary key (name, season)
+);
+
+create table team_offense_conference_inseason (
+  name varchar(30),
+  season integer,
+  date date,
+  g integer,
+  pa integer,
+  ab integer,
+  r integer,
+  h integer,
+  x2b integer,
+  x3b integer,
+  hr integer,
+  rbi integer,
+  bb integer,
+  so integer,
+  hbp integer,
+  tb integer,
+  xbh integer,
+  sf integer,
+  sh integer,
+  gdp integer,
+  sb integer,
+  cs integer,
+  go integer,
+  fo integer,
+  go_fo numeric,
+  hbp_p numeric,
+  bb_p numeric,
+  so_p numeric,
+  babip numeric,
+  iso numeric,
+  avg numeric,
+  obp numeric,
+  slg numeric,
+  ops numeric,
+  sar numeric,
+  primary key (name, season, date)
 );
 
 create table team_pitching_overall (
@@ -1045,6 +1308,51 @@ create table team_pitching_overall (
   primary key (name, season)
 );
 
+create table team_pitching_overall_inseason (
+  name varchar(30),
+  season integer,
+  date date,
+  g integer,
+  w integer,
+  l integer,
+  sv integer,
+  cg integer,
+  sho integer,
+  ip numeric,
+  h integer,
+  r integer,
+  er integer,
+  bb integer,
+  so integer,
+  era numeric,
+  x2b integer,
+  x3b integer,
+  hr integer,
+  ab integer,
+  avg numeric,
+  wp integer,
+  hbp integer,
+  bk integer,
+  sf integer,
+  sh integer,
+  so_9 numeric,
+  pa integer,
+  obp numeric,
+  slg numeric,
+  ops numeric,
+  hbp_p numeric,
+  bb_p numeric,
+  so_p numeric,
+  iso  numeric,
+  babip numeric,
+  lob_p numeric,
+  ra_9 numeric,
+  bb_9 numeric,
+  hr_9 numeric,
+  whip numeric,
+  primary key (name, season, date)
+);
+
 create table team_pitching_conference (
   name varchar(30),
   season integer,
@@ -1063,6 +1371,27 @@ create table team_pitching_conference (
   hr_9 numeric,
   whip numeric,
   primary key(name, season)
+);
+
+create table team_pitching_conference_inseason (
+  name varchar(30),
+  season integer,
+  date date,
+  g integer,
+  ip numeric,
+  h integer,
+  r integer,
+  er integer,
+  bb integer,
+  so integer,
+  so_9 numeric,
+  hr integer,
+  era numeric,
+  ra_9 numeric,
+  bb_9 numeric,
+  hr_9 numeric,
+  whip numeric,
+  primary key(name, season, date)
 );
 
 create table replacement_level_overall (
