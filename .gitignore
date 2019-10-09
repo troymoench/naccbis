@@ -3,5 +3,5 @@ __pycache__
 junk
 TODO.txt
 *.log
-conf.py
+naccbis/Common/conf.py
 doc/build
