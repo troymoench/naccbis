@@ -1,3 +1,4 @@
 -r requirements.txt
 Sphinx==2.2.0
 python-language-server[all]
+pytest==5.2.1
