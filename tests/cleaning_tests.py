@@ -5,10 +5,10 @@ import unittest
 # Third party imports
 import pandas as pd
 # Local imports
-import CleanFunctions as cf
-from CleanGameLogs import GameLogETL as gl
-import GenerateIds as gi
-from LeagueTotals import LeagueOffenseETL as lo
+import naccbis.Cleaning.CleanFunctions as cf
+from naccbis.Cleaning.CleanGameLogs import GameLogETL as gl
+import naccbis.scripts.GenerateIds as gi
+from naccbis.Cleaning.LeagueTotals import LeagueOffenseETL as lo
 
 
 class TestCleanFunctions(unittest.TestCase):

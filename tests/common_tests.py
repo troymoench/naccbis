@@ -3,7 +3,7 @@
 import unittest
 # Third party imports
 # Local imports
-import utils
+import naccbis.Common.utils as utils
 
 
 class TestUtils(unittest.TestCase):

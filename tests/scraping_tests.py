@@ -5,7 +5,7 @@ import unittest
 from bs4 import BeautifulSoup
 import pandas as pd
 # Local imports
-import ScrapeFunctions as sf
+import naccbis.Scraping.ScrapeFunctions as sf
 
 
 class TestScrapeFunctions(unittest.TestCase):
