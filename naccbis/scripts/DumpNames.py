@@ -10,8 +10,8 @@ import argparse
 import pandas as pd
 from Levenshtein import distance
 # Local imports
-import CleanFunctions
-import Common.utils as utils
+import naccbis.Cleaning.CleanFunctions as cf
+import naccbis.Common.utils as utils
 
 
 def levenshtein_analysis(data, levenshtein_first, levenshtein_last):
@@ -122,8 +122,8 @@ if __name__ == "__main__":
 
     conn.close()
 
-    batters = CleanFunctions.normalize_names(batters, verbose=True)
-    pitchers = CleanFunctions.normalize_names(pitchers, verbose=True)
+    batters = cf.normalize_names(batters, verbose=True)
+    pitchers = cf.normalize_names(pitchers, verbose=True)
 
     batters = batters[["lname", "fname", "team", "season", "pos"]]
     pitchers = pitchers[["lname", "fname", "team", "season", "pos"]]
@@ -136,7 +136,7 @@ if __name__ == "__main__":
 
     if args.corrections:
         # apply name corrections
-        data = CleanFunctions.apply_corrections(data, corrections, verbose=True)
+        data = cf.apply_corrections(data, corrections, verbose=True)
         data = data.sort_values(by=["lname", "fname", "team", "season"])
 
     if levenshtein_last or levenshtein_first:

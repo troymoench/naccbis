@@ -6,13 +6,13 @@ import sys
 import logging
 # Third party imports
 # Local imports
-from ScrapeGameLog import GameLogScraper
-from ScrapeIndividualOffense import IndividualOffenseScraper
-from ScrapeIndividualPitching import IndividualPitchingScraper
-from ScrapeTeamFielding import TeamFieldingScraper
-from ScrapeTeamOffense import TeamOffenseScraper
-from ScrapeTeamPitching import TeamPitchingScraper
-import Common.utils as utils
+from naccbis.Scraping.ScrapeGameLog import GameLogScraper
+from naccbis.Scraping.ScrapeIndividualOffense import IndividualOffenseScraper
+from naccbis.Scraping.ScrapeIndividualPitching import IndividualPitchingScraper
+from naccbis.Scraping.ScrapeTeamFielding import TeamFieldingScraper
+from naccbis.Scraping.ScrapeTeamOffense import TeamOffenseScraper
+from naccbis.Scraping.ScrapeTeamPitching import TeamPitchingScraper
+import naccbis.Common.utils as utils
 
 
 def run_scrapers(scraper_nums, year, splits, output, inseason, verbose):

@@ -6,7 +6,7 @@ import logging
 # Third party imports
 import pandas as pd
 # Local imports
-import Common.utils as utils
+import naccbis.Common.utils as utils
 
 
 class BaseScraper:

@@ -6,9 +6,9 @@ import sys
 # Third party imports
 import pandas as pd
 # Local imports
-import ScrapeFunctions as sf
-from ScrapeBase import BaseScraper
-import Common.utils as utils
+import naccbis.Scraping.ScrapeFunctions as sf
+from naccbis.Scraping.ScrapeBase import BaseScraper
+import naccbis.Common.utils as utils
 
 YEAR = "2017-18"
 SPLIT = "conference"

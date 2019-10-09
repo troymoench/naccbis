@@ -6,8 +6,8 @@ import os
 # Third party imports
 import pandas as pd
 # Local imports
-import Common.metrics as metrics
-import Common.utils as utils
+import naccbis.Common.metrics as metrics
+import naccbis.Common.utils as utils
 
 
 class TeamOffenseETL:

@@ -6,9 +6,9 @@ import os
 # Third party imports
 import pandas as pd
 # Local imports
-import CleanFunctions as cf
-import Common.utils as utils
-import Common.metrics as metrics
+import naccbis.Cleaning.CleanFunctions as cf
+import naccbis.Common.utils as utils
+import naccbis.Common.metrics as metrics
 
 
 class TeamPitchingETL:

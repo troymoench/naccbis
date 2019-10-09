@@ -6,8 +6,8 @@ import sys
 import pandas as pd
 from sqlalchemy.exc import SQLAlchemyError
 # Local imports
-import CleanFunctions as cf
-import Common.utils as utils
+import naccbis.Cleaning.CleanFunctions as cf
+import naccbis.Common.utils as utils
 
 
 def make_full_name(fname, lname):
