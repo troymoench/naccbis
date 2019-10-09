@@ -5,3 +5,5 @@ TODO.txt
 *.log
 naccbis/Common/conf.py
 doc/build
+dist/
+*.egg-info
