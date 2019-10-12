@@ -1,56 +1,59 @@
 """ This module provides unit tests for common """
 # Standard library imports
-import unittest
 # Third party imports
+import pytest
 # Local imports
 import naccbis.Common.utils as utils
 
 
-class TestUtils(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def test_parse_year(self):
-        values = [{"year": "2017", "expected": [2017]},
-                  {"year": "2016:2018", "expected": [2016, 2017, 2018]}]
-        for value in values:
-            self.assertEqual(utils.parse_year(value["year"]), value["expected"])
-
-    def test_parse_stat(self):
-        accepted = list(range(1, 8))
-        values = [{"stats": "1", "expected": [1]},
-                  {"stats": "1,2,3", "expected": [1, 2, 3]},
-                  {"stats": "all", "expected": accepted}]
-        for value in values:
-            self.assertEqual(utils.parse_stat(value["stats"], accepted), value["expected"])
-
-    def test_year_to_season(self):
-        values = [{"year": "2010-11", "expected": 2011},
-                  {"year": "2011-12", "expected": 2012},
-                  {"year": "2012-13", "expected": 2013},
-                  {"year": "2013-14", "expected": 2014},
-                  {"year": "2014-15", "expected": 2015},
-                  {"year": "2015-16", "expected": 2016},
-                  {"year": "2016-17", "expected": 2017},
-                  {"year": "2017-18", "expected": 2018}]
-        for value in values:
-            self.assertEqual(utils.year_to_season(value["year"]), value["expected"])
-
-    def test_season_to_year(self):
-        values = [{"season": 2011, "expected": "2010-11"},
-                  {"season": 2012, "expected": "2011-12"},
-                  {"season": 2013, "expected": "2012-13"},
-                  {"season": 2014, "expected": "2013-14"},
-                  {"season": 2015, "expected": "2014-15"},
-                  {"season": 2016, "expected": "2015-16"},
-                  {"season": 2017, "expected": "2016-17"},
-                  {"season": 2018, "expected": "2017-18"}]
-        for value in values:
-            self.assertEqual(utils.season_to_year(value["season"]), value["expected"])
-
-    def tearDown(self):
-        pass
+@pytest.fixture
+def accepted_stats():
+    return list(range(1, 8))
 
 
-if __name__ == "__main__":
-    unittest.main()
+class TestUtils():
+    @pytest.mark.parametrize(
+        'year, expected', [('2017', [2017]), ('2016:2018', [2016, 2017, 2018])]
+    )
+    def test_parse_year(self, year, expected):
+        assert utils.parse_year(year) == expected
+
+    @pytest.mark.parametrize(
+        'stats, expected', [
+            ('1', [1]),
+            ('1,2,3', [1, 2, 3]),
+            ('all', list(range(1, 8)))
+        ]
+    )
+    def test_parse_stat(self, stats, accepted_stats, expected):
+        assert utils.parse_stat(stats, accepted_stats) == expected
+
+    @pytest.mark.parametrize(
+        'year, expected', [
+            ('2010-11', 2011),
+            ('2011-12', 2012),
+            ('2012-13', 2013),
+            ('2013-14', 2014),
+            ('2014-15', 2015),
+            ('2015-16', 2016),
+            ('2016-17', 2017),
+            ('2017-18', 2018),
+        ]
+    )
+    def test_year_to_season(self, year, expected):
+        assert utils.year_to_season(year) == expected
+
+    @pytest.mark.parametrize(
+        'season, expected', [
+            (2011, '2010-11'),
+            (2012, '2011-12'),
+            (2013, '2012-13'),
+            (2014, '2013-14'),
+            (2015, '2014-15'),
+            (2016, '2015-16'),
+            (2017, '2016-17'),
+            (2018, '2017-18'),
+        ]
+    )
+    def test_season_to_year(self, season, expected):
+        assert utils.season_to_year(season) == expected
