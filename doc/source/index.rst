@@ -10,7 +10,7 @@ Welcome to NACCBIS's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+   naccbis
 
 Indices and tables
 ==================
