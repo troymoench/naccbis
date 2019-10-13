@@ -1,6 +1,6 @@
 from django.urls import path
 
-from naccbis.views import LeaderboardView, TeamOffenseView
+from naccbisapp.views import LeaderboardView, TeamOffenseView
 
 urlpatterns = [
     path('leaders/batters', LeaderboardView.as_view()),

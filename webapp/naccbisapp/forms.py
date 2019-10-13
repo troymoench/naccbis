@@ -1,5 +1,5 @@
 from django import forms
-from naccbis.models import TeamIds, LeagueOffenseOverall
+from naccbisapp.models import TeamIds, LeagueOffenseOverall
 
 
 class BattersInputs(forms.Form):

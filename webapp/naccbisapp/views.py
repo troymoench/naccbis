@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views import View
-from naccbis.models import (
+from naccbisapp.models import (
     BattersOverall,
     BattersConference,
     TeamOffenseOverall,
@@ -8,8 +8,8 @@ from naccbis.models import (
     LeagueOffenseOverall,
     # LeagueOffenseConference,
 )
-from naccbis.forms import BattersInputs, TeamOffenseInputs
-import Common.metrics as metrics
+from naccbisapp.forms import BattersInputs, TeamOffenseInputs
+import naccbis.Common.metrics as metrics
 
 
 RENAME_COLS_OFFENSE = {
