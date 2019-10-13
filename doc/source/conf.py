@@ -20,9 +20,9 @@ copyright = '2019, Troy Moench'
 author = 'Troy Moench'
 
 # The short X.Y version
-version = ''
+version = '0.1'
 # The full version, including alpha/beta/rc tags
-release = '0.0'
+release = '0.1'
 
 
 # -- General configuration ---------------------------------------------------
