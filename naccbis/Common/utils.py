@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine.url import URL
 from sqlalchemy.exc import SQLAlchemyError
 # Local imports
-import naccbis.Common.conf as conf
+import conf
 
 
 def connect_db(config):
