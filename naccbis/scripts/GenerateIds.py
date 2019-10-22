@@ -127,12 +127,14 @@ if __name__ == "__main__":
     # apply name corrections
     # generate player ids
     # load transformed data into database
-    parser = argparse.ArgumentParser(description="Generate Player Ids")
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--load", action="store_true",
                         help="Load data into database")
+    parser.add_argument("--dir", type=str, default="",
+                        help="Directory to save the output to")
     args = parser.parse_args()
 
-    CSV_DIR = "csv/"
+    CSV_DIR = args.dir
 
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])

@@ -92,7 +92,8 @@ def duplicate_names_analysis(data):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="DumpNames.py")
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description=__doc__)
     parser.add_argument("-c", "--corrections", action="store_true",
                         help="Apply existing name corrections")
     parser.add_argument("-f", "--fname", type=int, metavar="FNAME",
@@ -103,11 +104,13 @@ if __name__ == "__main__":
                         help="Perform a nickname analysis")
     parser.add_argument("--duplicates", action="store_true",
                         help="Perform duplicate names analysis")
+    parser.add_argument("--dir", type=str, default="",
+                        help="Directory to save the output to")
     args = parser.parse_args()
     levenshtein_first = args.fname
     levenshtein_last = args.lname
 
-    CSV_DIR = "csv/"
+    CSV_DIR = args.dir
 
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
