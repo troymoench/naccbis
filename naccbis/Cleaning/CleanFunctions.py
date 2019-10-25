@@ -11,6 +11,7 @@ import pandas as pd
 
 def normalize_names(data, verbose=False):
     """ Normalize names by splitting into first name and last name.
+
     :param data: A DataFrame
     :param verbose: Print extra information to standard out?
     :returns: A DataFrame
@@ -26,6 +27,7 @@ def normalize_names(data, verbose=False):
 
 def apply_corrections(data, corrections, verbose=False):
     """ Apply name corrections
+
     :param data: A DataFrame of the data to be updated
     :param corrections: A DataFrame of the name corrections
     :param verbose: Print extra information to standard out?
@@ -36,8 +38,12 @@ def apply_corrections(data, corrections, verbose=False):
     corrections = corrections.copy()
     # select only the columns we care about
     corrections = corrections[["uc_fname", "uc_lname", "uc_team", "uc_season", "c_fname", "c_lname"]]
-    corrections.rename(columns={"uc_fname": "fname", "uc_lname": "lname", "uc_team": "team",
-                                "uc_season": "season"}, inplace=True)
+    corrections.rename(columns={
+        "uc_fname": "fname",
+        "uc_lname": "lname",
+        "uc_team": "team",
+        "uc_season": "season"
+        }, inplace=True)
     data = pd.merge(data, corrections, how="left", on=["fname", "lname", "team", "season"])
 
     need_fname_update = ~data["c_fname"].isnull()
@@ -62,13 +68,13 @@ def apply_corrections(data, corrections, verbose=False):
 # *******************************
 
 def create_id(fname, lname):
-    '''Create a player ID from a first name and last name.
+    """Create a player ID from a first name and last name.
     String format: <first 5 characters of last name><first 2 characters of first name><01>
     The last two integer digits allow for the prevention of ID conflicts.
     To increment by an integer n, use add_n(player_id, n)
 
     NOTE: spaces, periods, and apostrophes are omitted
-    '''
+    """
     fname = fname.lower()
     lname = lname.lower().replace(' ', '').replace('.', '').replace('\'', '')  # remove spaces, periods, and apostrophes
 
@@ -81,9 +87,9 @@ def create_id(fname, lname):
 
 
 def add_n(player_id, n):
-    '''Add an integer  to a player id
+    """Add an integer to a player id
     e.g. add_n("engelcu01", 2) -> "engelcu03"
-    '''
+    """
     num = int(player_id[-2:]) + int(n)
     num = str(num).zfill(2)
     return "{}{}".format(player_id[0:len(player_id)-2], num)
@@ -95,6 +101,7 @@ def add_n(player_id, n):
 
 def convert_ip(ip_str):
     """ Convert innings pitched from the string representation to the float
+
     :param ip_str: String representation of innings pitched
     :returns: Float representation of innings pitched
     """

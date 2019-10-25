@@ -10,19 +10,16 @@ import naccbis.Scraping.ScrapeFunctions as sf
 from naccbis.Scraping.ScrapeBase import BaseScraper
 import naccbis.Common.utils as utils
 
-YEAR = "2017-18"
-SPLIT = "conference"
-OUTPUT = "sql"
-INSEASON = True
-
 
 class TeamFieldingScraper(BaseScraper):
 
     """ This scraper is responsible for scraping team fielding stats. """
 
     FIELDING_COLS = ['name', 'gp', 'tc', 'po', 'a', 'e', 'fpct', 'dp']
-    TABLES = {"overall": "raw_team_fielding_overall",
-              "conference": "raw_team_fielding_conference"}
+    TABLES = {
+        "overall": "raw_team_fielding_overall",
+        "conference": "raw_team_fielding_conference"
+    }
 
     def __init__(self, year, split, output, inseason=False, verbose=False):
         """ Class constructor
@@ -93,10 +90,11 @@ class TeamFieldingScraper(BaseScraper):
         return data
 
 
-# ***********************************
-# ****** BEGINNING OF SCRIPT ********
-# ***********************************
 if __name__ == "__main__":
+    YEAR = "2017-18"
+    SPLIT = "conference"
+    OUTPUT = "sql"
+    INSEASON = True
     scraper = TeamFieldingScraper(YEAR, SPLIT, OUTPUT, INSEASON, verbose=True)
     scraper.info()
     scraper.run()

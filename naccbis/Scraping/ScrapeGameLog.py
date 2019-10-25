@@ -10,11 +10,6 @@ import naccbis.Scraping.ScrapeFunctions as sf
 from naccbis.Scraping.ScrapeBase import BaseScraper
 import naccbis.Common.utils as utils
 
-YEAR = "2017-18"
-SPLIT = "hitting"  # hitting/pitching/fielding
-OUTPUT = "sql"
-INSEASON = True
-
 
 class GameLogScraper(BaseScraper):
 
@@ -24,8 +19,11 @@ class GameLogScraper(BaseScraper):
     EXTENDED_HITTING_COLS = ['date', 'opponent', 'score', 'hbp', 'sf', 'sh', 'tb', 'pa']
     PITCHING_COLS = ['date', 'opponent', 'score', 'w', 'l', 'ip', 'h', 'r', 'er', 'era']
     FIELDING_COLS = ['date', 'opponent', 'score', 'tc', 'po', 'a', 'e', 'fpct']
-    TABLES = {"hitting": "raw_game_log_hitting", "pitching": "raw_game_log_pitching",
-              "fielding": "raw_game_log_fielding"}
+    TABLES = {
+        "hitting": "raw_game_log_hitting",
+        "pitching": "raw_game_log_pitching",
+        "fielding": "raw_game_log_fielding"
+    }
 
     def __init__(self, year, split, output, inseason=False, verbose=False):
         """ Class constructor
@@ -104,8 +102,13 @@ class GameLogScraper(BaseScraper):
                        'sb', 'cs', 'hbp', 'sf', 'sh', 'tb', 'xbh', 'gdp',
                        'go', 'fo', 'pa']
             floatCols = ['go_fo']
-            renameCols = {'2b': 'x2b', '3b': 'x3b', 'k': 'so',
-                          'hdp': 'gdp', 'go/fo': 'go_fo'}
+            renameCols = {
+                '2b': 'x2b',
+                '3b': 'x3b',
+                'k': 'so',
+                'hdp': 'gdp',
+                'go/fo': 'go_fo'
+            }
 
         elif self._split == "pitching":
             intCols = ['w', 'l', 'sv', 'h', 'r', 'er', 'bb', 'so', 'hr']
@@ -160,10 +163,11 @@ class GameLogScraper(BaseScraper):
         return data
 
 
-# ***********************************
-# ****** BEGINNING OF SCRIPT ********
-# ***********************************
 if __name__ == "__main__":
+    YEAR = "2017-18"
+    SPLIT = "hitting"  # hitting/pitching/fielding
+    OUTPUT = "sql"
+    INSEASON = True
     scraper = GameLogScraper(YEAR, SPLIT, OUTPUT, INSEASON, verbose=True)
     scraper.info()
     scraper.run()

@@ -10,11 +10,6 @@ import naccbis.Scraping.ScrapeFunctions as sf
 from naccbis.Scraping.ScrapeBase import BaseScraper
 import naccbis.Common.utils as utils
 
-YEAR = "2017-18"
-SPLIT = "overall"
-OUTPUT = "csv"
-INSEASON = True
-
 
 class IndividualOffenseScraper(BaseScraper):
 
@@ -126,10 +121,11 @@ class IndividualOffenseScraper(BaseScraper):
         return data
 
 
-# ***********************************
-# ****** BEGINNING OF SCRIPT ********
-# ***********************************
 if __name__ == "__main__":
+    YEAR = "2017-18"
+    SPLIT = "overall"
+    OUTPUT = "csv"
+    INSEASON = True
     scraper = IndividualOffenseScraper(YEAR, SPLIT, OUTPUT, inseason=INSEASON, verbose=True)
     scraper.info()
     scraper.run()

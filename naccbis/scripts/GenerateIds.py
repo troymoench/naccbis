@@ -1,4 +1,10 @@
-""" This script is used to generate player ids """
+""" This script is used to generate player ids
+
+1. extract raw data from database
+2. apply name corrections
+3. generate player ids
+4. load transformed data into database
+"""
 # Standard library imports
 import argparse
 import sys
@@ -16,6 +22,7 @@ def make_full_name(fname, lname):
 
 def update_id_conflicts(data):
     """ Update player id conflicts by incrementing the numeric part of the id
+
     :param data: A DataFrame
     :returns: DataFrame with updated player ids
     """
@@ -37,7 +44,7 @@ def update_id_conflicts(data):
 
     if len(new_col) != len(new_col_idx):
         print("Oops! Length of column doesn't match length of index")
-        sys.exit(1)
+        raise ValueError()
 
     # update conflicting ID's
     data.loc[new_col_idx, "player_id"] = new_col
@@ -46,15 +53,23 @@ def update_id_conflicts(data):
 
 def get_duplicates(conn):
     """ Retrieve duplicate names from the database
+
     :param conn: Database connection object
     :returns: A DataFrame of duplicate names
     """
-    query = "select dn.fname, dn.lname, dn.team, dn.season, dn.id from duplicate_names dn " \
-            "left outer join (select fname, lname, max(id) from duplicate_names group by lname, fname) " \
-            "as f on dn.fname = f.fname and dn.lname = f.lname where f.max > 0 order by 1, 2, 4, 5;"
-    # query = "select dn.fname||' '||dn.lname as name, dn.team, dn.season, dn.id from duplicate_names dn" \
-    #         " left outer join (select fname, lname, max(id) from duplicate_names group by lname, fname) as f" \
-    #         " on dn.fname = f.fname and dn.lname = f.lname where f.max > 0 order by 1, 3, 4;"
+    query = """
+    SELECT dn.fname, dn.lname, dn.team, dn.season, dn.id
+    FROM duplicate_names dn
+    LEFT OUTER JOIN (
+        SELECT fname, lname, max(id)
+        FROM duplicate_names
+        GROUP BY lname, fname
+    ) AS f
+    ON dn.fname = f.fname
+    AND dn.lname = f.lname
+    WHERE f.max > 0
+    ORDER BY 1, 2, 4, 5;
+    """
 
     duplicates = pd.read_sql_query(query, conn)
     return duplicates
@@ -63,6 +78,7 @@ def get_duplicates(conn):
 def update_duplicates(data, duplicates):
     """ Update the player id of duplicate names by incrementing the numeric part
     of the player id.
+
     :param data: A DataFrame
     :param duplicates: A DataFrame of duplicate names
     :returns:
@@ -78,6 +94,7 @@ def update_duplicates(data, duplicates):
 
 def verify_unique_ids(unique_before, unique_after, duplicates):
     """ unique_after == unique_before + dupes
+
     :param unique_before: Number of unique ids before name deduplication
     :param unique_after: Number of unique ids after name deduplication
     :param duplicates: A DataFrame of duplicate names
@@ -91,6 +108,7 @@ def verify_unique_ids(unique_before, unique_after, duplicates):
 
 def generate_ids(data, duplicates):
     """ Generate player ids
+
     :param data: A DataFrame
     :param duplicates: A DataFrame of duplicate names
     :returns: A DataFrame with player ids
@@ -104,7 +122,6 @@ def generate_ids(data, duplicates):
     data = update_id_conflicts(data)
     num_unique_before = data["player_id"].nunique()
     print("Unique ID's:", num_unique_before)
-    # print(data)
 
     print("Duplicate player-seasons to be updated:", duplicates["id"].sum())
 
@@ -123,11 +140,8 @@ def generate_ids(data, duplicates):
 
 
 if __name__ == "__main__":
-    # extract raw data from database
-    # apply name corrections
-    # generate player ids
-    # load transformed data into database
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description=__doc__)
     parser.add_argument("--load", action="store_true",
                         help="Load data into database")
     parser.add_argument("--dir", type=str, default="",

@@ -91,6 +91,7 @@ class LeagueOffenseETL:
     @staticmethod
     def select_bench_players(data):
         """ Select bench players. Used for determining replacement level
+
         :param data: A DataFrame of a team's player stats
         :returns: A DataFrame of players that weren't in the top 9 in PA
         """
@@ -100,6 +101,7 @@ class LeagueOffenseETL:
     def calc_replacement_level(self, totals):
         """ Calculate Replacement Level metrics
         Replacement Level is defined as the average bench player
+
         :param totals: A DataFrame of league totals
         :returns: A DataFrame of replacement level totals
         """

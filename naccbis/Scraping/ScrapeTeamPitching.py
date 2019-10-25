@@ -11,11 +11,6 @@ import naccbis.Scraping.ScrapeFunctions as sf
 from naccbis.Scraping.ScrapeBase import BaseScraper
 import naccbis.Common.utils as utils
 
-YEAR = "2017-18"
-SPLIT = "conference"
-OUTPUT = "sql"
-INSEASON = True
-
 
 class TeamPitchingScraper(BaseScraper):
 
@@ -26,8 +21,10 @@ class TeamPitchingScraper(BaseScraper):
     COACHES_VIEW_COLS = ['no.', 'player', 'era', 'w', 'l', 'app', 'gs', 'ip',
                          'h', 'r', 'er', '2b', '3b', 'hr', 'ab']
     CONFERENCE_COLS = ['name', 'gp', 'ip', 'h', 'r', 'er', 'bb', 'k', 'era']
-    TABLES = {"overall": "raw_team_pitching_overall",
-              "conference": "raw_team_pitching_conference"}
+    TABLES = {
+        "overall": "raw_team_pitching_overall",
+        "conference": "raw_team_pitching_conference"
+    }
 
     def __init__(self, year, split, output, inseason=False, verbose=False):
         """ Class constructor
@@ -140,8 +137,15 @@ class TeamPitchingScraper(BaseScraper):
                        'BB', 'SO', 'x2B', 'x3B', 'HR', 'AB', 'WP', 'HBP', 'BK',
                        'SF', 'SH']
             floatCols = ['ERA', 'AVG', 'SO_9']
-            renameCols = {'APP': 'G', '2B': 'x2B', '3B': 'x3B', 'B/AVG': 'AVG',
-                          'SFA': 'SF', 'SHA': 'SH', 'k/9': 'SO_9'}
+            renameCols = {
+                'APP': 'G',
+                '2B': 'x2B',
+                '3B': 'x3B',
+                'B/AVG': 'AVG',
+                'SFA': 'SF',
+                'SHA': 'SH',
+                'k/9': 'SO_9'
+            }
             finalColNames = ['Name', 'Season', 'G', 'W', 'L', 'SV', 'CG', 'SHO',
                              'IP', 'H', 'R', 'ER', 'BB', 'SO', 'ERA', 'x2B',
                              'x3B', 'HR', 'AB', 'AVG', 'WP', 'HBP',
@@ -196,10 +200,11 @@ class TeamPitchingScraper(BaseScraper):
             sys.exit(1)
 
 
-# ***********************************
-# ****** BEGINNING OF SCRIPT ********
-# ***********************************
 if __name__ == "__main__":
+    YEAR = "2017-18"
+    SPLIT = "conference"
+    OUTPUT = "sql"
+    INSEASON = True
     scraper = TeamPitchingScraper(YEAR, SPLIT, OUTPUT, INSEASON, verbose=True)
     scraper.info()
     scraper.run()

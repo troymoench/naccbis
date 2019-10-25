@@ -10,21 +10,17 @@ import naccbis.Scraping.ScrapeFunctions as sf
 from naccbis.Scraping.ScrapeBase import BaseScraper
 import naccbis.Common.utils as utils
 
-YEAR = "2017-18"
-SPLIT = "conference"
-OUTPUT = "sql"
-INSEASON = True
-
 
 class TeamOffenseScraper(BaseScraper):
 
     """ This scraper is responsible for scraping team offensive stats. """
 
-    HITTING_COLS = ['name', 'gp', 'ab', 'r', 'h', '2b', 'hr', 'avg', 'obp',
-                    'slg']
+    HITTING_COLS = ['name', 'gp', 'ab', 'r', 'h', '2b', 'hr', 'avg', 'obp', 'slg']
     EXTENDED_HITTING_COLS = ['name', 'gp', 'hbp', 'sf', 'sh', 'pa']
-    TABLES = {"overall": "raw_team_offense_overall",
-              "conference": "raw_team_offense_conference"}
+    TABLES = {
+        "overall": "raw_team_offense_overall",
+        "conference": "raw_team_offense_conference"
+    }
 
     def __init__(self, year, split, output, inseason=False, verbose=False):
         """ Class constructor
@@ -108,10 +104,11 @@ class TeamOffenseScraper(BaseScraper):
         return data
 
 
-# ***********************************
-# ****** BEGINNING OF SCRIPT ********
-# ***********************************
 if __name__ == "__main__":
+    YEAR = "2017-18"
+    SPLIT = "conference"
+    OUTPUT = "sql"
+    INSEASON = True
     scraper = TeamOffenseScraper(YEAR, SPLIT, OUTPUT, INSEASON, verbose=True)
     # scraper.info()
     scraper.run()

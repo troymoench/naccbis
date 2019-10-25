@@ -4,14 +4,6 @@ naccbis.Common package
 Submodules
 ----------
 
-naccbis.Common.conf module
---------------------------
-
-.. automodule:: naccbis.Common.conf
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 naccbis.Common.metrics module
 -----------------------------
 

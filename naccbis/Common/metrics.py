@@ -35,6 +35,7 @@ def babip(data):
 
 def sar(data):
     """ Steal Attempt Rate
+
     :param data: A DataFrame
     :returns: A Series
     """
@@ -99,6 +100,7 @@ def whip(data):
 def basic_offensive_metrics(data, inplace=False):
     """ Calculate basic offensive metrics. These metrics do not depend on league
     wide metrics.
+
     :param data: A DataFrame
     :param inplace: modify the DataFrame inplace?
     :returns: A DataFrame
@@ -122,6 +124,7 @@ def basic_offensive_metrics(data, inplace=False):
 def basic_pitching_metrics(data, conference=False, inplace=False):
     """ Calculate basic pitching metrics. These metrics do not depend on league
     wide metrics.
+
     :param data: A DataFrame
     :param conference: Omit metrics that cannot be calculated based on conference data
     :param inplace: modify the DataFrame inplace?
@@ -194,6 +197,7 @@ def bsr_bmult(data):
 
 def linear_weights_incr(data, incr=0.00000001):
     """ Calculate Linear Weights using the increment method (plus one method)
+
     :param data: A Series with league totals
     :param incr: Increment value
     :returns: A Series with linear weights
@@ -226,6 +230,7 @@ def linear_weights_incr(data, incr=0.00000001):
 
 def woba_weights(data, target):
     """ Calculate the woba weights for hbp, bb, 1b, 2b, 3b, hr
+
     :param
     :returns:
     """
@@ -253,6 +258,7 @@ def woba_weights(data, target):
 
 def woba(data, weights):
     """ Weighted On-Base Average (wOBA)
+
     :param data: DataFrame or Series of player, team, or league totals
     :param weights: DataFrame or Series of wOBA weights
     :returns: Series of wOBA values
@@ -266,6 +272,7 @@ def woba(data, weights):
 def sbr(data, weights):
     """ Stolen Base Runs (SBR)
     SBR = runSB * SB + runCS * CS
+
     :param data: DataFrame or Series of player, team, or league totals
     :param weights: DataFrame or Series of linear weights
     :returns: Series of SBR values
@@ -276,6 +283,7 @@ def sbr(data, weights):
 def lg_wsb(data, weights):
     """ lgwSB = (SB * runSB + CS * runCS) / (1B + BB + HBP – IBB)
     Used in the calculation of wSB.
+
     :param data: DataFrame or Series of league totals
     :param weights: DataFrame or Series of linear weights
     :returns: Series of lgwSB values
@@ -298,6 +306,7 @@ def wsb(data, lg_wsb):
 def wraa(data, lg_woba, scale):
     """ Weighted Runs Above Average (wRAA)
     wRAA = ((wOBA - league wOBA) / wOBA scale) * PA
+
     :param
     :returns:
     """
@@ -307,6 +316,7 @@ def wraa(data, lg_woba, scale):
 def off(data):
     """ Offensive Runs Above Average (OFF)
     OFF = wSB + wRAA
+
     :param
     :returns:
     """
@@ -316,6 +326,7 @@ def off(data):
 def wrc(data, lg_woba, woba_scale, lg_r_pa):
     """ Weighted Runs Created (wRC)
     wRC = (((wOBA - league wOBA)/wOBA Scale) + (league R/PA))*PA
+
     :param
     :returns:
     """
@@ -328,6 +339,7 @@ def wrc_p(data, lg_r_pa):
     wRC+ = (((wRAA/PA + lgR/PA) + (lgR/PA - (park factor * lgR/PA))) / lgwRC/PA excluding pitchers)*100
     For our purposes:
     wRC+ = (((wRAA/PA) + lgR/PA) / lgR/PA)*100
+
     :param
     :returns:
     """
@@ -337,6 +349,7 @@ def wrc_p(data, lg_r_pa):
 def off_p(data, lg_r_pa):
     """ Offensive Runs Plus (OFF+)
     OFF+ = (((OFF/PA) + lgR/PA) / lgR/PA)*100
+
     :param
     :returns:
     """
@@ -346,6 +359,7 @@ def off_p(data, lg_r_pa):
 def rar(data, replacement_level):
     """ Runs Above Replacement (RAR)
     RAR = OFF - (repl level * PA)
+
     :param
     :returns:
     """
@@ -354,6 +368,7 @@ def rar(data, replacement_level):
 
 def multi_season(data, totals, func, inplace=False):
     """ Calculate metrics for multiple seasons
+
     :param
     :returns:
     """
@@ -378,6 +393,7 @@ def multi_season(data, totals, func, inplace=False):
 
 def season_offensive_metrics(data, totals_season):
     """ Calculate offensive metrics for a single season
+
     :param data: A DataFrame of single season data
     :param totals_season: A Series of league totals
     :returns: A DataFrame
@@ -398,6 +414,7 @@ def season_offensive_metrics(data, totals_season):
 
 def season_offensive_metrics_rar(data, totals_season):
     """ Calculate offensive metrics for a single season including RAR
+
     :param data: A DataFrame of single season data
     :param totals_season: A Series of league totals
     :returns: A DataFrame
@@ -410,6 +427,7 @@ def season_offensive_metrics_rar(data, totals_season):
 def advanced_offensive_metrics(data, totals, inplace=False):
     """ Calculate advanced offensive metrics. These metrics do depend on league
     wide metrics.
+
     :param data: A DataFrame
     :param totals: A DataFrame of league wide totals and weights
     :param inplace: modify the DataFrame inplace?
@@ -446,6 +464,7 @@ def advanced_offensive_metrics(data, totals, inplace=False):
 # *********************
 def fip(data, constant):
     """ Fielding Independent Pitching (FIP)
+
     :param
     :returns:
     """
@@ -454,6 +473,7 @@ def fip(data, constant):
 
 def fip_constant(data):
     """ FIP Constant = lgERA – (((13*lgHR)+(3*(lgBB+lgHBP))-(2*lgK))/lgIP)
+
     :param
     :returns:
     """
@@ -462,6 +482,7 @@ def fip_constant(data):
 
 def fip_minus(data, lg_fip):
     """ FIP- = FIP / lgFIP * 100
+
     :param
     :returns:
     """
@@ -470,6 +491,7 @@ def fip_minus(data, lg_fip):
 
 def era_minus(data, lg_era):
     """ ERA- = ERA / lgERA * 100
+
     :param
     :returns:
     """

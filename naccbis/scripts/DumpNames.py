@@ -1,4 +1,4 @@
-""" This script used to identify inconsistencies with player names.
+"""This script used to identify inconsistencies with player names.
 These inconsistencies include, but are not limited to:
 1. Typos
 2. Name changes
@@ -17,6 +17,7 @@ import naccbis.Common.utils as utils
 def levenshtein_analysis(data, levenshtein_first, levenshtein_last):
     """ Perform a Levenshtein analysis on first names and last names.
     This is used for identifying typos.
+
     :param data: A DataFrame
     :param levenshtein_first: Levenshtein distance between first names
     :param levenshtein_last: Levenshtein distance between last names
@@ -25,20 +26,14 @@ def levenshtein_analysis(data, levenshtein_first, levenshtein_last):
     # Get unique last names
     names = pd.DataFrame(data["lname"].unique())
     names["key"] = 0
-    # print(names)
 
     # Compute the cartesian product
     cart_prod = pd.merge(names, names, on="key")
     cart_prod.drop(columns=["key"], inplace=True)
     cart_prod.columns = ["lname1", "lname2"]
-    # print(cart_prod)
-
-    # names.drop(columns=["key"], inplace=True)
-    # names.columns = ["lname"]
 
     # Compute the Levenshtein distance between each pair of names
     cart_prod["levenshtein"] = list(map(distance, cart_prod["lname1"], cart_prod["lname2"]))
-    # cart_prod = cart_prod[(cart_prod.levenshtein == 1) | (cart_prod.levenshtein == 2)]
     cart_prod = cart_prod[cart_prod.levenshtein == levenshtein_last]
 
     output = pd.merge(data, cart_prod, left_on="lname", right_on="lname1")
@@ -48,7 +43,6 @@ def levenshtein_analysis(data, levenshtein_first, levenshtein_last):
     output["levenshtein_first"] = list(map(distance, output["fname_x"], output["fname_y"]))
     output = output[output["levenshtein_first"] == levenshtein_first]
 
-    # output = output[output["fname_x"] == output["fname_y"]]
     output = output.sort_values(by=["levenshtein", "lname1"])
     return output
 
@@ -56,10 +50,11 @@ def levenshtein_analysis(data, levenshtein_first, levenshtein_last):
 def nickname_analysis(data, nicknames):
     """ Perform a nickname analysis on first names.
     This is used for identifying inconsistencies due to nicknames.
+
     :param data: A DataFrame
     :param nicknames: Nickname lookup table. A DataFrame.
     :returns: A DataFrame with player-season pairs with a matching name and
-            nickname in the lookup table.
+              nickname in the lookup table.
     """
     names = pd.DataFrame(data[["lname", "fname", "team", "season"]])
 
@@ -74,9 +69,10 @@ def nickname_analysis(data, nicknames):
 
 def duplicate_names_analysis(data):
     """ Perform duplicate names analysis.
+
     :param data: A DataFrame
     :returns: A DataFrame with player-seasons that have the same name but
-            different teams.
+              different teams.
     """
     names = pd.DataFrame(data[["fname", "lname", "team", "season"]])
     names["name"] = [" ".join(x) for x in zip(names["fname"], names["lname"])]
@@ -84,7 +80,8 @@ def duplicate_names_analysis(data):
 
     temp = names[["name", "team"]].groupby(["name", "team"]).head(1)
     temp = temp.groupby(["name"]).filter(lambda x: len(x) > 1)
-    output = names[names["name"].isin(temp["name"])].groupby(["name", "team", "season"]).head(1)
+    output = names[names["name"].isin(temp["name"])].\
+        groupby(["name", "team", "season"]).head(1)
     output["fname"] = [x.split(" ")[0].strip() for x in output["name"]]
     output["lname"] = [" ".join(x.split(" ")[1:]).strip() for x in output["name"]]
 
@@ -134,11 +131,8 @@ if __name__ == "__main__":
     # All batters and pitchers
     data = pd.concat([batters, pitchers], ignore_index=True)
     data = data.sort_values(by=["lname", "fname", "team", "season"])
-    # print(data)
-    # print(corrections)
 
     if args.corrections:
-        # apply name corrections
         data = cf.apply_corrections(data, corrections, verbose=True)
         data = data.sort_values(by=["lname", "fname", "team", "season"])
 

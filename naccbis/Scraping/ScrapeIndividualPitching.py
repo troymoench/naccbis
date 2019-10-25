@@ -11,11 +11,6 @@ import naccbis.Scraping.ScrapeFunctions as sf
 from naccbis.Scraping.ScrapeBase import BaseScraper
 import naccbis.Common.utils as utils
 
-YEAR = "2017-18"
-SPLIT = "overall"
-OUTPUT = "sql"
-INSEASON = True
-
 
 class IndividualPitchingScraper(BaseScraper):
 
@@ -173,10 +168,11 @@ class IndividualPitchingScraper(BaseScraper):
             sys.exit(1)
 
 
-# ***********************************
-# ****** BEGINNING OF SCRIPT ********
-# ***********************************
 if __name__ == "__main__":
+    YEAR = "2017-18"
+    SPLIT = "overall"
+    OUTPUT = "sql"
+    INSEASON = True
     scraper = IndividualPitchingScraper(YEAR, SPLIT, OUTPUT, INSEASON, verbose=True)
     scraper.info()
     scraper.run()

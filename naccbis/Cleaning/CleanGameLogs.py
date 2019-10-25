@@ -87,9 +87,10 @@ class GameLogETL:
     @staticmethod
     def extract_runs(score):
         """ Extract the runs scored and runs against from the score
+
         :param score: The score
         :returns: A list where first element is runs scored and
-         second element is runs against. Format: [rs, ra]
+                  second element is runs against. Format: [rs, ra]
         """
         split_score = score.split(',')
         result = split_score[0].strip()
@@ -105,6 +106,7 @@ class GameLogETL:
     @staticmethod
     def extract_result(score):
         """ Extract the result (W/L) from the score
+
         :param score: The score
         :returns: The result (W/L)
         """
@@ -113,6 +115,7 @@ class GameLogETL:
     @staticmethod
     def extract_home(opponent):
         """ Extract home/away from the opponent
+
         :param opponent: The opponent
         :returns: True for home, False for away
         """
@@ -126,6 +129,7 @@ class GameLogETL:
     @staticmethod
     def extract_opponent(opponent):
         """ Extract the team name from the raw opponent
+
         :param opponent: The opponent
         :returns: The team name of the opponent
         """

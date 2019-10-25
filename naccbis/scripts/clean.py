@@ -16,15 +16,18 @@ import naccbis.Common.utils as utils
 
 def run_etls(etl_nums, year, splits, load_db, conn):
     """ Run ETL's for a given year
+
     :param
     :returns:
     """
-    etls = {1: IndividualOffenseETL,
-            2: IndividualPitchingETL,
-            3: TeamOffenseETL,
-            4: TeamPitchingETL,
-            6: LeagueOffenseETL,
-            7: LeaguePitchingETL}
+    etls = {
+        1: IndividualOffenseETL,
+        2: IndividualPitchingETL,
+        3: TeamOffenseETL,
+        4: TeamPitchingETL,
+        6: LeagueOffenseETL,
+        7: LeaguePitchingETL
+    }
 
     for split in splits:
         for num in etl_nums:
@@ -66,6 +69,7 @@ def inseason(args):
 
 def add_common_args(parser):
     """ Add common arguments to the parser
+
     :param parser: Parser object to add arguments to
     """
     # NOTE: These args are common to all subcommands. Unfortunately, they can't just
@@ -85,7 +89,6 @@ if __name__ == "__main__":
                                      description="NACCBIS Cleaning controller")
     subparsers = parser.add_subparsers()
 
-    # parser for 'final' subcommand
     final_parser = subparsers.add_parser("final",
                                          formatter_class=argparse.RawDescriptionHelpFormatter,
                                          description='Clean final stats\n\n'
@@ -102,10 +105,8 @@ if __name__ == "__main__":
 
     final_parser.add_argument("year", type=str, help="A year or range of years")
     add_common_args(final_parser)
-    # set the callback function for this subcommand
     final_parser.set_defaults(func=final)
 
-    # parser for 'inseason' subcommand
     inseason_parser = subparsers.add_parser("inseason",
                                             formatter_class=argparse.RawDescriptionHelpFormatter,
                                             description='Clean stats during the season. '
@@ -121,7 +122,6 @@ if __name__ == "__main__":
                                             '  7) League Pitching\n'
                                             '  all) All\n')
 
-    # set the callback function for this subcommand
     inseason_parser.set_defaults(func=inseason)
 
     config = utils.init_config()

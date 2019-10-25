@@ -12,6 +12,7 @@ import conf
 
 def connect_db(config):
     """ Create database connection
+
     :param config: Dictionary with connection parameters
     :returns: Database connection object
     """
@@ -71,6 +72,7 @@ def init_logging(config):
 
 def parse_year(year):
     """ Parse a string of year(s), e.g. 2017, 2015:2017
+
     :param year: The string representation of a year or range of years
     :returns: List of years (integers)
     """
@@ -87,6 +89,7 @@ def parse_year(year):
 
 def parse_stat(stats, accepted_values):
     """ Parse a string of stat options, e.g. 1,2 all
+
     :param stats: String of stat options to parse
     :param accepted_values: List of accepted stat options
     :returns: List of stat options (integers)
