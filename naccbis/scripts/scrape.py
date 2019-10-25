@@ -6,12 +6,14 @@ import sys
 import logging
 # Third party imports
 # Local imports
-from naccbis.Scraping.ScrapeGameLog import GameLogScraper
-from naccbis.Scraping.ScrapeIndividualOffense import IndividualOffenseScraper
-from naccbis.Scraping.ScrapeIndividualPitching import IndividualPitchingScraper
-from naccbis.Scraping.ScrapeTeamFielding import TeamFieldingScraper
-from naccbis.Scraping.ScrapeTeamOffense import TeamOffenseScraper
-from naccbis.Scraping.ScrapeTeamPitching import TeamPitchingScraper
+from naccbis.Scraping import (
+    GameLogScraper,
+    IndividualOffenseScraper,
+    IndividualPitchingScraper,
+    TeamFieldingScraper,
+    TeamOffenseScraper,
+    TeamPitchingScraper,
+)
 import naccbis.Common.utils as utils
 
 

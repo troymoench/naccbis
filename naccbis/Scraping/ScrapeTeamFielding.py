@@ -6,8 +6,8 @@ import sys
 # Third party imports
 import pandas as pd
 # Local imports
-import naccbis.Scraping.ScrapeFunctions as sf
-from naccbis.Scraping.ScrapeBase import BaseScraper
+from . import ScrapeFunctions as sf
+from .ScrapeBase import BaseScraper
 import naccbis.Common.utils as utils
 
 

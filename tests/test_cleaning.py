@@ -6,9 +6,9 @@ import pandas as pd
 import pytest
 # Local imports
 import naccbis.Cleaning.CleanFunctions as cf
-from naccbis.Cleaning.CleanGameLogs import GameLogETL as gl
+from naccbis.Cleaning import GameLogETL as gl
 import naccbis.scripts.GenerateIds as gi
-from naccbis.Cleaning.LeagueTotals import LeagueOffenseETL as lo
+from naccbis.Cleaning import LeagueOffenseETL as lo
 
 
 class TestCleanFunctions():

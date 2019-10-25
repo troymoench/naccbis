@@ -6,7 +6,7 @@ import os
 # Third party imports
 import pandas as pd
 # Local imports
-import naccbis.Cleaning.CleanFunctions as cf
+from . import CleanFunctions as cf
 import naccbis.Common.metrics as metrics
 import naccbis.Common.utils as utils
 

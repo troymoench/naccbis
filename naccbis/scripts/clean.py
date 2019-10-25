@@ -5,12 +5,15 @@ import logging
 import sys
 # Third party imports
 # Local imports
-from naccbis.Cleaning.CleanGameLogs import GameLogETL
-from naccbis.Cleaning.CleanIndividualOffense import IndividualOffenseETL
-from naccbis.Cleaning.CleanIndividualPitching import IndividualPitchingETL
-from naccbis.Cleaning.CleanTeamOffense import TeamOffenseETL
-from naccbis.Cleaning.CleanTeamPitching import TeamPitchingETL
-from naccbis.Cleaning.LeagueTotals import LeagueOffenseETL, LeaguePitchingETL
+from naccbis.Cleaning import (
+    GameLogETL,
+    IndividualOffenseETL,
+    IndividualPitchingETL,
+    TeamOffenseETL,
+    TeamPitchingETL,
+    LeagueOffenseETL,
+    LeaguePitchingETL,
+)
 import naccbis.Common.utils as utils
 
 
