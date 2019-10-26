@@ -57,3 +57,19 @@ class TestUtils():
     )
     def test_season_to_year(self, season, expected):
         assert utils.season_to_year(season) == expected
+
+
+@pytest.fixture()
+def db_config():
+    return utils.init_config().get("DB")
+
+
+class TestDB():
+    @pytest.mark.integration
+    def test_connect_db(self, db_config):
+        with utils.connect_db(db_config) as conn:
+            assert not conn.closed
+            result = conn.execute("select version()").fetchone()
+            assert len(result) == 1
+            print(result)
+        assert conn.closed
