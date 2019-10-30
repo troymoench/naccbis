@@ -4,10 +4,67 @@ import logging
 import sys
 # Third party imports
 from sqlalchemy import create_engine
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 from sqlalchemy.engine.url import URL
 from sqlalchemy.exc import SQLAlchemyError
 # Local imports
 import conf
+
+
+# @event.listens_for(Engine, "connect")
+# def my_on_connect(dbapi_con, connection_record):
+#     print("New DBAPI connection:", dbapi_con.dsn)
+
+
+@event.listens_for(Engine, 'engine_connect')
+def receive_engine_connect(conn, branch):
+    logging.info("Successfully connected to database")
+    logging.debug("DSN: %s", conn.connection.dsn)
+
+
+# @event.listens_for(Engine, 'close')
+# def receive_close(dbapi_connection, connection_record):
+#     print("Closed connection")
+
+
+# @event.listens_for(Engine, 'checkout')
+# def receive_checkout(dbapi_connection, connection_record, connection_proxy):
+#     print("Retrieving a connection from pool")
+
+
+# @event.listens_for(Engine, 'checkin')
+# def receive_checkin(dbapi_connection, connection_record):
+#     print("Returning connection to pool")
+
+
+# @event.listens_for(Engine, 'before_cursor_execute')
+# def receive_before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+#     logging.debug("SQL statement: %s", statement)
+#     logging.debug("SQL params: %s", parameters)
+
+
+# @event.listens_for(Engine, 'handle_error')
+# def receive_handle_error(exception_context):
+#     print("error handler")
+#     print(type(exception_context.sqlalchemy_exception))
+#     print(exception_context.engine)
+#     print(exception_context.connection)
+
+
+def create_db_engine(config):
+    """ Create database engine
+
+    :param config: Dictionary with connection parameters
+    :returns: Database engine object
+    """
+    try:
+        conn_url = URL(**config)
+    except TypeError:
+        logging.error("Database connection parameter error")
+        raise
+
+    return create_engine(conn_url)
 
 
 def connect_db(config):
@@ -17,25 +74,12 @@ def connect_db(config):
     :returns: Database connection object
     """
     logging.info("Connecting to database")
-
-    try:
-        conn_url = URL(**config)
-    except TypeError:
-        logging.error("Database connection parameter error")
-        raise
-
-    engine = create_engine(conn_url)
+    engine = create_db_engine(config)
     try:
         conn = engine.connect()
     except SQLAlchemyError:
         logging.error("Failed to connect to database %s", config.get("database"))
         raise
-    else:
-        logging.info("Successfully connected to database %s", config.get("database"))
-        logging.debug("DB Name: %s", config.get("database"))
-        logging.debug("DB Host: %s", config.get("host"))
-        logging.debug("DB Port: %s", config.get("port"))
-        logging.debug("DB User: %s", config.get("username"))
     return conn
 
 
@@ -67,7 +111,9 @@ def init_logging(config):
     logging.basicConfig(level=config["level"],
                         format=config["format"],
                         datefmt=config["datefmt"])
+    # TODO: Dynamically configure additional loggers
     logging.getLogger('sqlalchemy.engine').setLevel("WARNING")
+    logging.getLogger('sqlalchemy.pool').setLevel("INFO")
 
 
 def parse_year(year):
