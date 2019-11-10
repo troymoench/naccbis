@@ -5,6 +5,6 @@ matrix:
       python: "3.6"
 install:
   - pip install -r requirements-dev.txt
-  - pip install .
   - touch conf.py
+  - pip install .
 script: pytest -m "not integration"
