@@ -1,5 +1,6 @@
 """ This module provides functions used in the data cleaning process. """
 # Standard library imports
+import logging
 # Third party imports
 import pandas as pd
 # Local imports
@@ -9,11 +10,10 @@ import pandas as pd
 # ***** Name Corrections *****
 # ****************************
 
-def normalize_names(data, verbose=False):
+def normalize_names(data):
     """ Normalize names by splitting into first name and last name.
 
     :param data: A DataFrame
-    :param verbose: Print extra information to standard out?
     :returns: A DataFrame
     """
     # split each name into first name and last name
@@ -25,12 +25,11 @@ def normalize_names(data, verbose=False):
     return data
 
 
-def apply_corrections(data, corrections, verbose=False):
+def apply_corrections(data, corrections):
     """ Apply name corrections
 
     :param data: A DataFrame of the data to be updated
     :param corrections: A DataFrame of the name corrections
-    :param verbose: Print extra information to standard out?
     :returns: A DataFrame with the updated names
     """
     # Return a copy of the DataFrame instead of modifying
@@ -48,12 +47,11 @@ def apply_corrections(data, corrections, verbose=False):
 
     need_fname_update = ~data["c_fname"].isnull()
     need_lname_update = ~data["c_lname"].isnull()
-    if verbose:
-        if need_fname_update.sum() == 0 and need_lname_update.sum() == 0:
-            print("No name corrections needed")
-        else:
-            print("Row(s) to be updated:")
-            print(data[need_fname_update | need_lname_update])
+    if need_fname_update.sum() == 0 and need_lname_update.sum() == 0:
+        logging.info("No name corrections needed")
+    else:
+        logging.info("Row(s) to be updated:")
+        logging.info(data[need_fname_update | need_lname_update])
 
     data.loc[need_fname_update, "fname"] = data["c_fname"].dropna()
     data.loc[need_lname_update, "lname"] = data["c_lname"].dropna()

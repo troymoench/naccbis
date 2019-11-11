@@ -16,27 +16,23 @@ import requests
 # ********************************
 # ** General Scraping Functions **
 # ********************************
-def get_soup(url, backoff=1, verbose=False):
+def get_soup(url, backoff=1):
     """ Create a BeautifulSoup object from a web page with the requested URL
 
     :param url: A string with the requested URL
     :param backoff: Number of seconds to sleep to prevent overloading the server
-    :param verbose: Print extra information to standard out?
     :returns: A BeautifulSoup object
     """
     logging.debug("Backing off for %f seconds", backoff)
     sleep(backoff)  # to prevent overloading the server
-    if verbose:
-        print("GET " + url)
+    logging.debug("GET " + url)
     try:
         request = requests.get(url)
     except requests.exceptions.RequestException:
-        print("Error: Unable to connect to", url)
         logging.critical("Error: Unable to connect to", url)
-        sys.exit(1)
-    else:
-        text = request.text
-        return BeautifulSoup(text, "html.parser")
+        raise
+    text = request.text
+    return BeautifulSoup(text, "html.parser")
 
 
 def get_text(html_tag):
@@ -57,13 +53,12 @@ def get_href(html_tag):
     return html_tag.attrs['href']
 
 
-def find_table(soup_obj, header_values, verbose=False):
+def find_table(soup_obj, header_values):
     """ Find HTML tables that contain the specified header values.
     Note that header value matching is case insensitive.
 
     :param soup_obj: BeautifulSoup object to search
     :param header_values: A list of header values to search for
-    :param verbose: Print extra information to standard out?
     :returns: A list of table indices. Returns an empty list if table not found.
     """
     header_values = [x.lower() for x in header_values]
@@ -76,8 +71,7 @@ def find_table(soup_obj, header_values, verbose=False):
         if set(header_values).issubset(set(columns)):
             indices.append(i)
         else:
-            if verbose:  # this needs some work
-                print("Missing values in table {}: {}".format(i, set(header_values) - set(columns)))
+            logging.debug("Missing values in table {}: {}".format(i, set(header_values) - set(columns)))
     logging.debug("Found %d tables with matching headers", len(indices))
     return indices
 

@@ -50,7 +50,7 @@ class GameLogScraper(BaseScraper):
             logging.info("Fetching %s", team['team'])
 
             url = "{}{}/{}".format(self.BASE_URL, self._year, team['url'])
-            teamSoup = sf.get_soup(url, verbose=self._verbose)
+            teamSoup = sf.get_soup(url)
             logging.info("Looking for game log table")
             df = self._scrape(teamSoup)
             logging.info("Cleaning scraped data")
@@ -70,7 +70,7 @@ class GameLogScraper(BaseScraper):
         url = tags[0].get('href')
         url = urljoin(self.BASE_URL, url)
 
-        game_soup = sf.get_soup(url, verbose=self._verbose)
+        game_soup = sf.get_soup(url)
 
         if self._split == "hitting":
             tableNum1 = sf.find_table(game_soup, self.HITTING_COLS)[0]

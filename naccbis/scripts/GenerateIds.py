@@ -159,8 +159,8 @@ if __name__ == "__main__":
     corrections = pd.read_sql_table("name_corrections", conn)
     duplicates = get_duplicates(conn)
 
-    batters = cf.normalize_names(batters, verbose=True)
-    pitchers = cf.normalize_names(pitchers, verbose=True)
+    batters = cf.normalize_names(batters)
+    pitchers = cf.normalize_names(pitchers)
 
     batters = batters[["lname", "fname", "team", "season"]]
     pitchers = pitchers[["lname", "fname", "team", "season"]]

@@ -45,7 +45,7 @@ class IndividualOffenseScraper(BaseScraper):
             logging.info("Fetching %s", team['team'])
 
             url = "{}{}/{}".format(self.BASE_URL, self._year, team['url'])
-            teamSoup = sf.get_soup(url, verbose=self._verbose)
+            teamSoup = sf.get_soup(url)
             if sf.skip_team(teamSoup):
                 continue
             logging.info("Looking for hitting tables")

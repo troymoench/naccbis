@@ -122,8 +122,8 @@ if __name__ == "__main__":
 
     conn.close()
 
-    batters = cf.normalize_names(batters, verbose=True)
-    pitchers = cf.normalize_names(pitchers, verbose=True)
+    batters = cf.normalize_names(batters)
+    pitchers = cf.normalize_names(pitchers)
 
     batters = batters[["lname", "fname", "team", "season", "pos"]]
     pitchers = pitchers[["lname", "fname", "team", "season", "pos"]]
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     data = data.sort_values(by=["lname", "fname", "team", "season"])
 
     if args.corrections:
-        data = cf.apply_corrections(data, corrections, verbose=True)
+        data = cf.apply_corrections(data, corrections)
         data = data.sort_values(by=["lname", "fname", "team", "season"])
 
     if levenshtein_last or levenshtein_first:

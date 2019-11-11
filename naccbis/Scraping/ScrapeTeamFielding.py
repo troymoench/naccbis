@@ -39,7 +39,7 @@ class TeamFieldingScraper(BaseScraper):
         logging.info("%s", self._name)
         logging.info("Fetching teams")
         url = "{}{}/teams".format(self.BASE_URL, self._year)
-        soup = sf.get_soup(url, verbose=self._verbose)
+        soup = sf.get_soup(url)
         logging.info("Looking for fielding table")
         df = self._scrape(soup)
         logging.info("Cleaning scraped data")
