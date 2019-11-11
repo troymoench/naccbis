@@ -7,4 +7,5 @@ install:
   - pip install -r requirements-dev.txt
   - touch conf.py
   - pip install -e .
-script: pytest -m "not integration"
+script: pytest -m "not integration" --cov-report term --cov=naccbis/
+after_success: codecov
