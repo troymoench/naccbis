@@ -9,5 +9,5 @@ install:
   - pip install -e .
 script:
   - pytest -m "not integration" --cov-report term
-  - flake8 --statistics
+  - flake8 naccbis --statistics --ignore=E501 # temporarily ignore line length
 after_success: codecov
