@@ -1,5 +1,8 @@
-""" This script is used to calculate league totals for offense and pitching
-and load into database """
+""" Extract, Transform, Load League Offense and Pitching data
+
+This script is used to calculate league totals for offense and pitching
+and load into database
+"""
 # Standard library imports
 import argparse
 import logging
@@ -71,7 +74,8 @@ class LeagueOffenseETL:
                                if_exists="append", index=True)
         else:
             logging.info("Dumping to csv")
-            self.replacement_totals.to_csv(os.path.join(self.CSV_DIR, "{}.csv".format(repl_table_name)), index=True)
+            fname = os.path.join(self.CSV_DIR, "{}.csv".format(repl_table_name))
+            self.replacement_totals.to_csv(fname, index=True)
 
         table_name = "league_offense_{}".format(self.split)
         if self.load_db:
@@ -79,7 +83,8 @@ class LeagueOffenseETL:
             utils.db_load_data(self.totals, table_name, self.conn, if_exists="append", index=True)
         else:
             logging.info("Dumping to csv")
-            self.totals.to_csv(os.path.join(self.CSV_DIR, "{}.csv".format(table_name)), index=True)
+            fname = os.path.join(self.CSV_DIR, "{}.csv".format(table_name))
+            self.totals.to_csv(fname, index=True)
 
     def run(self):
         logging.info("Running %s", type(self).__name__)
@@ -190,7 +195,8 @@ class LeaguePitchingETL:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Extract, Transform, Load League Offense and Pitching data")
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description=__doc__)
     parser.add_argument("--year", type=int, default=None, help="Filter by year")
     parser.add_argument("--split", type=str, default="overall", help="Filter by split")
     parser.add_argument("--load", action="store_true",

@@ -123,7 +123,8 @@ def add_common_args(parser):
                         default="all", metavar="SPLIT",
                         help="Split choices: overall, conference, all (default)")
     parser.add_argument("-S", "--stat", type=str, default="all", metavar="STAT",
-                        help="Select stat scraper(s) to run. Provide comma separated list or all for multiple")
+                        help="Select stat scraper(s) to run. "
+                             "Provide comma separated list or all for multiple")
 
 
 if __name__ == "__main__":

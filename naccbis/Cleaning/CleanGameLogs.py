@@ -55,7 +55,8 @@ class GameLogETL:
 
         # conference/non-conference
 
-        self.data["conference"] = list(map(lambda x, y: self.extract_conference(x, y, self.CONFERENCE_TEAMS),
+        self.data["conference"] = list(map(lambda x, y:
+                                           self.extract_conference(x, y, self.CONFERENCE_TEAMS),
                                            self.data["opponent"], self.data["season"]))
         self.data["opponent"] = self.data["opponent"].apply(self.extract_opponent)
         self.data.rename(columns={"name": "team"}, inplace=True)

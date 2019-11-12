@@ -71,7 +71,8 @@ def find_table(soup_obj, header_values):
         if set(header_values).issubset(set(columns)):
             indices.append(i)
         else:
-            logging.debug("Missing values in table {}: {}".format(i, set(header_values) - set(columns)))
+            missing_values = set(header_values) - set(columns)
+            logging.debug("Missing values in table {}: {}".format(i, missing_values))
     logging.debug("Found %d tables with matching headers", len(indices))
     return indices
 

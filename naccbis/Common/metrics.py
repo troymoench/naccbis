@@ -207,17 +207,17 @@ def linear_weights_incr(data, incr=0.00000001):
     v_input = data[cols]
 
     M_incr = pd.DataFrame([
-                    [0, incr, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # hbp
-                    [incr, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # bb
-                    [0, 0, incr, incr, 0, 0, 0, 0, 0, 0, 0, 0],  # 1b
-                    [0, 0, incr, incr, incr, 0, 0, 0, 0, 0, 0, 0],  # 2b
-                    [0, 0, incr, incr, 0, incr, 0, 0, 0, 0, 0, 0],  # 3b
-                    [0, 0, incr, incr, 0, 0, incr, 0, 0, 0, 0, 0],  # hr
-                    [0, 0, 0, 0, 0, 0, 0, incr, 0, 0, 0, 0],  # sb
-                    [0, 0, 0, 0, 0, 0, 0, 0, incr, 0, 0, 0],  # cs
-                    [0, 0, incr, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # out
-                    ], index=["lw_hbp", "lw_bb", "lw_x1b", "lw_x2b", "lw_x3b", "lw_hr", "lw_sb", "lw_cs", "lw_out"],
-                    columns=cols)
+        [0, incr, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # hbp
+        [incr, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # bb
+        [0, 0, incr, incr, 0, 0, 0, 0, 0, 0, 0, 0],  # 1b
+        [0, 0, incr, incr, incr, 0, 0, 0, 0, 0, 0, 0],  # 2b
+        [0, 0, incr, incr, 0, incr, 0, 0, 0, 0, 0, 0],  # 3b
+        [0, 0, incr, incr, 0, 0, incr, 0, 0, 0, 0, 0],  # hr
+        [0, 0, 0, 0, 0, 0, 0, incr, 0, 0, 0, 0],  # sb
+        [0, 0, 0, 0, 0, 0, 0, 0, incr, 0, 0, 0],  # cs
+        [0, 0, incr, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # out
+    ], index=["lw_hbp", "lw_bb", "lw_x1b", "lw_x2b", "lw_x3b", "lw_hr", "lw_sb", "lw_cs", "lw_out"],
+       columns=cols)
 
     M_input = M_incr + v_input
     bmult = bsr_bmult(data)
@@ -336,7 +336,7 @@ def wrc(data, lg_woba, woba_scale, lg_r_pa):
 def wrc_p(data, lg_r_pa):
     """ Weighted Runs Created Plus (wRC+)
     Official formula:
-    wRC+ = (((wRAA/PA + lgR/PA) + (lgR/PA - (park factor * lgR/PA))) / lgwRC/PA excluding pitchers)*100
+    wRC+ = (((wRAA/PA + lgR/PA) + (lgR/PA - (park factor*lgR/PA))) / lgwRC/PA excl. pitchers)*100
     For our purposes:
     wRC+ = (((wRAA/PA) + lgR/PA) / lgR/PA)*100
 
@@ -406,7 +406,8 @@ def season_offensive_metrics(data, totals_season):
     temp["woba"] = woba(temp, totals_season)
     temp["wraa"] = wraa(temp, totals_season["woba"], totals_season["woba_scale"])
     temp["off"] = off(temp)
-    temp["wrc"] = wrc(temp, totals_season["woba"], totals_season["woba_scale"], totals_season["lg_r_pa"])
+    temp["wrc"] = wrc(temp, totals_season["woba"], totals_season["woba_scale"],
+                      totals_season["lg_r_pa"])
     temp["wrc_p"] = wrc_p(temp, totals_season["lg_r_pa"])
     temp["off_p"] = off_p(temp, totals_season["lg_r_pa"])
     return temp
@@ -451,7 +452,8 @@ def advanced_offensive_metrics(data, totals, inplace=False):
         temp["woba"] = woba(temp, totals_season)
         temp["wraa"] = wraa(temp, totals_season["woba"], totals_season["woba_scale"])
         temp["off"] = off(temp)
-        temp["wrc"] = wrc(temp, totals_season["woba"], totals_season["woba_scale"], totals_season["lg_r_pa"])
+        temp["wrc"] = wrc(temp, totals_season["woba"], totals_season["woba_scale"],
+                          totals_season["lg_r_pa"])
         temp["wrc_p"] = wrc_p(temp, totals_season["lg_r_pa"])
         temp["off_p"] = off_p(temp, totals_season["lg_r_pa"])
         df = df.append(temp)
@@ -477,7 +479,8 @@ def fip_constant(data):
     :param
     :returns:
     """
-    return data["era"] - (((13*data["hr"]) + (3*(data["bb"] + data["hbp"])) - 2*data["so"]) / data["ip"])
+    return (data["era"]
+            - (((13*data["hr"]) + (3*(data["bb"] + data["hbp"])) - 2*data["so"]) / data["ip"]))
 
 
 def fip_minus(data, lg_fip):
@@ -502,7 +505,8 @@ def bsr_pitch(data, bmult=1.0):
     x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
 
     a = data["h"] + data["bb"] + data["hbp"] - data["hr"]
-    b = .78*x1b + 2.34*data["x2b"] + 3.9*data["x3b"] + 2.34*data["hr"] + .039*(data["bb"] + data["hbp"])
+    b = (.78*x1b + 2.34*data["x2b"] + 3.9*data["x3b"] + 2.34*data["hr"]
+         + .039*(data["bb"] + data["hbp"]))
     c = data["ab"] - data["h"]
     d = data["hr"]
     return a*(b*bmult/(b*bmult+c)) + d
@@ -512,7 +516,8 @@ def bsr_pitch_bmult(data):
     x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
 
     a = data["h"] + data["bb"] + data["hbp"] - data["hr"]
-    b = .78*x1b + 2.34*data["x2b"] + 3.9*data["x3b"] + 2.34*data["hr"] + .039*(data["bb"] + data["hbp"])
+    b = (.78*x1b + 2.34*data["x2b"] + 3.9*data["x3b"] + 2.34*data["hr"]
+         + .039*(data["bb"] + data["hbp"]))
     c = data["ab"] - data["h"]
     d = data["hr"]
 

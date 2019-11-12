@@ -81,7 +81,8 @@ def add_common_args(parser):
     parser.add_argument("-s", "--split", type=str, choices=["overall", "conference", "all"],
                         default="all", metavar="SPLIT", help="Filter by split")
     parser.add_argument("-S", "--stat", type=str, default="all", metavar="STAT",
-                        help="Select ETL(s) to run. Provide comma separated list or all for multiple")
+                        help="Select ETL(s) to run. "
+                             "Provide comma separated list or all for multiple")
 
     parser.add_argument("--load", action="store_true",
                         help="Load data into database")
