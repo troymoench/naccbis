@@ -36,13 +36,19 @@ def apply_corrections(data, corrections):
     data = data.copy()
     corrections = corrections.copy()
     # select only the columns we care about
-    corrections = corrections[["uc_fname", "uc_lname", "uc_team", "uc_season", "c_fname", "c_lname"]]
+    corrections = corrections[[
+        "uc_fname",
+        "uc_lname",
+        "uc_team",
+        "uc_season",
+        "c_fname",
+        "c_lname"]]
     corrections.rename(columns={
         "uc_fname": "fname",
         "uc_lname": "lname",
         "uc_team": "team",
         "uc_season": "season"
-        }, inplace=True)
+    }, inplace=True)
     data = pd.merge(data, corrections, how="left", on=["fname", "lname", "team", "season"])
 
     need_fname_update = ~data["c_fname"].isnull()
@@ -74,7 +80,8 @@ def create_id(fname, lname):
     NOTE: spaces, periods, and apostrophes are omitted
     """
     fname = fname.lower()
-    lname = lname.lower().replace(' ', '').replace('.', '').replace('\'', '')  # remove spaces, periods, and apostrophes
+    # remove spaces, periods, and apostrophes
+    lname = lname.lower().replace(' ', '').replace('.', '').replace('\'', '')
 
     if len(lname) > 5:
         lname = lname[0:5]
@@ -90,7 +97,7 @@ def add_n(player_id, n):
     """
     num = int(player_id[-2:]) + int(n)
     num = str(num).zfill(2)
-    return "{}{}".format(player_id[0:len(player_id)-2], num)
+    return "{}{}".format(player_id[0:len(player_id) - 2], num)
 
 # ****************************
 # ****** Misc. Functions *****
@@ -104,4 +111,4 @@ def convert_ip(ip_str):
     :returns: Float representation of innings pitched
     """
     temp = ip_str.split(".")
-    return int(temp[0]) + int(temp[1]) * (1/3)
+    return int(temp[0]) + int(temp[1]) * (1 / 3)

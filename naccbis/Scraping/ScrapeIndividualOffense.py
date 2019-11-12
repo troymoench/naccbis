@@ -100,7 +100,7 @@ class IndividualOffenseScraper(BaseScraper):
         if self._inseason:
             finalColNames = ["No", "Name", "Team", "Season", "Date", "Yr", "Pos",
                              "G", "PA", "AB", "R", "H", "x2B", "x3B", "HR", "RBI",
-                             "BB",  "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP",
+                             "BB", "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP",
                              "SF", "SH", "TB", "XBH", "GDP", "GO", "FO", "GO_FO"]
 
         data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))

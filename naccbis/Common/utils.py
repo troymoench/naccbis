@@ -128,7 +128,7 @@ def parse_year(year):
     else:
         temp = [int(yr) for yr in year.split(':')]
         temp.sort()  # ascending
-        rng = list(range(temp[0], temp[1]+1))
+        rng = list(range(temp[0], temp[1] + 1))
         # rng.sort(reverse=True)  # descending
         return rng
 
