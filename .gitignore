@@ -6,3 +6,4 @@ TODO.txt
 doc/build
 dist/
 *.egg-info
+.coverage
