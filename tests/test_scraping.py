@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 # Local imports
 import naccbis.Scraping.ScrapeFunctions as sf
+import naccbis.scripts.scrape as scrape
 
 
 @pytest.fixture

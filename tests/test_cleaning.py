@@ -7,8 +7,11 @@ import pytest
 # Local imports
 import naccbis.Cleaning.CleanFunctions as cf
 from naccbis.Cleaning import GameLogETL as gl
-import naccbis.scripts.GenerateIds as gi
 from naccbis.Cleaning import LeagueOffenseETL as lo
+import naccbis.scripts.clean as clean
+import naccbis.scripts.DumpNames as DumpNames
+import naccbis.scripts.GenerateIds as gi
+import naccbis.scripts.verify as verify
 
 
 class TestCleanFunctions():
