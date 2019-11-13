@@ -88,7 +88,8 @@ def duplicate_names_analysis(data):
     return output[["fname", "lname", "team", "season"]]
 
 
-if __name__ == "__main__":
+def main():
+    """ Script entry point """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__)
     parser.add_argument("-c", "--corrections", action="store_true",
@@ -157,3 +158,7 @@ if __name__ == "__main__":
     # dump all names
     print("Dumping all names to csv")
     data.to_csv(CSV_DIR + "all_names.csv", index=False)
+
+
+if __name__ == "__main__":
+    main()

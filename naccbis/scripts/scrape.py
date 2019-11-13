@@ -71,7 +71,6 @@ def final(args):
     scrapers = utils.parse_stat(args.stat, accepted)
     if len(scrapers) == 0:
         print("Unrecognized stat option")
-        final_parser.print_usage()
         sys.exit(1)
 
     for year in years:
@@ -100,7 +99,6 @@ def inseason(args):
     scrapers = utils.parse_stat(args.stat, accepted)
     if len(scrapers) == 0:
         print("Unrecognized stat option")
-        inseason_parser.print_usage()
         sys.exit(1)
 
     run_scrapers(scrapers, year, splits, args.output, inseason=True, verbose=args.verbose)
@@ -127,7 +125,8 @@ def add_common_args(parser):
                              "Provide comma separated list or all for multiple")
 
 
-if __name__ == "__main__":
+def main():
+    """ Script entry point """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__,
                                      epilog="examples:\n"
@@ -179,3 +178,7 @@ if __name__ == "__main__":
     args.func(args)
 
     logging.info("Scraping completed")
+
+
+if __name__ == "__main__":
+    main()

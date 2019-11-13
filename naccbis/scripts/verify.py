@@ -21,7 +21,7 @@ def table_count(conn, table):
     return count
 
 
-if __name__ == "__main__":
+def main():
     config = utils.init_config()
     # utils.init_logging(config["LOGGING"])
     conn = utils.connect_db(config["DB"])
@@ -39,3 +39,7 @@ if __name__ == "__main__":
     print(clean[~clean["table"].str.endswith("inseason")])
     print(clean[clean["table"].str.endswith("inseason")])
     conn.close()
+
+
+if __name__ == "__main__":
+    main()

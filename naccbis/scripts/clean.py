@@ -58,7 +58,6 @@ def final(args, conn):
 
     if len(etls) == 0:
         print("Unrecognized stat option")
-        final_parser.print_usage()
         sys.exit(1)
 
     for year in years:
@@ -88,7 +87,8 @@ def add_common_args(parser):
                         help="Load data into database")
 
 
-if __name__ == "__main__":
+def main():
+    """ Script entry point """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description="NACCBIS Cleaning controller")
     subparsers = parser.add_subparsers()
@@ -139,3 +139,7 @@ if __name__ == "__main__":
 
     conn.close()
     logging.info("Cleaning completed")
+
+
+if __name__ == "__main__":
+    main()

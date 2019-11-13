@@ -139,7 +139,8 @@ def generate_ids(data, duplicates):
     return data
 
 
-if __name__ == "__main__":
+def main():
+    """ Script entry point """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__)
     parser.add_argument("--load", action="store_true",
@@ -190,3 +191,7 @@ if __name__ == "__main__":
         print("Dumping to csv")
         data.to_csv(CSV_DIR + "player_id.csv", index=False)
     conn.close()
+
+
+if __name__ == "__main__":
+    main()
