@@ -10,4 +10,4 @@ install:
 script:
   - pytest -m "not integration" --cov --cov-report term
   - flake8 naccbis --statistics
-after_success: codecov
+after_success: codecov --required
