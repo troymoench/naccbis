@@ -8,6 +8,6 @@ install:
   - touch conf.py
   - pip install -e .
 script:
-  - pytest -m "not integration" --cov-report term
+  - pytest -m "not integration" --cov --cov-report term
   - flake8 naccbis --statistics
 after_success: codecov
