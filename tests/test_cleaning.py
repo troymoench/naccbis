@@ -9,9 +9,27 @@ import naccbis.Cleaning.CleanFunctions as cf
 from naccbis.Cleaning import GameLogETL as gl
 import naccbis.scripts.GenerateIds as gi
 from naccbis.Cleaning import LeagueOffenseETL as lo
+import logging
+logging.basicConfig(level="DEBUG")
 
 
 class TestCleanFunctions():
+
+    data = pd.DataFrame([
+        ("Jaquez", "Steven", "AUR", 2014),
+        ("Jaquez", "Steven", "AUR", 2015),
+        ("Jaquez", "Steven", "AUR", 2016),
+        ("Jaquez", "Ty", "AUR", 2017),
+        ("Ackerman", "Kamren", "BEN", 2015),
+        ("Ackerman", "Kamren", "BEN", 2016),
+        ("Ackerman", "Kamren", "BEN", 2017),
+        ("Lo dolce", "Dan", "CUC", 2014),
+        ("Lo dolce", "Dan", "CUC", 2014),
+        ("Lodolce", "Dan", "CUC", 2015),
+        ("McCoy", "Tj", "MAR", 2013),
+        ("McCoy", "Tj", "MAR", 2014),
+        ("McCoy", "TJ", "MAR", 2015)
+    ], columns=["lname", "fname", "team", "season"])
 
     @pytest.mark.parametrize(
         'fname, lname, expected', [
@@ -66,21 +84,6 @@ class TestCleanFunctions():
         ], columns=["uc_fname", "uc_lname", "uc_team",
                     "uc_season", "c_fname", "c_lname", "type"])
 
-        data = pd.DataFrame([
-            ("Jaquez", "Steven", "AUR", 2014),
-            ("Jaquez", "Steven", "AUR", 2015),
-            ("Jaquez", "Steven", "AUR", 2016),
-            ("Jaquez", "Ty", "AUR", 2017),
-            ("Ackerman", "Kamren", "BEN", 2015),
-            ("Ackerman", "Kamren", "BEN", 2016),
-            ("Ackerman", "Kamren", "BEN", 2017),
-            ("Lo dolce", "Dan", "CUC", 2014),
-            ("Lo dolce", "Dan", "CUC", 2014),
-            ("Lodolce", "Dan", "CUC", 2015),
-            ("McCoy", "Tj", "MAR", 2013),
-            ("McCoy", "Tj", "MAR", 2014),
-            ("McCoy", "TJ", "MAR", 2015)
-        ], columns=["lname", "fname", "team", "season"])
         expected = pd.DataFrame([
             ("Jaquez", "Ty", "AUR", 2014),
             ("Jaquez", "Ty", "AUR", 2015),
@@ -97,9 +100,16 @@ class TestCleanFunctions():
             ("McCoy", "TJ", "MAR", 2015)
         ], columns=["lname", "fname", "team", "season"])
         # make sure apply_corrections doesn't remove any columns
-        data["pos"] = "INF"
+        self.data["pos"] = "INF"
         expected["pos"] = "INF"
-        assert cf.apply_corrections(data, corrections).equals(expected)
+        assert cf.apply_corrections(self.data, corrections).equals(expected)
+
+    def test_apply_corrections_no_change(self):
+        corrections = pd.DataFrame([], columns=["uc_fname", "uc_lname", "uc_team",
+                                                "uc_season", "c_fname", "c_lname", "type"])
+        self.data["pos"] = "INF"
+        expected = self.data
+        assert cf.apply_corrections(self.data, corrections).equals(expected)
 
     @pytest.mark.parametrize(
         'raw, expected', [
