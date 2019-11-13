@@ -9,8 +9,6 @@ import naccbis.Cleaning.CleanFunctions as cf
 from naccbis.Cleaning import GameLogETL as gl
 import naccbis.scripts.GenerateIds as gi
 from naccbis.Cleaning import LeagueOffenseETL as lo
-import logging
-logging.basicConfig(level="DEBUG")
 
 
 class TestCleanFunctions():
