@@ -17,6 +17,44 @@ from naccbis.Scraping import (
 import naccbis.Common.utils as utils
 
 
+PARSER_EPILOG = """
+examples:
+   scrape.py final 2015:2017
+   scrape.py final 2017 -S 1,3 -s conference -o sql
+   scrape.py inseason
+   scrape.py inseason -S 6 -s overall -o csv
+"""
+
+FINAL_PARSER_DESCRIPTION = """
+Scrape end of the year final stats
+
+     Stat Options
+  ---------------------
+  1) Individual Offense
+  2) Individual Pitching
+  3) Team Offense
+  4) Team Pitching
+  5) Team Fielding
+  6) Game Logs
+  all) All
+"""
+
+INSEASON_PARSER_DESCRIPTION = """
+Scrape stats during the season.
+A column is added for the scrape date.
+
+     Stat Options
+  ---------------------
+  1) Individual Offense
+  2) Individual Pitching
+  3) Team Offense
+  4) Team Pitching
+  5) Team Fielding
+  6) Game Logs
+  all) All
+"""
+
+
 def run_scrapers(scraper_nums, year, splits, output, inseason, verbose):
     """ Run selected scrapers for a given year
 
@@ -129,25 +167,12 @@ def main():
     """ Script entry point """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__,
-                                     epilog="examples:\n"
-                                            "   scrape.py final 2015:2017\n"
-                                            "   scrape.py final 2017 -S 1,3 -s conference -o sql\n"
-                                            "   scrape.py inseason\n"
-                                            "   scrape.py inseason -S 6 -s overall -o csv")
+                                     epilog=PARSER_EPILOG)
     subparsers = parser.add_subparsers()
 
     final_parser = subparsers.add_parser("final",
                                          formatter_class=argparse.RawDescriptionHelpFormatter,
-                                         description='Scrape end of the year final stats\n\n'
-                                         '     Stat Options\n'
-                                         '  ---------------------\n'
-                                         '  1) Individual Offense\n'
-                                         '  2) Individual Pitching\n'
-                                         '  3) Team Offense\n'
-                                         '  4) Team Pitching\n'
-                                         '  5) Team Fielding\n'
-                                         '  6) Game Logs\n'
-                                         '  all) All\n')
+                                         description=FINAL_PARSER_DESCRIPTION)
 
     final_parser.add_argument("year", type=str, help="A year or range of years")
     add_common_args(final_parser)
@@ -155,17 +180,7 @@ def main():
 
     inseason_parser = subparsers.add_parser("inseason",
                                             formatter_class=argparse.RawDescriptionHelpFormatter,
-                                            description='Scrape stats during the season. '
-                                            'A column is added for the scrape date.\n\n'
-                                            '     Stat Options\n'
-                                            '  ---------------------\n'
-                                            '  1) Individual Offense\n'
-                                            '  2) Individual Pitching\n'
-                                            '  3) Team Offense\n'
-                                            '  4) Team Pitching\n'
-                                            '  5) Team Fielding\n'
-                                            '  6) Game Logs\n'
-                                            '  all) All\n')
+                                            description=INSEASON_PARSER_DESCRIPTION)
     add_common_args(inseason_parser)
     inseason_parser.set_defaults(func=inseason)
 

@@ -16,6 +16,37 @@ from naccbis.Cleaning import (
 )
 import naccbis.Common.utils as utils
 
+FINAL_PARSER_DESCRIPTION = """
+Clean final stats
+
+     Stat Options
+  ---------------------
+  1) Individual Offense
+  2) Individual Pitching
+  3) Team Offense
+  4) Team Pitching
+  5) Game Logs
+  6) League Offense
+  7) League Pitching
+  all) All
+"""
+
+INSEASON_PARSER_DESCRIPTION = """
+Clean stats during the season.
+A column is added for the scrape date.
+
+     Stat Options
+  ---------------------
+  1) Individual Offense
+  2) Individual Pitching
+  3) Team Offense
+  4) Team Pitching
+  5) Game Logs
+  6) League Offense
+  7) League Pitching
+  all) All
+"""
+
 
 def run_etls(etl_nums, year, splits, load_db, conn):
     """ Run ETL's for a given year
@@ -95,17 +126,7 @@ def main():
 
     final_parser = subparsers.add_parser("final",
                                          formatter_class=argparse.RawDescriptionHelpFormatter,
-                                         description='Clean final stats\n\n'
-                                         '     Stat Options\n'
-                                         '  ---------------------\n'
-                                         '  1) Individual Offense\n'
-                                         '  2) Individual Pitching\n'
-                                         '  3) Team Offense\n'
-                                         '  4) Team Pitching\n'
-                                         '  5) Game Logs\n'
-                                         '  6) League Offense\n'
-                                         '  7) League Pitching\n'
-                                         '  all) All\n')
+                                         description=FINAL_PARSER_DESCRIPTION)
 
     final_parser.add_argument("year", type=str, help="A year or range of years")
     add_common_args(final_parser)
@@ -113,18 +134,7 @@ def main():
 
     inseason_parser = subparsers.add_parser("inseason",
                                             formatter_class=argparse.RawDescriptionHelpFormatter,
-                                            description='Clean stats during the season. '
-                                            'A column is added for the scrape date.\n\n'
-                                            '     Stat Options\n'
-                                            '  ---------------------\n'
-                                            '  1) Individual Offense\n'
-                                            '  2) Individual Pitching\n'
-                                            '  3) Team Offense\n'
-                                            '  4) Team Pitching\n'
-                                            '  5) Game Logs\n'
-                                            '  6) League Offense\n'
-                                            '  7) League Pitching\n'
-                                            '  all) All\n')
+                                            description=INSEASON_PARSER_DESCRIPTION)
 
     inseason_parser.set_defaults(func=inseason)
 
