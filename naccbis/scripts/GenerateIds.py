@@ -70,9 +70,7 @@ def get_duplicates(conn):
     WHERE f.max > 0
     ORDER BY 1, 2, 4, 5;
     """
-
-    duplicates = pd.read_sql_query(query, conn)
-    return duplicates
+    return pd.read_sql_query(query, conn)
 
 
 def update_duplicates(data, duplicates):

@@ -160,6 +160,52 @@ class TestGenerateIds():
 
         assert gi.update_id_conflicts(raw).equals(expected)
 
+    def test_update_duplicates(self):
+        # print([row for row in foo.itertuples(False, None)])
+        duplicates = pd.DataFrame([
+            ('Matt', 'Schroeder', 'MAR', 2010, 0),
+            ('Matt', 'Schroeder', 'MAR', 2011, 0),
+            ('Matt', 'Schroeder', 'MAR', 2012, 0),
+            ('Matt', 'Schroeder', 'CUW', 2012, 1),
+            ('Ryan', 'Miller', 'MSOE', 2015, 0),
+            ('Ryan', 'Miller', 'MSOE', 2016, 0),
+            ('Ryan', 'Miller', 'BEN', 2017, 1),
+            ('Ryan', 'Miller', 'BEN', 2018, 1),
+        ], columns=["fname", "lname", "team", "season", "id"])
+
+        raw = pd.DataFrame([
+            ('Ackerman', 'Kamren', 'BEN', 2015, 'ackerka01', 'Kamren Ackerman'),
+            ('Ackerman', 'Kamren', 'BEN', 2016, 'ackerka01', 'Kamren Ackerman'),
+            ('Ackerman', 'Kamren', 'BEN', 2017, 'ackerka01', 'Kamren Ackerman'),
+            ('Miller', 'Ryan', 'BEN', 2017, 'millery01', 'Ryan Miller'),
+            ('Miller', 'Ryan', 'BEN', 2018, 'millery01', 'Ryan Miller'),
+            # ('Miller', 'Ryan', 'BEN', 2019, 'millery01', 'Ryan Miller'),
+            ('Miller', 'Ryan', 'MSOE', 2015, 'millery01', 'Ryan Miller'),
+            ('Miller', 'Ryan', 'MSOE', 2016, 'millery01', 'Ryan Miller'),
+            ('Schroeder', 'Matt', 'CUW', 2012, 'schroma01', 'Matt Schroeder'),
+            ('Schroeder', 'Matt', 'MAR', 2010, 'schroma01', 'Matt Schroeder'),
+            ('Schroeder', 'Matt', 'MAR', 2011, 'schroma01', 'Matt Schroeder'),
+            ('Schroeder', 'Matt', 'MAR', 2012, 'schroma01', 'Matt Schroeder'),
+        ], columns=['lname', 'fname', 'team', 'season', 'player_id', 'full_name'])
+
+        expected = pd.DataFrame([
+            ('Ackerman', 'Kamren', 'BEN', 2015, 'ackerka01', 'Kamren Ackerman'),
+            ('Ackerman', 'Kamren', 'BEN', 2016, 'ackerka01', 'Kamren Ackerman'),
+            ('Ackerman', 'Kamren', 'BEN', 2017, 'ackerka01', 'Kamren Ackerman'),
+            ('Miller', 'Ryan', 'BEN', 2017, 'millery02', 'Ryan Miller'),
+            ('Miller', 'Ryan', 'BEN', 2018, 'millery02', 'Ryan Miller'),
+            # ('Miller', 'Ryan', 'BEN', 2019, 'millery02', 'Ryan Miller'),
+            ('Miller', 'Ryan', 'MSOE', 2015, 'millery01', 'Ryan Miller'),
+            ('Miller', 'Ryan', 'MSOE', 2016, 'millery01', 'Ryan Miller'),
+            ('Schroeder', 'Matt', 'CUW', 2012, 'schroma02', 'Matt Schroeder'),
+            ('Schroeder', 'Matt', 'MAR', 2010, 'schroma01', 'Matt Schroeder'),
+            ('Schroeder', 'Matt', 'MAR', 2011, 'schroma01', 'Matt Schroeder'),
+            ('Schroeder', 'Matt', 'MAR', 2012, 'schroma01', 'Matt Schroeder'),
+        ], columns=['lname', 'fname', 'team', 'season', 'player_id', 'full_name'])
+
+        print(gi.update_duplicates(raw, duplicates))
+        assert gi.update_duplicates(raw, duplicates).equals(expected)
+
 
 class TestCleanGameLogs():
 
