@@ -125,86 +125,88 @@ class TestCleanFunctions():
 
 class TestGenerateIds():
 
+    duplicates = pd.DataFrame([
+        ('Matt', 'Schroeder', 'MAR', 2010, 0),
+        ('Matt', 'Schroeder', 'MAR', 2011, 0),
+        ('Matt', 'Schroeder', 'MAR', 2012, 0),
+        ('Matt', 'Schroeder', 'CUW', 2012, 1),
+        ('Ryan', 'Miller', 'MSOE', 2015, 0),
+        ('Ryan', 'Miller', 'MSOE', 2016, 0),
+        ('Ryan', 'Miller', 'BEN', 2017, 1),
+        ('Ryan', 'Miller', 'BEN', 2018, 1),
+    ], columns=["fname", "lname", "team", "season", "id"])
+
+    dupes_raw = pd.DataFrame([
+        ('Ackerman', 'Kamren', 'BEN', 2015, 'ackerka01', 'Kamren Ackerman'),
+        ('Ackerman', 'Kamren', 'BEN', 2016, 'ackerka01', 'Kamren Ackerman'),
+        ('Ackerman', 'Kamren', 'BEN', 2017, 'ackerka01', 'Kamren Ackerman'),
+        ('Miller', 'Ryan', 'BEN', 2017, 'millery01', 'Ryan Miller'),
+        ('Miller', 'Ryan', 'BEN', 2018, 'millery01', 'Ryan Miller'),
+        # ('Miller', 'Ryan', 'BEN', 2019, 'millery01', 'Ryan Miller'),
+        ('Miller', 'Ryan', 'MSOE', 2015, 'millery01', 'Ryan Miller'),
+        ('Miller', 'Ryan', 'MSOE', 2016, 'millery01', 'Ryan Miller'),
+        ('Schroeder', 'Matt', 'CUW', 2012, 'schroma01', 'Matt Schroeder'),
+        ('Schroeder', 'Matt', 'MAR', 2010, 'schroma01', 'Matt Schroeder'),
+        ('Schroeder', 'Matt', 'MAR', 2011, 'schroma01', 'Matt Schroeder'),
+        ('Schroeder', 'Matt', 'MAR', 2012, 'schroma01', 'Matt Schroeder'),
+    ], columns=['lname', 'fname', 'team', 'season', 'player_id', 'full_name'])
+
+    dupes_expected = pd.DataFrame([
+        ('Ackerman', 'Kamren', 'BEN', 2015, 'ackerka01', 'Kamren Ackerman'),
+        ('Ackerman', 'Kamren', 'BEN', 2016, 'ackerka01', 'Kamren Ackerman'),
+        ('Ackerman', 'Kamren', 'BEN', 2017, 'ackerka01', 'Kamren Ackerman'),
+        ('Miller', 'Ryan', 'BEN', 2017, 'millery02', 'Ryan Miller'),
+        ('Miller', 'Ryan', 'BEN', 2018, 'millery02', 'Ryan Miller'),
+        # ('Miller', 'Ryan', 'BEN', 2019, 'millery02', 'Ryan Miller'),
+        ('Miller', 'Ryan', 'MSOE', 2015, 'millery01', 'Ryan Miller'),
+        ('Miller', 'Ryan', 'MSOE', 2016, 'millery01', 'Ryan Miller'),
+        ('Schroeder', 'Matt', 'CUW', 2012, 'schroma02', 'Matt Schroeder'),
+        ('Schroeder', 'Matt', 'MAR', 2010, 'schroma01', 'Matt Schroeder'),
+        ('Schroeder', 'Matt', 'MAR', 2011, 'schroma01', 'Matt Schroeder'),
+        ('Schroeder', 'Matt', 'MAR', 2012, 'schroma01', 'Matt Schroeder'),
+    ], columns=['lname', 'fname', 'team', 'season', 'player_id', 'full_name'])
+
+    conflicts_raw = pd.DataFrame([
+        ("Balind", "Garett", "CUC", 2011, "balinga01", "Garett Balind"),
+        ("Balind", "Garett", "CUC", 2010, "balinga01", "Garett Balind"),
+        ("Balinski", "Galen", "MARN", 2013, "balinga01", "Galen Balinski"),
+        ("Schoemann", "Tyler", "WLC", 2018, "schoety01", "Tyler Schoemann"),
+        ("Schoen", "Tyler", "WLC", 2010, "schoety01", "Tyler Schoen"),
+        ("Schoen", "Tyler", "WLC", 2011, "schoety01", "Tyler Schoen"),
+        ("Schoen", "Tyler", "WLC", 2012, "schoety01", "Tyler Schoen"),
+        ("Schoen", "Tyler", "WLC", 2013, "schoety01", "Tyler Schoen"),
+    ], columns=["lname", "fname", "team", "season", "player_id", "full_name"])
+
+    conflicts_expected = pd.DataFrame([
+        ("Balind", "Garett", "CUC", 2011, "balinga01", "Garett Balind"),
+        ("Balind", "Garett", "CUC", 2010, "balinga01", "Garett Balind"),
+        ("Balinski", "Galen", "MARN", 2013, "balinga02", "Galen Balinski"),
+        ("Schoemann", "Tyler", "WLC", 2018, "schoety02", "Tyler Schoemann"),
+        ("Schoen", "Tyler", "WLC", 2010, "schoety01", "Tyler Schoen"),
+        ("Schoen", "Tyler", "WLC", 2011, "schoety01", "Tyler Schoen"),
+        ("Schoen", "Tyler", "WLC", 2012, "schoety01", "Tyler Schoen"),
+        ("Schoen", "Tyler", "WLC", 2013, "schoety01", "Tyler Schoen"),
+    ], columns=["lname", "fname", "team", "season", "player_id", "full_name"])
+
     def test_update_id_conflicts(self):
-        #          lname   fname  team  season  player_id       full_name
-        # 2916    Balind  Garett   CUC    2011  balinga01   Garett Balind
-        # 1765    Balind  Garett   CUC    2010  balinga01   Garett Balind
-        # 1113  Balinski   Galen  MARN    2013  balinga01  Galen Balinski
-        # 2176  Schoemann  Tyler  WLC    2018  schoety01  Tyler Schoemann
-        # 1937     Schoen  Tyler  WLC    2010  schoety01     Tyler Schoen
-        # 1692     Schoen  Tyler  WLC    2011  schoety01     Tyler Schoen
-        # 1436     Schoen  Tyler  WLC    2012  schoety01     Tyler Schoen
-        # 1176     Schoen  Tyler  WLC    2013  schoety01     Tyler Schoen
-
-        raw = pd.DataFrame([
-            ("Balind", "Garett", "CUC", 2011, "balinga01", "Garett Balind"),
-            ("Balind", "Garett", "CUC", 2010, "balinga01", "Garett Balind"),
-            ("Balinski", "Galen", "MARN", 2013, "balinga01", "Galen Balinski"),
-            ("Schoemann", "Tyler", "WLC", 2018, "schoety01", "Tyler Schoemann"),
-            ("Schoen", "Tyler", "WLC", 2010, "schoety01", "Tyler Schoen"),
-            ("Schoen", "Tyler", "WLC", 2011, "schoety01", "Tyler Schoen"),
-            ("Schoen", "Tyler", "WLC", 2012, "schoety01", "Tyler Schoen"),
-            ("Schoen", "Tyler", "WLC", 2013, "schoety01", "Tyler Schoen")
-        ], columns=["lname", "fname", "team", "season", "player_id", "full_name"])
-
-        expected = pd.DataFrame([
-            ("Balind", "Garett", "CUC", 2011, "balinga01", "Garett Balind"),
-            ("Balind", "Garett", "CUC", 2010, "balinga01", "Garett Balind"),
-            ("Balinski", "Galen", "MARN", 2013, "balinga02", "Galen Balinski"),
-            ("Schoemann", "Tyler", "WLC", 2018, "schoety02", "Tyler Schoemann"),
-            ("Schoen", "Tyler", "WLC", 2010, "schoety01", "Tyler Schoen"),
-            ("Schoen", "Tyler", "WLC", 2011, "schoety01", "Tyler Schoen"),
-            ("Schoen", "Tyler", "WLC", 2012, "schoety01", "Tyler Schoen"),
-            ("Schoen", "Tyler", "WLC", 2013, "schoety01", "Tyler Schoen")
-        ], columns=["lname", "fname", "team", "season", "player_id", "full_name"])
-
-        assert gi.update_id_conflicts(raw).equals(expected)
+        assert gi.update_id_conflicts(self.conflicts_raw).equals(self.conflicts_expected)
 
     def test_update_duplicates(self):
         # print([row for row in foo.itertuples(False, None)])
-        duplicates = pd.DataFrame([
-            ('Matt', 'Schroeder', 'MAR', 2010, 0),
-            ('Matt', 'Schroeder', 'MAR', 2011, 0),
-            ('Matt', 'Schroeder', 'MAR', 2012, 0),
-            ('Matt', 'Schroeder', 'CUW', 2012, 1),
-            ('Ryan', 'Miller', 'MSOE', 2015, 0),
-            ('Ryan', 'Miller', 'MSOE', 2016, 0),
-            ('Ryan', 'Miller', 'BEN', 2017, 1),
-            ('Ryan', 'Miller', 'BEN', 2018, 1),
-        ], columns=["fname", "lname", "team", "season", "id"])
+        assert gi.update_duplicates(self.dupes_raw, self.duplicates).equals(self.dupes_expected)
 
-        raw = pd.DataFrame([
-            ('Ackerman', 'Kamren', 'BEN', 2015, 'ackerka01', 'Kamren Ackerman'),
-            ('Ackerman', 'Kamren', 'BEN', 2016, 'ackerka01', 'Kamren Ackerman'),
-            ('Ackerman', 'Kamren', 'BEN', 2017, 'ackerka01', 'Kamren Ackerman'),
-            ('Miller', 'Ryan', 'BEN', 2017, 'millery01', 'Ryan Miller'),
-            ('Miller', 'Ryan', 'BEN', 2018, 'millery01', 'Ryan Miller'),
-            # ('Miller', 'Ryan', 'BEN', 2019, 'millery01', 'Ryan Miller'),
-            ('Miller', 'Ryan', 'MSOE', 2015, 'millery01', 'Ryan Miller'),
-            ('Miller', 'Ryan', 'MSOE', 2016, 'millery01', 'Ryan Miller'),
-            ('Schroeder', 'Matt', 'CUW', 2012, 'schroma01', 'Matt Schroeder'),
-            ('Schroeder', 'Matt', 'MAR', 2010, 'schroma01', 'Matt Schroeder'),
-            ('Schroeder', 'Matt', 'MAR', 2011, 'schroma01', 'Matt Schroeder'),
-            ('Schroeder', 'Matt', 'MAR', 2012, 'schroma01', 'Matt Schroeder'),
-        ], columns=['lname', 'fname', 'team', 'season', 'player_id', 'full_name'])
+    def test_verify_unique_ids(self):
+        unique_before = self.dupes_raw["player_id"].nunique()
+        unique_after = self.dupes_expected["player_id"].nunique()
+        assert gi.verify_unique_ids(unique_before, unique_after, self.duplicates)
 
-        expected = pd.DataFrame([
-            ('Ackerman', 'Kamren', 'BEN', 2015, 'ackerka01', 'Kamren Ackerman'),
-            ('Ackerman', 'Kamren', 'BEN', 2016, 'ackerka01', 'Kamren Ackerman'),
-            ('Ackerman', 'Kamren', 'BEN', 2017, 'ackerka01', 'Kamren Ackerman'),
-            ('Miller', 'Ryan', 'BEN', 2017, 'millery02', 'Ryan Miller'),
-            ('Miller', 'Ryan', 'BEN', 2018, 'millery02', 'Ryan Miller'),
-            # ('Miller', 'Ryan', 'BEN', 2019, 'millery02', 'Ryan Miller'),
-            ('Miller', 'Ryan', 'MSOE', 2015, 'millery01', 'Ryan Miller'),
-            ('Miller', 'Ryan', 'MSOE', 2016, 'millery01', 'Ryan Miller'),
-            ('Schroeder', 'Matt', 'CUW', 2012, 'schroma02', 'Matt Schroeder'),
-            ('Schroeder', 'Matt', 'MAR', 2010, 'schroma01', 'Matt Schroeder'),
-            ('Schroeder', 'Matt', 'MAR', 2011, 'schroma01', 'Matt Schroeder'),
-            ('Schroeder', 'Matt', 'MAR', 2012, 'schroma01', 'Matt Schroeder'),
-        ], columns=['lname', 'fname', 'team', 'season', 'player_id', 'full_name'])
-
-        print(gi.update_duplicates(raw, duplicates))
-        assert gi.update_duplicates(raw, duplicates).equals(expected)
+    def test_generate_ids(self):
+        raw = pd.concat([self.conflicts_raw, self.dupes_raw], ignore_index=True)
+        raw = raw[["lname", "fname", "team", "season"]]
+        expected = pd.concat([self.conflicts_expected, self.dupes_expected],
+                             ignore_index=True)
+        expected.drop(columns=["full_name"], inplace=True)
+        assert gi.generate_ids(raw, self.duplicates).equals(expected)
 
 
 class TestCleanGameLogs():

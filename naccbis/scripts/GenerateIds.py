@@ -98,8 +98,7 @@ def verify_unique_ids(unique_before, unique_after, duplicates):
     :param duplicates: A DataFrame of duplicate names
     :returns: True if unique_after == unique_before + dupes, false otherwise
     """
-    grouped = duplicates.groupby(["fname", "lname"])
-    grouped = grouped.max()
+    grouped = duplicates.groupby(["fname", "lname"]).max()
     dupes = grouped["id"].sum()
     return unique_after == (unique_before + dupes)
 
@@ -132,7 +131,7 @@ def generate_ids(data, duplicates):
         print("Player ids verified successfully")
     else:
         print("An issue occurred while verifying player ids")
-        sys.exit(1)
+        raise ValueError("Player ID verification")
     data.drop(columns=["full_name"], inplace=True)
     return data
 
