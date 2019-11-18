@@ -62,9 +62,10 @@ def nickname_analysis(data, nicknames):
     cart_prod = pd.merge(names, names, on="lname")
     cart_prod = cart_prod[cart_prod["fname_x"] != cart_prod["fname_y"]]
 
-    output = pd.merge(cart_prod, nicknames, left_on=["fname_x", "fname_y"],
-                      right_on=["name", "nickname"])
-    return output
+    return pd.merge(cart_prod,
+                    nicknames,
+                    left_on=["fname_x", "fname_y"],
+                    right_on=["name", "nickname"])
 
 
 def duplicate_names_analysis(data):
@@ -82,8 +83,8 @@ def duplicate_names_analysis(data):
     temp = temp.groupby(["name"]).filter(lambda x: len(x) > 1)
     output = names[names["name"].isin(temp["name"])].\
         groupby(["name", "team", "season"]).head(1)
-    output["fname"] = [x.split(" ")[0].strip() for x in output["name"]]
-    output["lname"] = [" ".join(x.split(" ")[1:]).strip() for x in output["name"]]
+    output["fname"] = output["name"].apply(cf.split_fname)
+    output["lname"] = output["name"].apply(cf.split_lname)
 
     return output[["fname", "lname", "team", "season"]]
 
@@ -140,20 +141,26 @@ def main():
     if levenshtein_last or levenshtein_first:
         print("Performing levenshtein analysis")
         output = levenshtein_analysis(data, levenshtein_first, levenshtein_last)
-        print("Found", len(output), "candidates. Dumping to csv")
-        output.to_csv(CSV_DIR + "levenshtein_analysis.csv", index=False)
+        print("Found", len(output), "candidates")
+        if len(output) > 0:
+            print("Dumping to csv")
+            output.to_csv(CSV_DIR + "levenshtein_analysis.csv", index=False)
 
     if args.nicknames:
         print("Performing nickname analysis")
         output = nickname_analysis(data, nicknames)
-        print("Found", len(output), "candidates. Dumping to csv")
-        output.to_csv(CSV_DIR + "nickname_analysis.csv", index=False)
+        print("Found", len(output), "candidates")
+        if len(output) > 0:
+            print("Dumping to csv")
+            output.to_csv(CSV_DIR + "nickname_analysis.csv", index=False)
 
     if args.duplicates:
         print("Performing duplicate names analysis")
         output = duplicate_names_analysis(data)
-        print("Found", len(output), "candidates. Dumping to csv")
-        output.to_csv(CSV_DIR + "duplicate_names_analysis.csv", index=False)
+        print("Found", len(output), "candidates")
+        if len(output) > 0:
+            print("Dumping to csv")
+            output.to_csv(CSV_DIR + "duplicate_names_analysis.csv", index=False)
 
     # dump all names
     print("Dumping all names to csv")

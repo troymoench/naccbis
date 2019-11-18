@@ -54,9 +54,10 @@ class TestCleanFunctions():
         assert cf.add_n(id, n) == expected
 
     def test_normalize_names(self):
-        df1 = pd.DataFrame({"name": ["Jeffrey  Mayes", "D.J.  Dillon", "Quinlan Milne Rojek"],
-                            "team": ["AUR", "BEN", "DOM"],
-                            "season": [2017, 2017, 2016]}, columns=["name", "team", "season"])
+        df1 = pd.DataFrame([("Jeffrey  Mayes", "AUR", 2017),
+                            ("D.J.  Dillon", "BEN", 2017),
+                            ("Quinlan Milne Rojek", "DOM", 2016),
+                            ], columns=["name", "team", "season"])
         df2 = pd.DataFrame(df1)
         df2["fname"] = ["Jeffrey", "DJ", "Quinlan"]
         df2["lname"] = ["Mayes", "Dillon", "Milne Rojek"]

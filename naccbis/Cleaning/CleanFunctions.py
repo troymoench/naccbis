@@ -9,6 +9,13 @@ import pandas as pd
 # ****************************
 # ***** Name Corrections *****
 # ****************************
+def split_fname(name):
+    return name.split(" ")[0].strip()
+
+
+def split_lname(name):
+    return " ".join(name.split(" ")[1:]).strip()
+
 
 def normalize_names(data):
     """ Normalize names by splitting into first name and last name.
@@ -17,8 +24,8 @@ def normalize_names(data):
     :returns: A DataFrame
     """
     # split each name into first name and last name
-    data["fname"] = [x.split(" ")[0].strip() for x in data["name"]]
-    data["lname"] = [" ".join(x.split(" ")[1:]).strip() for x in data["name"]]
+    data["fname"] = data["name"].apply(split_fname)
+    data["lname"] = data["name"].apply(split_lname)
 
     # remove periods from first name
     data["fname"] = [x.replace(".", "") for x in data["fname"]]
