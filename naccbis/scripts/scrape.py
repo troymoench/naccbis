@@ -94,9 +94,7 @@ def final(args):
 
     :param args: Arguments for the scrapers
     """
-    # parse year
-    seasons = utils.parse_year(args.year)
-    years = [utils.season_to_year(x) for x in seasons]
+    years = [utils.season_to_year(x) for x in args.year]
 
     # parse split
     if args.split == "all":
@@ -104,17 +102,10 @@ def final(args):
     else:
         splits = [args.split]
 
-    # parse stat
-    accepted = list(range(1, 7))
-    scrapers = utils.parse_stat(args.stat, accepted)
-    if len(scrapers) == 0:
-        print("Unrecognized stat option")
-        sys.exit(1)
-
     for year in years:
         print("\nScraping:", year, "\n")
 
-        run_scrapers(scrapers, year, splits, args.output, inseason=False, verbose=args.verbose)
+        run_scrapers(args.stat, year, splits, args.output, inseason=False, verbose=args.verbose)
 
 
 def inseason(args):
@@ -132,14 +123,7 @@ def inseason(args):
     else:
         splits = [args.split]
 
-    # parse stat
-    accepted = list(range(1, 7))
-    scrapers = utils.parse_stat(args.stat, accepted)
-    if len(scrapers) == 0:
-        print("Unrecognized stat option")
-        sys.exit(1)
-
-    run_scrapers(scrapers, year, splits, args.output, inseason=True, verbose=args.verbose)
+    run_scrapers(args.stat, year, splits, args.output, inseason=True, verbose=args.verbose)
 
 
 def add_common_args(parser):
@@ -158,9 +142,10 @@ def add_common_args(parser):
     parser.add_argument("-s", "--split", type=str, choices=["overall", "conference", "all"],
                         default="all", metavar="SPLIT",
                         help="Split choices: overall, conference, all (default)")
-    parser.add_argument("-S", "--stat", type=str, default="all", metavar="STAT",
+    parser.add_argument("-S", "--stat", type=int, nargs="*", choices=range(1, 7),
+                        default=range(1, 7), metavar="STAT",
                         help="Select stat scraper(s) to run. "
-                             "Provide comma separated list or all for multiple")
+                             "Provide list or omit argument for all scrapers")
 
 
 def main():
@@ -174,7 +159,7 @@ def main():
                                          formatter_class=argparse.RawDescriptionHelpFormatter,
                                          description=FINAL_PARSER_DESCRIPTION)
 
-    final_parser.add_argument("year", type=str, help="A year or range of years")
+    final_parser.add_argument("year", type=utils.parse_year, help="A year or range of years")
     add_common_args(final_parser)
     final_parser.set_defaults(func=final)
 

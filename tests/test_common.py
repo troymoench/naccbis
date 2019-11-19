@@ -19,16 +19,6 @@ class TestUtils():
         assert utils.parse_year(year) == expected
 
     @pytest.mark.parametrize(
-        'stats, expected', [
-            ('1', [1]),
-            ('1,2,3', [1, 2, 3]),
-            ('all', list(range(1, 8)))
-        ]
-    )
-    def test_parse_stat(self, stats, accepted_stats, expected):
-        assert utils.parse_stat(stats, accepted_stats) == expected
-
-    @pytest.mark.parametrize(
         'year, expected', [
             ('2010-11', 2011),
             ('2011-12', 2012),

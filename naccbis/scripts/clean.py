@@ -76,24 +76,20 @@ def run_etls(etl_nums, year, splits, load_db, conn):
 
 
 def final(args, conn):
-    years = utils.parse_year(args.year)
+    """ Run ETLs for the final subcommand
 
+    :param args: Arguments for the ETLs
+    :param conn: Database connection object
+    """
     # parse split
     if args.split == "all":
         splits = ["overall", "conference"]
     else:
         splits = [args.split]
 
-    accepted = list(range(1, 8))
-    etls = utils.parse_stat(args.stat, accepted)
-
-    if len(etls) == 0:
-        print("Unrecognized stat option")
-        sys.exit(1)
-
-    for year in years:
+    for year in args.year:
         logging.info("Running ETLs for %s", year)
-        run_etls(etls, year, splits, args.load, conn)
+        run_etls(args.stat, year, splits, args.load, conn)
 
 
 def inseason(args):
@@ -110,9 +106,10 @@ def add_common_args(parser):
     # args after the subcommand.
     parser.add_argument("-s", "--split", type=str, choices=["overall", "conference", "all"],
                         default="all", metavar="SPLIT", help="Filter by split")
-    parser.add_argument("-S", "--stat", type=str, default="all", metavar="STAT",
+    parser.add_argument("-S", "--stat", type=int, nargs="*", choices=range(1, 8),
+                        default=range(1, 8), metavar="STAT",
                         help="Select ETL(s) to run. "
-                             "Provide comma separated list or all for multiple")
+                             "Provide list or omit argument for all ETLs")
 
     parser.add_argument("--load", action="store_true",
                         help="Load data into database")
@@ -128,7 +125,7 @@ def main():
                                          formatter_class=argparse.RawDescriptionHelpFormatter,
                                          description=FINAL_PARSER_DESCRIPTION)
 
-    final_parser.add_argument("year", type=str, help="A year or range of years")
+    final_parser.add_argument("year", type=utils.parse_year, help="A year or range of years")
     add_common_args(final_parser)
     final_parser.set_defaults(func=final)
 

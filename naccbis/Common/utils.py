@@ -133,25 +133,6 @@ def parse_year(year):
         return rng
 
 
-def parse_stat(stats, accepted_values):
-    """ Parse a string of stat options, e.g. 1,2 all
-
-    :param stats: String of stat options to parse
-    :param accepted_values: List of accepted stat options
-    :returns: List of stat options (integers)
-    """
-    if stats == "all":
-        return accepted_values
-    else:
-        temp = stats.replace(" ", "")
-        temp = [int(stat) for stat in stats.split(',')]
-        if set(temp).issubset(set(accepted_values)):
-            temp.sort()  # ascending
-            return temp
-        else:
-            return list()  # should raise an exception
-
-
 def year_to_season(yr):
     """ Converts a school year into a season
     e.g. year_to_season("2016-17") returns 2017
