@@ -165,19 +165,6 @@ def skip_team(soup):
 # ***** Helper Functions *****
 # ****************************
 
-def to_int(x):
-    if x is None:
-        return None
-    else:
-        return int(x)
-
-
-def to_float(x):
-    if x is None:
-        return None
-    else:
-        return float(x)
-
 
 def to_none(x):
     if x == '':
