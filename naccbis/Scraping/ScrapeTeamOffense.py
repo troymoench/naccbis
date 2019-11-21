@@ -89,8 +89,8 @@ class TeamOffenseScraper(BaseScraper):
 
         data.drop(columns=unnecessaryCols, inplace=True)
 
-        data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))
-        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))
+        data[intCols] = data[intCols].replace('-', '0')
+        data[floatCols] = data[floatCols].replace('-', pd.np.nan)
 
         # convert column names to a friendlier format
         data.columns = newColNames

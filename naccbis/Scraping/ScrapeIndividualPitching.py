@@ -78,7 +78,7 @@ class IndividualPitchingScraper(BaseScraper):
             tableNum2 = sf.find_table(coach_soup, self.COACHES_VIEW_COLS)[0]
             coach_view = sf.scrape_table(coach_soup, tableNum2 + 1, first_row=3, skip_rows=3)
 
-            coach_view['Player'] = coach_view['Player'].apply(sf.strip_dots)
+            coach_view['Player'] = coach_view['Player'].str.rstrip('.')
             pitching['Name'] = [x.replace('  ', ' ') for x in pitching['Name']]
             coach_view = coach_view.rename(columns={'Player': 'Name'})
             return pd.merge(coach_view, pitching, on=['No.', 'Name'])
@@ -121,16 +121,16 @@ class IndividualPitchingScraper(BaseScraper):
 
             data.columns = newColNames
 
-            data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))
-            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))
-            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))
+            data[intCols] = data[intCols].replace('-', '0')
+            data[floatCols] = data[floatCols].replace('-', '')
+            data[floatCols] = data[floatCols].replace('INF', pd.np.nan)
 
             data["Team"] = team_id
             data["Season"] = str(utils.year_to_season(self._year))
             if self._inseason:
                 data["Date"] = str(date.today())
-            data["Yr"] = data["Yr"].apply(sf.strip_dots)
-            data["Pos"] = data["Pos"].apply(sf.to_none)
+            data["Yr"] = data["Yr"].str.rstrip('.')
+            data["Pos"] = data["Pos"].replace('', pd.np.nan)
 
             data = data[finalColNames]
             data.columns = data.columns.to_series().str.lower()
@@ -149,16 +149,16 @@ class IndividualPitchingScraper(BaseScraper):
                                  'h', 'r', 'er', 'bb', 'so', 'so_9', 'hr', 'era']
             data.rename(columns=renameCols, inplace=True)
 
-            data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))
-            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))
-            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))
+            data[intCols] = data[intCols].replace('-', '0')
+            data[floatCols] = data[floatCols].replace('-', pd.np.nan)
+            data[floatCols] = data[floatCols].replace('INF', pd.np.nan)
 
             data["Team"] = team_id
             data["Season"] = str(utils.year_to_season(self._year))
             if self._inseason:
                 data["Date"] = str(date.today())
-            data["Yr"] = data["Yr"].apply(sf.strip_dots)
-            data["Pos"] = data["Pos"].apply(sf.to_none)
+            data["Yr"] = data["Yr"].str.rstrip('.')
+            data["Pos"] = data["Pos"].replace('', pd.np.nan)
 
             data = data[finalColNames]
             data.columns = data.columns.to_series().str.lower()

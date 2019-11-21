@@ -77,7 +77,3 @@ class TestScrapeFunctions():
         assert df.equals(sf.scrape_table(soup, 1))
         with pytest.raises(IndexError):
             sf.scrape_table(soup, 2)
-
-    def test_strip_dots(self):
-        name = "Jeffrey Mayes......."
-        assert sf.strip_dots(name) == "Jeffrey Mayes"

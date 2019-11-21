@@ -103,8 +103,8 @@ class IndividualOffenseScraper(BaseScraper):
                              "BB", "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP",
                              "SF", "SH", "TB", "XBH", "GDP", "GO", "FO", "GO_FO"]
 
-        data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))
-        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))
+        data[intCols] = data[intCols].replace('-', '0')
+        data[floatCols] = data[floatCols].replace('-', pd.np.nan)
 
         # convert column names to a friendlier format
         data.columns = newColNames
@@ -113,8 +113,8 @@ class IndividualOffenseScraper(BaseScraper):
         data["Season"] = str(utils.year_to_season(self._year))
         if self._inseason:
             data["Date"] = str(date.today())
-        data["Yr"] = data["Yr"].apply(sf.strip_dots)
-        data["Pos"] = data["Pos"].apply(sf.to_none)
+        data["Yr"] = data["Yr"].str.rstrip('.')
+        data["Pos"] = data["Pos"].replace('', pd.np.nan)
 
         data = data[finalColNames]
         data.columns = data.columns.to_series().str.lower()

@@ -105,7 +105,7 @@ class TeamPitchingScraper(BaseScraper):
             if 'Player' in coach_view.columns:
                 coach_view = coach_view.rename(columns={'Player': 'Name'})
 
-            coach_view["Name"] = coach_view["Name"].apply(sf.strip_dots)
+            coach_view["Name"] = coach_view["Name"].str.rstrip('.')
 
             coach_view = coach_view[(coach_view.Name == "Totals") | (coach_view.Name == "Total")]
             coach_view = coach_view.reset_index(drop=True)
@@ -159,9 +159,9 @@ class TeamPitchingScraper(BaseScraper):
             data.drop(columns=unnecessaryCols, inplace=True)
             data.rename(columns=renameCols, inplace=True)
 
-            data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))
-            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))
-            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))
+            data[intCols] = data[intCols].replace('-', '0')
+            data[floatCols] = data[floatCols].replace('-', pd.np.nan)
+            data[floatCols] = data[floatCols].replace('INF', pd.np.nan)
 
             data["Name"] = team
             data["Season"] = str(utils.year_to_season(self._year))
@@ -184,9 +184,9 @@ class TeamPitchingScraper(BaseScraper):
             data = data.drop(columns=unnecessaryCols)
             data = data.rename(columns=renameCols)
 
-            data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))
-            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))
-            data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))
+            data[intCols] = data[intCols].replace('-', '0')
+            data[floatCols] = data[floatCols].replace('-', pd.np.nan)
+            data[floatCols] = data[floatCols].replace('INF', pd.np.nan)
 
             data["Season"] = str(utils.year_to_season(self._year))
             if self._inseason:

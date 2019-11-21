@@ -158,33 +158,3 @@ def skip_team(soup):
     if skip:
         logging.warning("No players meet the minimum. Skipping team")
     return skip
-
-
-# ****************************
-# ***** Helper Functions *****
-# ****************************
-
-
-def to_none(x):
-    if x == '':
-        return None
-    else:
-        return x
-
-
-def replace_dash(x, replacement):
-    if x == '-':
-        return replacement
-    else:
-        return x
-
-
-def replace_inf(x, replacement):
-    if x and x.lower() == 'inf':
-        return replacement
-    else:
-        return x
-
-
-def strip_dots(x):
-    return x.rstrip('.')

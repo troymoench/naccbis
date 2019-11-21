@@ -126,9 +126,9 @@ class GameLogScraper(BaseScraper):
 
         data.rename(columns=renameCols, inplace=True)
 
-        data[intCols] = data[intCols].applymap(lambda x: sf.replace_dash(x, '0'))
-        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_dash(x, None))
-        data[floatCols] = data[floatCols].applymap(lambda x: sf.replace_inf(x, None))
+        data[intCols] = data[intCols].replace('-', '0')
+        data[floatCols] = data[floatCols].replace('-', pd.np.nan)
+        data[floatCols] = data[floatCols].replace('INF', pd.np.nan)
 
         # replace tabs
         data["Opponent"] = [x.replace('\t', '') for x in data["Opponent"]]
