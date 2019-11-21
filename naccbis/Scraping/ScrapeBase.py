@@ -24,7 +24,7 @@ class BaseScraper:
 
     """
 
-    BASE_URL = "http://naccsports.org/sports/bsb/"
+    BASE_URL = "https://naccsports.org/sports/bsb/"
     TEAM_IDS = {
         'Aurora': 'AUR',
         'Benedictine': 'BEN',

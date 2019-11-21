@@ -126,12 +126,12 @@ def get_team_list(base_url, year, team_ids):
     soup = get_soup("{}{}/leaders".format(base_url, year))
 
     # search the page for the target element
-    target = soup.find_all("table", {"class": "teamSummary"})
+    target = soup.find_all("h3", string="Player Stats by Team")[0] \
+                 .find_next_siblings("ul")
     logging.debug("Found %d target elements", len(target))
     if not len(target) == 1:
-        print("Could not find exactly one target element")  # throw an exception?
         logging.critical("Could not find exactly one target element.")
-        sys.exit(1)
+        raise ValueError("Could not find exactly one target element")
 
     # create a list of links that are children of the target element
     links = [link for link in target[0].find_all('a') if 'href' in link.attrs]
