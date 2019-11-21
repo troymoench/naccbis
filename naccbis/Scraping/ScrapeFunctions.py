@@ -4,7 +4,6 @@ some utility functions used in the scraping process.
 # Standard library imports
 import logging
 import re
-import sys
 from time import sleep
 # Third party imports
 from bs4 import BeautifulSoup
