@@ -48,7 +48,60 @@ def html_table():
     </div>"""
 
 
+@pytest.fixture
+def mock_get_soup(monkeypatch):
+    def mock_response(url):
+        html = """
+        <div class="cols">
+        <div class="col">
+        <h3>Sortable Team Stats</h3>
+        <ul>
+        <li><a aria-label="team stats - runs" href="teams?sort=r">Runs</a></li>
+        <li><a aria-label="team stats - home runs" href="teams?sort=hr">Home Runs</a></li>
+        <li><a aria-label="team stats - batting average" href="teams?sort=avg">Batting Average</a></li>
+        <li><a aria-label="team stats - more" href="teams">More Stats</a></li>
+        </ul>
+        </div>
+        <div class="col">
+        <h3>Player Stats by Team</h3>
+        <ul>
+        <li><a aria-label="players stats - Aurora" href="teams/aurora?view=lineup">Aurora</a></li>
+        <li><a aria-label="players stats - Benedictine" href="teams/benedictineil?view=lineup">Benedictine</a></li>
+        <li><a aria-label="players stats - Concordia Chicago" href="teams/concordiaill?view=lineup">Concordia Chicago</a></li>
+        <li><a aria-label="players stats - Concordia Wisconsin" href="teams/concordiawis?view=lineup">Concordia Wisconsin</a></li>
+        <li><a aria-label="players stats - Dominican" href="teams/dominicanill?view=lineup">Dominican</a></li>
+        <li><a aria-label="players stats - Edgewood" href="teams/edgewood?view=lineup">Edgewood</a></li>
+        <li><a aria-label="players stats - Lakeland" href="teams/lakeland?view=lineup">Lakeland</a></li>
+        <li><a aria-label="players stats - MSOE" href="teams/msoe?view=lineup">MSOE</a></li>
+        <li><a aria-label="players stats - Marian" href="teams/marianwis?view=lineup">Marian</a></li>
+        <li><a aria-label="players stats - Rockford" href="teams/rockford?view=lineup">Rockford</a></li>
+        <li><a aria-label="players stats - Wisconsin Lutheran" href="teams/wislutheran?view=lineup">Wisconsin Lutheran</a></li>
+        </ul>
+        </div>
+        </div>
+        """
+        return BeautifulSoup(html, "html.parser")
+
+    monkeypatch.setattr(sf, "get_soup", mock_response)
+
+
 class TestScrapeFunctions():
+    BASE_URL = 'https://naccsports.org/sports/bsb/'
+    TEAM_IDS = {
+        'Aurora': 'AUR',
+        'Benedictine': 'BEN',
+        'Concordia Chicago': 'CUC',
+        'Concordia Wisconsin': 'CUW',
+        'Dominican': 'DOM',
+        'Edgewood': 'EDG',
+        'Illinois Tech': 'ILLT',
+        'Lakeland': 'LAK',
+        'MSOE': 'MSOE',
+        'Marian': 'MAR',
+        'Maranatha': 'MARN',
+        'Rockford': 'ROCK',
+        'Wisconsin Lutheran': 'WLC'
+    }
 
     def test_get_text(self):
         soup = BeautifulSoup("<a href='https://www.google.com'> Google </a>", 'html.parser')
@@ -77,3 +130,31 @@ class TestScrapeFunctions():
         assert df.equals(sf.scrape_table(soup, 1))
         with pytest.raises(IndexError):
             sf.scrape_table(soup, 2)
+
+    def test_get_team_list(self, mock_get_soup):
+        year = '2017-18'
+        expected = [
+            {'team': 'Aurora', 'id': 'AUR', 'url': 'teams/aurora?view=lineup'},
+            {'team': 'Benedictine', 'id': 'BEN', 'url': 'teams/benedictineil?view=lineup'},
+            {'team': 'Concordia Chicago', 'id': 'CUC', 'url': 'teams/concordiaill?view=lineup'},
+            {'team': 'Concordia Wisconsin', 'id': 'CUW', 'url': 'teams/concordiawis?view=lineup'},
+            {'team': 'Dominican', 'id': 'DOM', 'url': 'teams/dominicanill?view=lineup'},
+            {'team': 'Edgewood', 'id': 'EDG', 'url': 'teams/edgewood?view=lineup'},
+            {'team': 'Lakeland', 'id': 'LAK', 'url': 'teams/lakeland?view=lineup'},
+            {'team': 'MSOE', 'id': 'MSOE', 'url': 'teams/msoe?view=lineup'},
+            {'team': 'Marian', 'id': 'MAR', 'url': 'teams/marianwis?view=lineup'},
+            {'team': 'Rockford', 'id': 'ROCK', 'url': 'teams/rockford?view=lineup'},
+            {'team': 'Wisconsin Lutheran', 'id': 'WLC', 'url': 'teams/wislutheran?view=lineup'},
+        ]
+        assert sf.get_team_list(self.BASE_URL, year, self.TEAM_IDS) == expected
+
+    def test_skip_team(self):
+        html = """
+        <tr class="totals">
+        <td colspan="5">
+              No players meet the minimum
+            </td>
+        </tr>
+        """
+        soup = BeautifulSoup(html, 'html.parser')
+        assert sf.skip_team(soup)
