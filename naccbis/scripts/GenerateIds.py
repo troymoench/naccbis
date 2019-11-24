@@ -7,6 +7,7 @@
 """
 # Standard library imports
 import argparse
+import os
 import sys
 # Third party imports
 import pandas as pd
@@ -144,6 +145,8 @@ def main():
                         help="Load data into database")
     parser.add_argument("--dir", type=str, default="",
                         help="Directory to save the output to")
+    parser.add_argument("--season", type=int, default=None,
+                        help="Filter output by season")
     args = parser.parse_args()
 
     CSV_DIR = args.dir
@@ -169,8 +172,10 @@ def main():
     data = data.sort_values(by=["lname", "fname", "team", "season"])
 
     data = cf.apply_corrections(data, corrections)
-
     data = generate_ids(data, duplicates)
+
+    if args.season:
+        data = data[data["season"] == args.season]
 
     if args.load:
         print("Loading data into database")
@@ -186,7 +191,7 @@ def main():
         print("Loaded successfully")
     else:
         print("Dumping to csv")
-        data.to_csv(CSV_DIR + "player_id.csv", index=False)
+        data.to_csv(os.path.join(CSV_DIR, "player_id.csv"), index=False)
     conn.close()
 
 
