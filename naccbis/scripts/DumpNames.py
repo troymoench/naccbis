@@ -6,6 +6,7 @@ These inconsistencies include, but are not limited to:
 """
 # Standard library imports
 import argparse
+import os
 # Third party imports
 import pandas as pd
 from Levenshtein import distance
@@ -144,7 +145,8 @@ def main():
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
-            output.to_csv(CSV_DIR + "levenshtein_analysis.csv", index=False)
+            fname = os.path.join(CSV_DIR, "levenshtein_analysis.csv")
+            output.to_csv(fname, index=False)
 
     if args.nicknames:
         print("Performing nickname analysis")
@@ -152,7 +154,8 @@ def main():
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
-            output.to_csv(CSV_DIR + "nickname_analysis.csv", index=False)
+            fname = os.path.join(CSV_DIR, "nickname_analysis.csv")
+            output.to_csv(fname, index=False)
 
     if args.duplicates:
         print("Performing duplicate names analysis")
@@ -160,11 +163,13 @@ def main():
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
-            output.to_csv(CSV_DIR + "duplicate_names_analysis.csv", index=False)
+            fname = os.path.join(CSV_DIR, "duplicate_names_analysis.csv")
+            output.to_csv(fname, index=False)
 
     # dump all names
     print("Dumping all names to csv")
-    data.to_csv(CSV_DIR + "all_names.csv", index=False)
+    fname = os.path.join(CSV_DIR, "all_names.csv")
+    data.to_csv(fname, index=False)
 
 
 if __name__ == "__main__":
