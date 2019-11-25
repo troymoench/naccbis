@@ -8,10 +8,8 @@
 # Standard library imports
 import argparse
 import os
-import sys
 # Third party imports
 import pandas as pd
-from sqlalchemy.exc import SQLAlchemyError
 # Local imports
 import naccbis.Cleaning.CleanFunctions as cf
 import naccbis.Common.utils as utils
@@ -143,6 +141,8 @@ def main():
                                      description=__doc__)
     parser.add_argument("--load", action="store_true",
                         help="Load data into database")
+    parser.add_argument("--clear", action="store_true",
+                        help="Clear the database table before loading")
     parser.add_argument("--dir", type=str, default="",
                         help="Directory to save the output to")
     parser.add_argument("--season", type=int, default=None,
@@ -178,17 +178,13 @@ def main():
         data = data[data["season"] == args.season]
 
     if args.load:
+        if args.clear:
+            print("Clearing database table")
+            conn.execute("DELETE FROM player_id")
+
         print("Loading data into database")
-        try:
-            data.to_sql("player_id", conn, if_exists="append", index=False)
-            # NOTE: May want to use if_exists="replace" along with specifying
-            # the table schema
-        except SQLAlchemyError as e:
-            print("Failed to load data into database")
-            print(e)
-            conn.close()
-            sys.exit(1)
-        print("Loaded successfully")
+        utils.db_load_data(data, "player_id", conn, if_exists="append", index=False)
+
     else:
         print("Dumping to csv")
         data.to_csv(os.path.join(CSV_DIR, "player_id.csv"), index=False)
