@@ -142,6 +142,9 @@ class GameLogScraper(BaseScraper):
         data["Season"] = str(utils.year_to_season(self._year))
         if self._inseason:
             data["scrape_date"] = str(date.today())
+
+        # filter out cancelled games that don't have a result
+        data = data[data["Score"] != '']
         data["game_num"] = list(range(1, len(data) + 1))
         data["game_num"] = data["game_num"].apply(str)
 
