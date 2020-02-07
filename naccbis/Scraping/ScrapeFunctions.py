@@ -25,8 +25,11 @@ def get_soup(url, backoff=1):
     logging.debug("Backing off for %f seconds", backoff)
     sleep(backoff)  # to prevent overloading the server
     logging.debug("GET " + url)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0"
+    }
     try:
-        request = requests.get(url)
+        request = requests.get(url, headers=headers)
     except requests.exceptions.RequestException:
         logging.critical("Error: Unable to connect to", url)
         raise
