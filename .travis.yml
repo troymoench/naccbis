@@ -4,9 +4,9 @@ python:
   - "3.7"
   # - "3.8"
 install:
-  - pip install -r requirements-dev.txt
   - touch conf.py
-  - pip install -e .
+  - pip install pipenv
+  - pipenv install --dev
 script:
   - pytest -m "not integration" --cov --cov-report term
   - flake8 naccbis --statistics
