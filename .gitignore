@@ -7,3 +7,4 @@ doc/build
 dist/
 *.egg-info
 .coverage
+.mypy_cache
