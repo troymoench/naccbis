@@ -4,10 +4,11 @@ import argparse
 from datetime import date
 import sys
 import logging
-from typing import List
+from typing import List, Dict, Type
 # Third party imports
 # Local imports
 from naccbis.Scraping import (
+    BaseScraper,
     GameLogScraper,
     IndividualOffenseScraper,
     IndividualPitchingScraper,
@@ -67,6 +68,7 @@ def run_scrapers(scraper_nums: List[int], year: str, splits: List[str],
     :param inseason: Scraping during the season?
     :param verbose: Print extra information to standard out?
     """
+    scrapers: Dict[int, Type[BaseScraper]]
     scrapers = {
         1: IndividualOffenseScraper,
         2: IndividualPitchingScraper,

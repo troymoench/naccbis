@@ -6,6 +6,15 @@ import pandas as pd
 import pytest
 # Local imports
 import naccbis.Scraping.ScrapeFunctions as sf
+from naccbis.Scraping import (
+    BaseScraper,
+    GameLogScraper,
+    IndividualOffenseScraper,
+    IndividualPitchingScraper,
+    TeamFieldingScraper,
+    TeamOffenseScraper,
+    TeamPitchingScraper,
+)
 import naccbis.scripts.scrape as scrape
 
 
@@ -158,3 +167,21 @@ class TestScrapeFunctions():
         """
         soup = BeautifulSoup(html, 'html.parser')
         assert sf.skip_team(soup)
+
+
+def test_cant_instantiate_base_scraper():
+    with pytest.raises(TypeError):
+        BaseScraper("2018", "overall", "csv")
+
+
+def test_init_scrapers():
+    scrapers = [
+        GameLogScraper("2018", "overall", "csv"),
+        IndividualOffenseScraper("2018", "overall", "csv"),
+        IndividualPitchingScraper("2018", "overall", "csv"),
+        TeamFieldingScraper("2018", "overall", "csv"),
+        TeamOffenseScraper("2018", "overall", "csv"),
+        TeamPitchingScraper("2018", "overall", "csv"),
+    ]
+    for scraper in scrapers:
+        assert isinstance(scraper, BaseScraper)

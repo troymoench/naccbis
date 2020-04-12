@@ -1,5 +1,6 @@
 """ This module provides the BaseScraper class """
 # Standard library imports
+from abc import ABCMeta, abstractmethod
 from datetime import date
 import sys
 import logging
@@ -10,7 +11,7 @@ import pandas as pd
 import naccbis.Common.utils as utils
 
 
-class BaseScraper:
+class BaseScraper(metaclass=ABCMeta):
 
     """ This is the abstract base class for the scrapers.
 
@@ -65,6 +66,10 @@ class BaseScraper:
         self._runnable = True
         self._config = utils.init_config()
         self._config["csv_path"] = ""
+
+    @abstractmethod
+    def run(self) -> None:
+        raise NotImplementedError
 
     def info(self) -> None:
         """ Print the scraper information to standard out
