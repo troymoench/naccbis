@@ -103,8 +103,8 @@ def db_load_data(data: pd.DataFrame, table: str, conn: Connection,
 def init_config():
     """ Initialize configuration """
     config = {
-        "DB": conf.DB,
-        "LOGGING": conf.LOGGING
+        "DB": getattr(conf, "DB", None),
+        "LOGGING": getattr(conf, "LOGGING", None)
     }
     return config
 
