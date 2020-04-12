@@ -4,6 +4,7 @@ import argparse
 from datetime import date
 import sys
 import logging
+from typing import List
 # Third party imports
 # Local imports
 from naccbis.Scraping import (
@@ -55,7 +56,8 @@ A column is added for the scrape date.
 """
 
 
-def run_scrapers(scraper_nums, year, splits, output, inseason, verbose):
+def run_scrapers(scraper_nums: List[int], year: str, splits: List[str],
+                 output: str, inseason: bool, verbose: bool) -> None:
     """ Run selected scrapers for a given year
 
     :param scraper_nums: List of integers that correspond to the scrapers to be run
@@ -89,7 +91,7 @@ def run_scrapers(scraper_nums, year, splits, output, inseason, verbose):
             gameLogScraper.export()
 
 
-def final(args):
+def final(args) -> None:
     """ Run scrapers for the final subcommand
 
     :param args: Arguments for the scrapers
@@ -108,14 +110,14 @@ def final(args):
         run_scrapers(args.stat, year, splits, args.output, inseason=False, verbose=args.verbose)
 
 
-def inseason(args):
+def inseason(args) -> None:
     """ Run scrapers for the inseason subcommand
 
     :param args: Arguments for the scrapers
     """
     # current year
-    year = date.today().year
-    year = utils.season_to_year(year)
+    season = date.today().year
+    year = utils.season_to_year(season)
 
     # parse split
     if args.split == "all":
@@ -126,7 +128,7 @@ def inseason(args):
     run_scrapers(args.stat, year, splits, args.output, inseason=True, verbose=args.verbose)
 
 
-def add_common_args(parser):
+def add_common_args(parser: argparse.ArgumentParser) -> None:
     """ Add common arguments to the parser
 
     :param parser: Parser object to add arguments to
@@ -148,7 +150,7 @@ def add_common_args(parser):
                              "Provide list or omit argument for all scrapers")
 
 
-def main():
+def main() -> None:
     """ Script entry point """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__,

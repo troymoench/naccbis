@@ -4,6 +4,7 @@ import logging
 import sys
 from urllib.parse import urljoin
 # Third party imports
+from bs4 import BeautifulSoup
 import pandas as pd
 # Local imports
 from . import ScrapeFunctions as sf
@@ -25,7 +26,8 @@ class GameLogScraper(BaseScraper):
         "fielding": "raw_game_log_fielding"
     }
 
-    def __init__(self, year, split, output, inseason=False, verbose=False):
+    def __init__(self, year: str, split: str, output: str,
+                 inseason: bool = False, verbose: bool = False) -> None:
         """ Class constructor
         :param year: The school year. A string.
         :param split: hitting, pitching, or fielding stats. A string.
@@ -38,7 +40,7 @@ class GameLogScraper(BaseScraper):
         self._data = pd.DataFrame()
         self._runnable = True
 
-    def run(self):
+    def run(self) -> None:
         """ Run the scraper """
         logging.info("%s", self._name)
 
@@ -59,7 +61,7 @@ class GameLogScraper(BaseScraper):
             self._data = pd.concat([self._data, df], ignore_index=True)
         self._runnable = False
 
-    def _scrape(self, team_soup):
+    def _scrape(self, team_soup: BeautifulSoup) -> pd.DataFrame:
         """ Scrape game logs for hitting, pitching, fielding """
 
         tags = team_soup.find_all('a', string="Game Log")
@@ -96,7 +98,7 @@ class GameLogScraper(BaseScraper):
             print("Invalid split:", self._split)
             sys.exit(1)
 
-    def _clean(self, data, team):
+    def _clean(self, data: pd.DataFrame, team: str) -> pd.DataFrame:
         if self._split == "hitting":
             intCols = ['ab', 'r', 'h', 'x2b', 'x3b', 'hr', 'rbi', 'bb', 'so',
                        'sb', 'cs', 'hbp', 'sf', 'sh', 'tb', 'xbh', 'gdp',

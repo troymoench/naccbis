@@ -4,6 +4,7 @@ from datetime import date
 import logging
 import sys
 # Third party imports
+from bs4 import BeautifulSoup
 import pandas as pd
 # Local imports
 from . import ScrapeFunctions as sf
@@ -20,7 +21,8 @@ class IndividualOffenseScraper(BaseScraper):
     EXTENDED_HITTING_COLS = ['no.', 'name', 'yr', 'pos', 'g', 'hbp', 'sf', 'pa']
     TABLES = {"overall": "raw_batters_overall", "conference": "raw_batters_conference"}
 
-    def __init__(self, year, split, output, inseason=False, verbose=False):
+    def __init__(self, year: str, split: str, output: str,
+                 inseason: bool = False, verbose: bool = False) -> None:
         """ Class constructor
         :param year: The school year. A string.
         :param split: overall or conference stats. A string.
@@ -33,7 +35,7 @@ class IndividualOffenseScraper(BaseScraper):
         self._data = pd.DataFrame()
         self._runnable = True
 
-    def run(self):
+    def run(self) -> None:
         """ Run the scraper """
         logging.info("%s", self._name)
 
@@ -56,7 +58,7 @@ class IndividualOffenseScraper(BaseScraper):
 
         self._runnable = False
 
-    def _scrape(self, team_soup):
+    def _scrape(self, team_soup: BeautifulSoup) -> pd.DataFrame:
         """ Scrape both the hitting table and extended hitting table and merge """
 
         # Note: Finding the links for overall vs conference probably isn't necessary
@@ -80,7 +82,7 @@ class IndividualOffenseScraper(BaseScraper):
 
         return pd.merge(hitting, extendedHitting, on=["No.", "Name", "Yr", "Pos", "g"])
 
-    def _clean(self, data, team_id):
+    def _clean(self, data: pd.DataFrame, team_id: str) -> pd.DataFrame:
         # add TeamId, Season
         # replace dashes and strip dots from Yr (Fr. -> Fr)
         # column names cannot start with a digit in PostgreSQL!!!!!

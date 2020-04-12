@@ -5,6 +5,7 @@ import logging
 import sys
 from urllib.parse import urljoin
 # Third party imports
+from bs4 import BeautifulSoup
 import pandas as pd
 # Local imports
 from . import ScrapeFunctions as sf
@@ -26,7 +27,8 @@ class TeamPitchingScraper(BaseScraper):
         "conference": "raw_team_pitching_conference"
     }
 
-    def __init__(self, year, split, output, inseason=False, verbose=False):
+    def __init__(self, year: str, split: str, output: str,
+                 inseason: bool = False, verbose: bool = False) -> None:
         """ Class constructor
         :param year: The school year. A string.
         :param split: overall or conference stats. A string.
@@ -39,7 +41,7 @@ class TeamPitchingScraper(BaseScraper):
         self._data = pd.DataFrame()
         self._runnable = True
 
-    def run(self):
+    def run(self) -> None:
         """ Run the scraper """
         logging.info("%s", self._name)
 
@@ -65,7 +67,7 @@ class TeamPitchingScraper(BaseScraper):
             logging.info("Looking for pitching table")
             df = self._scrape(soup)
             logging.info("Cleaning scraped data")
-            self._data = self._clean(df, None)
+            self._data = self._clean(df, "")
 
         else:
             print("Invalid split:", self._split)
@@ -73,7 +75,7 @@ class TeamPitchingScraper(BaseScraper):
 
         self._runnable = False
 
-    def _scrape(self, team_soup):
+    def _scrape(self, team_soup: BeautifulSoup) -> pd.DataFrame:
         # more stats are available on coach's view
         # but coach's view doesn't provide conference stats
 
@@ -128,7 +130,7 @@ class TeamPitchingScraper(BaseScraper):
             print("Invalid split:", self._split)
             sys.exit(1)
 
-    def _clean(self, data, team):
+    def _clean(self, data: pd.DataFrame, team: str) -> pd.DataFrame:
         if self._split == "overall":
             unnecessaryCols = ['No.', 'Name', 'Pos', 'Yr', 'app', 'gs', 'GS',
                                'w', 'l', 'sv', 'cg', 'ip', 'h', 'r', 'er', 'bb',

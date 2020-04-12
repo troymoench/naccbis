@@ -2,10 +2,12 @@
 # Standard library imports
 import logging
 import sys
+from typing import List, Dict
 # Third party imports
+import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy import event
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Engine, Connection
 from sqlalchemy.engine.url import URL
 from sqlalchemy.exc import SQLAlchemyError
 # Local imports
@@ -52,7 +54,7 @@ def receive_engine_connect(conn, branch):
 #     print(exception_context.connection)
 
 
-def create_db_engine(config):
+def create_db_engine(config: Dict[str, str]) -> Engine:
     """ Create database engine
 
     :param config: Dictionary with connection parameters
@@ -67,7 +69,7 @@ def create_db_engine(config):
     return create_engine(conn_url)
 
 
-def connect_db(config):
+def connect_db(config: Dict[str, str]) -> Connection:
     """ Create database connection
 
     :param config: Dictionary with connection parameters
@@ -83,7 +85,8 @@ def connect_db(config):
     return conn
 
 
-def db_load_data(data, table, conn, exit=False, **kwargs):
+def db_load_data(data: pd.DataFrame, table: str, conn: Connection,
+                 exit: bool = False, **kwargs) -> None:
     """ Load DataFrame into database table """
     try:
         data.to_sql(table, conn, **kwargs)
@@ -106,7 +109,7 @@ def init_config():
     return config
 
 
-def init_logging(config):
+def init_logging(config: Dict[str, str]) -> None:
     """ Initialize logging """
     logging.basicConfig(level=config["level"],
                         format=config["format"],
@@ -116,7 +119,7 @@ def init_logging(config):
     logging.getLogger('sqlalchemy.pool').setLevel("INFO")
 
 
-def parse_year(year):
+def parse_year(year: str) -> List[int]:
     """ Parse a string of year(s), e.g. 2017, 2015:2017
 
     :param year: The string representation of a year or range of years
@@ -133,7 +136,7 @@ def parse_year(year):
         return rng
 
 
-def year_to_season(yr):
+def year_to_season(yr: str) -> int:
     """ Converts a school year into a season
     e.g. year_to_season("2016-17") returns 2017
 
@@ -143,7 +146,7 @@ def year_to_season(yr):
     return int(yr[0:4]) + 1
 
 
-def season_to_year(season):
+def season_to_year(season: int) -> str:
     """ Converts a season into a school year
     e.g. season_to_year(2017) returns "2016-17"
 

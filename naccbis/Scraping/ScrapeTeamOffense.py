@@ -4,6 +4,7 @@ from datetime import date
 import logging
 import sys
 # Third party imports
+from bs4 import BeautifulSoup
 import pandas as pd
 # Local imports
 from . import ScrapeFunctions as sf
@@ -22,7 +23,8 @@ class TeamOffenseScraper(BaseScraper):
         "conference": "raw_team_offense_conference"
     }
 
-    def __init__(self, year, split, output, inseason=False, verbose=False):
+    def __init__(self, year: str, split: str, output: str,
+                 inseason: bool = False, verbose: bool = False) -> None:
         """ Class constructor
         :param year: The school year. A string.
         :param split: overall or conference stats. A string.
@@ -35,7 +37,7 @@ class TeamOffenseScraper(BaseScraper):
         self._data = pd.DataFrame()
         self._runnable = True
 
-    def run(self):
+    def run(self) -> None:
         """ Run the scraper """
         logging.info("%s", self._name)
         logging.info("Fetching teams")
@@ -47,7 +49,7 @@ class TeamOffenseScraper(BaseScraper):
         self._data = self._clean(df)
         self._runnable = False
 
-    def _scrape(self, soup):
+    def _scrape(self, soup: BeautifulSoup) -> pd.DataFrame:
         """ Scrape both the hitting table and extended hitting table and merge """
 
         if self._split == "overall":
@@ -68,7 +70,7 @@ class TeamOffenseScraper(BaseScraper):
         # may want to normalize the column names before merging, eg, lower(), gp to g
         return pd.merge(hitting, extendedHitting, on=["Rk", "Name", "gp"])
 
-    def _clean(self, data):
+    def _clean(self, data: pd.DataFrame) -> pd.DataFrame:
         unnecessaryCols = ['Rk']
         intCols = ["gp", "ab", "r", "h", "2b", "3b", "hr", "rbi", "bb", "k",
                    "sb", "cs", "hbp", "sf", "sh", "tb", "xbh", "hdp", "go", "fo", "pa"]

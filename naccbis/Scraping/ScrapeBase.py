@@ -3,6 +3,7 @@
 from datetime import date
 import sys
 import logging
+from typing import Dict
 # Third party imports
 import pandas as pd
 # Local imports
@@ -40,10 +41,11 @@ class BaseScraper:
         'Rockford': 'ROCK',
         'Wisconsin Lutheran': 'WLC'
     }
-    TABLES = {}
+    TABLES: Dict[str, str] = {}
     VALID_OUTPUT = ["csv", "sql"]
 
-    def __init__(self, year, split, output, inseason=False, verbose=False):
+    def __init__(self, year: str, split: str, output: str,
+                 inseason: bool = False, verbose: bool = False) -> None:
         """ Class constructor
         :param year: The school year. A string.
         :param split: overall or conference stats. A string.
@@ -64,7 +66,7 @@ class BaseScraper:
         self._config = utils.init_config()
         self._config["csv_path"] = ""
 
-    def info(self):
+    def info(self) -> None:
         """ Print the scraper information to standard out
         :returns: None
         """
@@ -77,7 +79,7 @@ class BaseScraper:
             print("Output format:", self._output)
         print("--------------------------")
 
-    def export(self):
+    def export(self) -> None:
         """ Export scraped and cleaned data to csv or database.
         If exporting to database, the table must already exist
         :returns: None
@@ -92,7 +94,7 @@ class BaseScraper:
         elif self._output == "sql":
             self._export_db(tableName)
 
-    def _export_csv(self, table_name):
+    def _export_csv(self, table_name: str) -> None:
         """ Helper method to export data to a csv file """
         try:
             if self._inseason:
@@ -112,7 +114,7 @@ class BaseScraper:
         else:
             logging.info("Successfully exported to CSV file")
 
-    def _export_db(self, table_name):
+    def _export_db(self, table_name: str) -> None:
         """ Helper method to export data to a database """
         conn = utils.connect_db(self._config["DB"])
 
@@ -122,5 +124,5 @@ class BaseScraper:
         utils.db_load_data(self._data, table_name, conn, if_exists="append", index=False)
         conn.close()
 
-    def get_data(self):
+    def get_data(self) -> pd.DataFrame:
         return self._data

@@ -5,8 +5,9 @@ some utility functions used in the scraping process.
 import logging
 import re
 from time import sleep
+from typing import Dict, List
 # Third party imports
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, element
 import pandas as pd
 import requests
 # Local imports
@@ -15,7 +16,7 @@ import requests
 # ********************************
 # ** General Scraping Functions **
 # ********************************
-def get_soup(url, backoff=1):
+def get_soup(url: str, backoff: int = 1) -> BeautifulSoup:
     """ Create a BeautifulSoup object from a web page with the requested URL
 
     :param url: A string with the requested URL
@@ -37,7 +38,7 @@ def get_soup(url, backoff=1):
     return BeautifulSoup(text, "html.parser")
 
 
-def get_text(html_tag):
+def get_text(html_tag: element.Tag) -> str:
     """ Get the inner HTML from a BeautifulSoup tag and strip whitespace.
 
     :param html_tag: BeautifulSoup tag
@@ -46,7 +47,7 @@ def get_text(html_tag):
     return html_tag.text.strip()
 
 
-def get_href(html_tag):
+def get_href(html_tag: element.Tag) -> str:
     """ Get the href attribute from a BeautifulSoup tag
 
     :param html_tag: BeautifulSoup tag
@@ -55,7 +56,7 @@ def get_href(html_tag):
     return html_tag.attrs['href']
 
 
-def find_table(soup_obj, header_values):
+def find_table(soup_obj: BeautifulSoup, header_values: List[str]) -> List[int]:
     """ Find HTML tables that contain the specified header values.
     Note that header value matching is case insensitive.
 
@@ -79,7 +80,8 @@ def find_table(soup_obj, header_values):
     return indices
 
 
-def scrape_table(soup, tbl_num, first_row=2, skip_rows=0):
+def scrape_table(soup: BeautifulSoup, tbl_num: int,
+                 first_row: int = 2, skip_rows: int = 0) -> pd.DataFrame:
     """ Scrape HTML table with the specified index and populate a DataFrame.
 
     :param soup: BeautifulSoup object containing the table
@@ -117,7 +119,7 @@ def scrape_table(soup, tbl_num, first_row=2, skip_rows=0):
     return df
 
 
-def get_team_list(base_url, year, team_ids):
+def get_team_list(base_url: str, year: str, team_ids: Dict[str, str]) -> List[Dict[str, str]]:
     """ Get the list of teams and their respective links from the leaders page.
 
     :param base_url: Base URL for the NACC baseball page
@@ -150,7 +152,7 @@ def get_team_list(base_url, year, team_ids):
     return teamList
 
 
-def skip_team(soup):
+def skip_team(soup: BeautifulSoup) -> bool:
     """ Skip team if no players meet the minimum
 
     :param soup: BeautifulSoup object for a team
