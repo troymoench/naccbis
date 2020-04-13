@@ -16,7 +16,8 @@ class TeamPitchingETL:
     VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year, split, load_db, conn, inseason=False):
+    def __init__(self, year: str, split: str, load_db: bool, conn: object,
+                 inseason: bool = False) -> None:
         self.year = year
         if split not in self.VALID_SPLITS:
             raise ValueError("Invalid split: {}".format(split))
@@ -24,8 +25,9 @@ class TeamPitchingETL:
         self.load_db = load_db
         self.conn = conn
         self.inseason = inseason
+        self.data: pd.DataFrame
 
-    def extract(self):
+    def extract(self) -> None:
         table = "raw_team_pitching_{}".format(self.split)
         if self.inseason:
             table += "_inseason"
@@ -35,12 +37,12 @@ class TeamPitchingETL:
         if self.year:
             self.data = self.data[self.data["season"] == self.year]
 
-    def transform(self):
+    def transform(self) -> None:
         self.data["ip"] = self.data["ip"].apply(cf.convert_ip)
         conference = (self.split == "conference")
         self.data = metrics.basic_pitching_metrics(self.data, conference=conference)
 
-    def load(self):
+    def load(self) -> None:
         table = "team_pitching_{}".format(self.split)
         if self.inseason:
             table += "_inseason"
@@ -52,7 +54,7 @@ class TeamPitchingETL:
             logging.info("Dumping to csv")
             self.data.to_csv(os.path.join(self.CSV_DIR, filename), index=False)
 
-    def run(self):
+    def run(self) -> None:
         logging.info("Running %s", type(self).__name__)
         logging.info("Year: %s Split: %s Load: %s", self.year, self.split, self.load_db)
         self.extract()

@@ -15,7 +15,8 @@ import naccbis.Cleaning.CleanFunctions as cf
 import naccbis.Common.utils as utils
 
 
-def levenshtein_analysis(data, levenshtein_first, levenshtein_last):
+def levenshtein_analysis(data: pd.DataFrame, levenshtein_first: int,
+                         levenshtein_last: int) -> pd.DataFrame:
     """ Perform a Levenshtein analysis on first names and last names.
     This is used for identifying typos.
 
@@ -48,7 +49,7 @@ def levenshtein_analysis(data, levenshtein_first, levenshtein_last):
     return output
 
 
-def nickname_analysis(data, nicknames):
+def nickname_analysis(data: pd.DataFrame, nicknames: pd.DataFrame) -> pd.DataFrame:
     """ Perform a nickname analysis on first names.
     This is used for identifying inconsistencies due to nicknames.
 
@@ -69,7 +70,7 @@ def nickname_analysis(data, nicknames):
                     right_on=["name", "nickname"])
 
 
-def duplicate_names_analysis(data):
+def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
     """ Perform duplicate names analysis.
 
     :param data: A DataFrame
@@ -90,7 +91,7 @@ def duplicate_names_analysis(data):
     return output[["fname", "lname", "team", "season"]]
 
 
-def main():
+def main() -> None:
     """ Script entry point """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__)

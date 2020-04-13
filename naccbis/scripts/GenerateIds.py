@@ -8,6 +8,7 @@
 # Standard library imports
 import argparse
 import os
+from typing import List
 # Third party imports
 import pandas as pd
 # Local imports
@@ -15,11 +16,11 @@ import naccbis.Cleaning.CleanFunctions as cf
 import naccbis.Common.utils as utils
 
 
-def make_full_name(fname, lname):
+def make_full_name(fname: str, lname: str) -> str:
     return "{} {}".format(fname, lname)
 
 
-def update_id_conflicts(data):
+def update_id_conflicts(data: pd.DataFrame) -> pd.DataFrame:
     """ Update player id conflicts by incrementing the numeric part of the id
 
     :param data: A DataFrame
@@ -27,8 +28,8 @@ def update_id_conflicts(data):
     """
     data = data.copy()
 
-    new_col = []
-    new_col_idx = []
+    new_col: List[str] = []
+    new_col_idx: List[int] = []
     for _, group in data.groupby("player_id"):
         if group["full_name"].nunique() != 1:
             # print(group)
@@ -50,7 +51,7 @@ def update_id_conflicts(data):
     return data
 
 
-def get_duplicates(conn):
+def get_duplicates(conn: object) -> pd.DataFrame:
     """ Retrieve duplicate names from the database
 
     :param conn: Database connection object
@@ -72,7 +73,7 @@ def get_duplicates(conn):
     return pd.read_sql_query(query, conn)
 
 
-def update_duplicates(data, duplicates):
+def update_duplicates(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFrame:
     """ Update the player id of duplicate names by incrementing the numeric part
     of the player id.
 
@@ -89,7 +90,7 @@ def update_duplicates(data, duplicates):
     return temp
 
 
-def verify_unique_ids(unique_before, unique_after, duplicates):
+def verify_unique_ids(unique_before: int, unique_after: int, duplicates: pd.DataFrame) -> bool:
     """ unique_after == unique_before + dupes
 
     :param unique_before: Number of unique ids before name deduplication
@@ -102,7 +103,7 @@ def verify_unique_ids(unique_before, unique_after, duplicates):
     return unique_after == (unique_before + dupes)
 
 
-def generate_ids(data, duplicates):
+def generate_ids(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFrame:
     """ Generate player ids
 
     :param data: A DataFrame
@@ -135,7 +136,7 @@ def generate_ids(data, duplicates):
     return data
 
 
-def main():
+def main() -> None:
     """ Script entry point """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__)

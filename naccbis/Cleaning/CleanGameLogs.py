@@ -5,6 +5,7 @@ import datetime
 import logging
 import os
 import re
+from typing import List
 # Third party imports
 import pandas as pd
 # Local imports
@@ -18,13 +19,14 @@ class GameLogETL:
                         "Rockford", "Wisconsin Lutheran"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year, load_db, conn, inseason=False):
+    def __init__(self, year: str, load_db: bool, conn: object,
+                 inseason: bool = False) -> None:
         self.year = year
         self.load_db = load_db
         self.conn = conn
         self.inseason = inseason
 
-    def extract(self):
+    def extract(self) -> None:
         table = "raw_game_log_hitting"
         if self.inseason:
             table += "_inseason"
@@ -35,7 +37,7 @@ class GameLogETL:
         if self.year:
             self.data = self.data[self.data["season"] == self.year]
 
-    def transform(self):
+    def transform(self) -> None:
         columns = ["game_num", "date", "season", "name", "opponent", "score"]
         if self.inseason:
             columns = ["scrape_date"] + columns
@@ -65,7 +67,7 @@ class GameLogETL:
         self.data["date"] = list(map(lambda x, y: self.extract_date(x, y),
                                      self.data["date"], self.data["season"]))
 
-    def load(self):
+    def load(self) -> None:
         table = "game_log"
         if self.inseason:
             table += "_inseason"
@@ -78,7 +80,7 @@ class GameLogETL:
             logging.info("Dumping to csv")
             self.data.to_csv(os.path.join(self.CSV_DIR, filename), index=False)
 
-    def run(self):
+    def run(self) -> None:
         logging.info("Running %s", type(self).__name__)
         logging.info("Year: %s Load: %s", self.year, self.load_db)
         self.extract()
@@ -86,7 +88,7 @@ class GameLogETL:
         self.load()
 
     @staticmethod
-    def extract_runs(score):
+    def extract_runs(score: str) -> List[int]:
         """ Extract the runs scored and runs against from the score
 
         :param score: The score
@@ -95,8 +97,8 @@ class GameLogETL:
         """
         split_score = score.split(',')
         result = split_score[0].strip()
-        run_list = split_score[1].split('-')
-        run_list = list(map(lambda x: int(x.strip()), run_list))
+        temp = split_score[1].split('-')
+        run_list = list(map(lambda x: int(x.strip()), temp))
 
         if result == 'W':
             run_list.sort(reverse=True)
@@ -105,7 +107,7 @@ class GameLogETL:
         return run_list
 
     @staticmethod
-    def extract_result(score):
+    def extract_result(score: str) -> str:
         """ Extract the result (W/L) from the score
 
         :param score: The score
@@ -114,7 +116,7 @@ class GameLogETL:
         return score.split(',')[0].strip()
 
     @staticmethod
-    def extract_home(opponent):
+    def extract_home(opponent: str) -> bool:
         """ Extract home/away from the opponent
 
         :param opponent: The opponent
@@ -128,7 +130,7 @@ class GameLogETL:
         return home
 
     @staticmethod
-    def extract_opponent(opponent):
+    def extract_opponent(opponent: str) -> str:
         """ Extract the team name from the raw opponent
 
         :param opponent: The opponent
@@ -138,7 +140,7 @@ class GameLogETL:
         return re.sub(r"\b[Aa][Tt]\b|\b[Vv][Ss][.]*", "", opponent).strip()
 
     @staticmethod
-    def extract_conference(opponent, season, teams):
+    def extract_conference(opponent: str, season: int, teams: List[str]) -> bool:
         """ Determine if the opponent is conference or non-conference """
         # TODO: Get list of conference teams from database
 
@@ -153,7 +155,7 @@ class GameLogETL:
         return matched
 
     @staticmethod
-    def extract_date(date_str, season):
+    def extract_date(date_str: str, season: str) -> datetime.datetime:
         date_str = "{} {}".format(date_str, season)
         return datetime.datetime.strptime(date_str, "%b %d %Y")
 

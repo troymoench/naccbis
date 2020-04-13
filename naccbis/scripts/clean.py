@@ -3,6 +3,7 @@
 import argparse
 import logging
 import sys
+from typing import List
 # Third party imports
 # Local imports
 from naccbis.Cleaning import (
@@ -48,7 +49,8 @@ A column is added for the scrape date.
 """
 
 
-def run_etls(etl_nums, year, splits, load_db, conn):
+def run_etls(etl_nums: List[int], year: str, splits: List[str],
+             load_db: bool, conn: object) -> None:
     """ Run ETL's for a given year
 
     :param
@@ -75,7 +77,7 @@ def run_etls(etl_nums, year, splits, load_db, conn):
         gameLogETL.run()
 
 
-def final(args, conn):
+def final(args, conn: object) -> None:
     """ Run ETLs for the final subcommand
 
     :param args: Arguments for the ETLs
@@ -92,11 +94,11 @@ def final(args, conn):
         run_etls(args.stat, year, splits, args.load, conn)
 
 
-def inseason(args):
+def inseason(args, conn: object) -> None:
     raise NotImplementedError("Inseason ETL is not supported yet")
 
 
-def add_common_args(parser):
+def add_common_args(parser: argparse.ArgumentParser) -> None:
     """ Add common arguments to the parser
 
     :param parser: Parser object to add arguments to
@@ -115,7 +117,7 @@ def add_common_args(parser):
                         help="Load data into database")
 
 
-def main():
+def main() -> None:
     """ Script entry point """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description="NACCBIS Cleaning controller")

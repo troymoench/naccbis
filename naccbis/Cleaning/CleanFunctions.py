@@ -9,15 +9,15 @@ import pandas as pd
 # ****************************
 # ***** Name Corrections *****
 # ****************************
-def split_fname(name):
+def split_fname(name: str) -> str:
     return name.split(" ")[0].strip()
 
 
-def split_lname(name):
+def split_lname(name: str) -> str:
     return " ".join(name.split(" ")[1:]).strip()
 
 
-def normalize_names(data):
+def normalize_names(data: pd.DataFrame) -> pd.DataFrame:
     """ Normalize names by splitting into first name and last name.
 
     :param data: A DataFrame
@@ -32,7 +32,7 @@ def normalize_names(data):
     return data
 
 
-def apply_corrections(data, corrections):
+def apply_corrections(data: pd.DataFrame, corrections: pd.DataFrame) -> pd.DataFrame:
     """ Apply name corrections
 
     :param data: A DataFrame of the data to be updated
@@ -78,7 +78,7 @@ def apply_corrections(data, corrections):
 # ****** Assign Player ID's *****
 # *******************************
 
-def create_id(fname, lname):
+def create_id(fname: str, lname: str) -> str:
     """Create a player ID from a first name and last name.
     String format: <first 5 characters of last name><first 2 characters of first name><01>
     The last two integer digits allow for the prevention of ID conflicts.
@@ -98,12 +98,12 @@ def create_id(fname, lname):
     return "{}{}01".format(lname, fname)
 
 
-def add_n(player_id, n):
+def add_n(player_id: str, n: int) -> str:
     """Add an integer to a player id
     e.g. add_n("engelcu01", 2) -> "engelcu03"
     """
-    num = int(player_id[-2:]) + int(n)
-    num = str(num).zfill(2)
+    temp = int(player_id[-2:]) + int(n)
+    num = str(temp).zfill(2)
     return "{}{}".format(player_id[0:len(player_id) - 2], num)
 
 # ****************************
@@ -111,7 +111,7 @@ def add_n(player_id, n):
 # ****************************
 
 
-def convert_ip(ip_str):
+def convert_ip(ip_str: str) -> float:
     """ Convert innings pitched from the string representation to the float
 
     :param ip_str: String representation of innings pitched

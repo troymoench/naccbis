@@ -19,15 +19,17 @@ class LeagueOffenseETL:
     VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year, split, load_db, conn):
+    def __init__(self, year: str, split: str, load_db: bool, conn: object) -> None:
         self.year = year
         if split not in self.VALID_SPLITS:
             raise ValueError("Invalid split: {}".format(split))
         self.split = split
         self.load_db = load_db
         self.conn = conn
+        self.team_data: pd.DataFrame
+        self.batters: pd.DataFrame
 
-    def extract(self):
+    def extract(self) -> None:
         self.team_data = pd.read_sql_table("team_offense_{}".format(self.split), self.conn)
         if self.year:
             self.team_data = self.team_data[self.team_data["season"] == self.year]
@@ -35,7 +37,7 @@ class LeagueOffenseETL:
         if self.year:
             self.batters = self.batters[self.batters["season"] == self.year]
 
-    def transform(self):
+    def transform(self) -> None:
         cols = ['season', 'g', 'pa', 'ab', 'r', 'h', 'x2b', 'x3b', 'hr', 'rbi', 'bb',
                 'so', 'sb', 'cs', 'hbp', 'sf', 'sh', 'tb', 'xbh', 'gdp', 'go', 'fo']
 
@@ -66,7 +68,7 @@ class LeagueOffenseETL:
         self.replacement_totals = replacement_totals
         self.totals = totals
 
-    def load(self):
+    def load(self) -> None:
         repl_table_name = "replacement_level_{}".format(self.split)
         if self.load_db:
             logging.info("Loading data into database")
@@ -86,7 +88,7 @@ class LeagueOffenseETL:
             fname = os.path.join(self.CSV_DIR, "{}.csv".format(table_name))
             self.totals.to_csv(fname, index=True)
 
-    def run(self):
+    def run(self) -> None:
         logging.info("Running %s", type(self).__name__)
         logging.info("Year: %s Split: %s Load: %s", self.year, self.split, self.load_db)
         self.extract()
@@ -94,7 +96,7 @@ class LeagueOffenseETL:
         self.load()
 
     @staticmethod
-    def select_bench_players(data):
+    def select_bench_players(data: pd.DataFrame) -> pd.DataFrame:
         """ Select bench players. Used for determining replacement level
 
         :param data: A DataFrame of a team's player stats
@@ -103,14 +105,14 @@ class LeagueOffenseETL:
         data = data.sort_values(by=["pa"], ascending=False)
         return data[9:]
 
-    def calc_replacement_level(self, totals):
+    def calc_replacement_level(self, totals: pd.DataFrame) -> pd.DataFrame:
         """ Calculate Replacement Level metrics
         Replacement Level is defined as the average bench player
 
         :param totals: A DataFrame of league totals
         :returns: A DataFrame of replacement level totals
         """
-        temp = self.batters.loc[:, "fname":"fo"]
+        temp = self.batters.loc[:, "fname":"fo"]  # type: ignore
         bench = temp.groupby(["season", "team"]).apply(self.select_bench_players)
         bench = bench.reset_index(drop=True)
 
@@ -127,20 +129,21 @@ class LeaguePitchingETL:
     VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year, split, load_db, conn):
+    def __init__(self, year: str, split: str, load_db: bool, conn: object) -> None:
         self.year = year
         if split not in self.VALID_SPLITS:
             raise ValueError("Invalid split: {}".format(split))
         self.split = split
         self.load_db = load_db
         self.conn = conn
+        self.team_data: pd.DataFrame
 
-    def extract(self):
+    def extract(self) -> None:
         self.team_data = pd.read_sql_table("team_pitching_{}".format(self.split), self.conn)
         if self.year:
             self.team_data = self.team_data[self.team_data["season"] == self.year]
 
-    def transform(self):
+    def transform(self) -> None:
         if self.split == "overall":
             cols = ['season', 'g', 'w', 'l', 'sv', 'cg', 'sho', 'ip', 'h', 'r', 'er',
                     'bb', 'so', 'x2b', 'x3b', 'hr', 'ab', 'wp', 'hbp', 'bk', 'sf', 'sh', 'pa']
@@ -177,7 +180,7 @@ class LeaguePitchingETL:
         # print(totals.info())
         self.totals = totals
 
-    def load(self):
+    def load(self) -> None:
         table_name = "league_pitching_{}".format(self.split)
         if self.load_db:
             logging.info("Loading data into database")
@@ -186,7 +189,7 @@ class LeaguePitchingETL:
             logging.info("Dumping to csv")
             self.totals.to_csv(os.path.join(self.CSV_DIR, "{}.csv".format(table_name)), index=True)
 
-    def run(self):
+    def run(self) -> None:
         logging.info("Running %s", type(self).__name__)
         logging.info("Year: %s Split: %s Load: %s", self.year, self.split, self.load_db)
         self.extract()

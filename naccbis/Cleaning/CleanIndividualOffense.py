@@ -16,7 +16,8 @@ class IndividualOffenseETL:
     VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year, split, load_db, conn, inseason=False):
+    def __init__(self, year: str, split: str, load_db: bool, conn: object,
+                 inseason: bool = False) -> None:
         self.year = year
         if split not in self.VALID_SPLITS:
             raise ValueError("Invalid split: {}".format(split))
@@ -24,8 +25,10 @@ class IndividualOffenseETL:
         self.load_db = load_db
         self.conn = conn
         self.inseason = inseason
+        self.data: pd.DataFrame
+        self.corrections: pd.DataFrame
 
-    def extract(self):
+    def extract(self) -> None:
         table = "raw_batters_{}".format(self.split)
         if self.inseason:
             table += "_inseason"
@@ -36,7 +39,7 @@ class IndividualOffenseETL:
             self.data = self.data[self.data["season"] == self.year]
         self.corrections = pd.read_sql_table("name_corrections", self.conn)
 
-    def transform(self):
+    def transform(self) -> None:
         self.data = cf.normalize_names(self.data)
         self.data = cf.apply_corrections(self.data, self.corrections)
         self.data.drop(columns=["name"], inplace=True)
@@ -51,7 +54,7 @@ class IndividualOffenseETL:
         self.data.replace(pd.np.inf, pd.np.nan, inplace=True)
         self.data = self.data[columns]
 
-    def load(self):
+    def load(self) -> None:
         table = "batters_{}".format(self.split)
         if self.inseason:
             table += "_inseason"
@@ -64,7 +67,7 @@ class IndividualOffenseETL:
             logging.info("Dumping to csv")
             self.data.to_csv(os.path.join(self.CSV_DIR, filename), index=False)
 
-    def run(self):
+    def run(self) -> None:
         logging.info("Running %s", type(self).__name__)
         logging.info("Year: %s Split: %s Load: %s", self.year, self.split, self.load_db)
         self.extract()
