@@ -185,3 +185,41 @@ def test_init_scrapers():
     ]
     for scraper in scrapers:
         assert isinstance(scraper, BaseScraper)
+
+
+def test_parse_args_final_defaults():
+    args = scrape.parse_args(['final', '2019'])
+    assert callable(args.func)
+    assert args.year == [2019]
+    assert args.stat == range(1, 7)
+    assert args.split == 'all'
+    assert args.output == 'csv'
+    assert not args.verbose
+
+
+def test_parse_args_final_stat():
+    args = scrape.parse_args(['final', '2019', '-S', '1', '2'])
+    assert callable(args.func)
+    assert args.year == [2019]
+    assert args.stat == [1, 2]
+    assert args.split == 'all'
+    assert args.output == 'csv'
+    assert not args.verbose
+
+
+def test_parse_args_inseason_defaults():
+    args = scrape.parse_args(['inseason'])
+    assert callable(args.func)
+    assert args.stat == range(1, 7)
+    assert args.split == 'all'
+    assert args.output == 'csv'
+    assert not args.verbose
+
+
+def test_parse_args_inseason_stat():
+    args = scrape.parse_args(['inseason', '-S', '1', '2'])
+    assert callable(args.func)
+    assert args.stat == [1, 2]
+    assert args.split == 'all'
+    assert args.output == 'csv'
+    assert not args.verbose

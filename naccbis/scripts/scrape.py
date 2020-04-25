@@ -152,8 +152,8 @@ def add_common_args(parser: argparse.ArgumentParser) -> None:
                              "Provide list or omit argument for all scrapers")
 
 
-def main() -> None:
-    """ Script entry point """
+def parse_args(args: List[str]) -> argparse.Namespace:
+    """ Build parser object and parse arguments """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__,
                                      epilog=PARSER_EPILOG)
@@ -173,10 +173,15 @@ def main() -> None:
     add_common_args(inseason_parser)
     inseason_parser.set_defaults(func=inseason)
 
+    return parser.parse_args(args)
+
+
+def main(raw_args: List[str]) -> None:
+    """ Script entry point """
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
 
-    args = parser.parse_args()
+    args = parse_args(raw_args)
     logging.info("Initializing scraping controller script")
     logging.info("Command line args received: %s", sys.argv[1:])
     args.func(args)
@@ -185,4 +190,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
