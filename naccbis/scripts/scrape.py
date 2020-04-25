@@ -183,7 +183,7 @@ def main(raw_args: List[str]) -> None:
 
     args = parse_args(raw_args)
     logging.info("Initializing scraping controller script")
-    logging.info("Command line args received: %s", sys.argv[1:])
+    logging.info("Command line args received: %s", raw_args)
     args.func(args)
 
     logging.info("Scraping completed")
