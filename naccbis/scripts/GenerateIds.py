@@ -8,6 +8,7 @@
 # Standard library imports
 import argparse
 import os
+import sys
 from typing import List
 # Third party imports
 import pandas as pd
@@ -136,8 +137,8 @@ def generate_ids(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def main() -> None:
-    """ Script entry point """
+def parse_args(args: List[str]) -> argparse.Namespace:
+    """ Build parser object and parse arguments """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__)
     parser.add_argument("--load", action="store_true",
@@ -148,9 +149,12 @@ def main() -> None:
                         help="Directory to save the output to")
     parser.add_argument("--season", type=int, default=None,
                         help="Filter output by season")
-    args = parser.parse_args()
+    return parser.parse_args(args)
 
-    CSV_DIR = args.dir
+
+def main(raw_args: List[str]) -> None:
+    """ Script entry point """
+    args = parse_args(raw_args)
 
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
@@ -188,9 +192,9 @@ def main() -> None:
 
     else:
         print("Dumping to csv")
-        data.to_csv(os.path.join(CSV_DIR, "player_id.csv"), index=False)
+        data.to_csv(os.path.join(args.dir, "player_id.csv"), index=False)
     conn.close()
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

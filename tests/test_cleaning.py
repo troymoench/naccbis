@@ -209,6 +209,20 @@ class TestGenerateIds():
         expected.drop(columns=["full_name"], inplace=True)
         assert gi.generate_ids(raw, self.duplicates).equals(expected)
 
+    def test_parse_args_defaults(self):
+        args = gi.parse_args([])
+        assert not args.load
+        assert not args.clear
+        assert args.season is None
+        assert args.dir == ""
+
+    def test_parse_args_all_options(self):
+        args = gi.parse_args(['--load', '--clear', '--dir', 'csv/', '--season', '2019'])
+        assert args.load
+        assert args.clear
+        assert args.season == 2019
+        assert args.dir == "csv/"
+
 
 class TestDumpNames():
 
