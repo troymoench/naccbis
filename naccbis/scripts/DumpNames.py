@@ -7,6 +7,8 @@ These inconsistencies include, but are not limited to:
 # Standard library imports
 import argparse
 import os
+import sys
+from typing import List
 # Third party imports
 import pandas as pd
 from Levenshtein import distance
@@ -91,8 +93,8 @@ def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
     return output[["fname", "lname", "team", "season"]]
 
 
-def main() -> None:
-    """ Script entry point """
+def parse_args(args: List[str]) -> argparse.Namespace:
+    """ Build parser object and parse arguments """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__)
     parser.add_argument("-c", "--corrections", action="store_true",
@@ -107,11 +109,14 @@ def main() -> None:
                         help="Perform duplicate names analysis")
     parser.add_argument("--dir", type=str, default="",
                         help="Directory to save the output to")
-    args = parser.parse_args()
+    return parser.parse_args(args)
+
+
+def main(raw_args: List[str]) -> None:
+    """ Script entry point """
+    args = parse_args(raw_args)
     levenshtein_first = args.fname
     levenshtein_last = args.lname
-
-    CSV_DIR = args.dir
 
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
@@ -146,7 +151,7 @@ def main() -> None:
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
-            fname = os.path.join(CSV_DIR, "levenshtein_analysis.csv")
+            fname = os.path.join(args.dir, "levenshtein_analysis.csv")
             output.to_csv(fname, index=False)
 
     if args.nicknames:
@@ -155,7 +160,7 @@ def main() -> None:
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
-            fname = os.path.join(CSV_DIR, "nickname_analysis.csv")
+            fname = os.path.join(args.dir, "nickname_analysis.csv")
             output.to_csv(fname, index=False)
 
     if args.duplicates:
@@ -164,14 +169,14 @@ def main() -> None:
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
-            fname = os.path.join(CSV_DIR, "duplicate_names_analysis.csv")
+            fname = os.path.join(args.dir, "duplicate_names_analysis.csv")
             output.to_csv(fname, index=False)
 
     # dump all names
     print("Dumping all names to csv")
-    fname = os.path.join(CSV_DIR, "all_names.csv")
+    fname = os.path.join(args.dir, "all_names.csv")
     data.to_csv(fname, index=False)
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

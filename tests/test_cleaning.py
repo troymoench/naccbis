@@ -210,6 +210,28 @@ class TestGenerateIds():
         assert gi.generate_ids(raw, self.duplicates).equals(expected)
 
 
+class TestDumpNames():
+
+    def test_parse_args_defaults(self):
+        args = DumpNames.parse_args([])
+        assert not args.corrections
+        assert args.fname is None
+        assert args.lname is None
+        assert not args.nicknames
+        assert not args.duplicates
+        assert args.dir == ""
+
+    def test_parse_args_all_options(self):
+        args = DumpNames.parse_args(['-c', '-f', '1', '-l', '1', '--nicknames',
+                                     '--duplicates', '--dir', 'csv/'])
+        assert args.corrections
+        assert args.fname == 1
+        assert args.lname == 1
+        assert args.nicknames
+        assert args.duplicates
+        assert args.dir == "csv/"
+
+
 class TestCleanGameLogs():
 
     @pytest.mark.parametrize(
