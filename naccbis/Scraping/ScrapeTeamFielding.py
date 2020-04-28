@@ -90,14 +90,3 @@ class TeamFieldingScraper(BaseScraper):
         data = data[finalColNames]
         data.columns = data.columns.to_series().str.lower()
         return data
-
-
-if __name__ == "__main__":
-    YEAR = "2017-18"
-    SPLIT = "conference"
-    OUTPUT = "sql"
-    INSEASON = True
-    scraper = TeamFieldingScraper(YEAR, SPLIT, OUTPUT, INSEASON, verbose=True)
-    scraper.info()
-    scraper.run()
-    scraper.export()

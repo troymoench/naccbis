@@ -200,14 +200,3 @@ class TeamPitchingScraper(BaseScraper):
         else:
             print("Invalid split:", self._split)
             sys.exit(1)
-
-
-if __name__ == "__main__":
-    YEAR = "2017-18"
-    SPLIT = "conference"
-    OUTPUT = "sql"
-    INSEASON = True
-    scraper = TeamPitchingScraper(YEAR, SPLIT, OUTPUT, INSEASON, verbose=True)
-    scraper.info()
-    scraper.run()
-    scraper.export()

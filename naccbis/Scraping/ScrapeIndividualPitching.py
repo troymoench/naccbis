@@ -168,14 +168,3 @@ class IndividualPitchingScraper(BaseScraper):
         else:
             print("Invalid split:", self._split)
             sys.exit(1)
-
-
-if __name__ == "__main__":
-    YEAR = "2017-18"
-    SPLIT = "overall"
-    OUTPUT = "sql"
-    INSEASON = True
-    scraper = IndividualPitchingScraper(YEAR, SPLIT, OUTPUT, INSEASON, verbose=True)
-    scraper.info()
-    scraper.run()
-    scraper.export()

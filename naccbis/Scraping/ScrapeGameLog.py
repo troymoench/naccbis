@@ -166,14 +166,3 @@ class GameLogScraper(BaseScraper):
         data = data[finalColNames]
         data.columns = data.columns.to_series().str.lower()
         return data
-
-
-if __name__ == "__main__":
-    YEAR = "2017-18"
-    SPLIT = "hitting"  # hitting/pitching/fielding
-    OUTPUT = "sql"
-    INSEASON = True
-    scraper = GameLogScraper(YEAR, SPLIT, OUTPUT, INSEASON, verbose=True)
-    scraper.info()
-    scraper.run()
-    scraper.export()
