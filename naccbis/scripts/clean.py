@@ -117,8 +117,8 @@ def add_common_args(parser: argparse.ArgumentParser) -> None:
                         help="Load data into database")
 
 
-def main() -> None:
-    """ Script entry point """
+def parse_args(args: List[str]) -> argparse.Namespace:
+    """ Build parser object and parse arguments """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description="NACCBIS Cleaning controller")
     subparsers = parser.add_subparsers()
@@ -134,15 +134,19 @@ def main() -> None:
     inseason_parser = subparsers.add_parser("inseason",
                                             formatter_class=argparse.RawDescriptionHelpFormatter,
                                             description=INSEASON_PARSER_DESCRIPTION)
-
+    add_common_args(inseason_parser)
     inseason_parser.set_defaults(func=inseason)
+    return parser.parse_args(args)
 
+
+def main(raw_args: List[str]) -> None:
+    """ Script entry point """
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
 
-    args = parser.parse_args()
+    args = parse_args(raw_args)
     logging.info("Initializing cleaning controller script")
-    logging.info("Command line args received: %s", sys.argv[1:])
+    logging.info("Command line args received: %s", raw_args)
     conn = utils.connect_db(config["DB"])
     args.func(args, conn)
 
@@ -151,4 +155,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

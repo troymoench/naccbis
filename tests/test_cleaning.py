@@ -319,6 +319,39 @@ class TestCleanGameLogs():
         assert gl.extract_date(date_str, season) == expected
 
 
+class TestClean():
+
+    def test_parse_args_final_defaults(self):
+        args = clean.parse_args(['final', '2019'])
+        assert callable(args.func)
+        assert args.year == [2019]
+        assert args.stat == range(1, 8)
+        assert args.split == 'all'
+        assert not args.load
+
+    def test_parse_args_final_stat(self):
+        args = clean.parse_args(['final', '2019', '-S', '1', '2'])
+        assert callable(args.func)
+        assert args.year == [2019]
+        assert args.stat == [1, 2]
+        assert args.split == 'all'
+        assert not args.load
+
+    def test_parse_args_inseason_defaults(self):
+        args = clean.parse_args(['inseason'])
+        assert callable(args.func)
+        assert args.stat == range(1, 8)
+        assert args.split == 'all'
+        assert not args.load
+
+    def test_parse_args_inseason_stat(self):
+        args = clean.parse_args(['inseason', '-S', '1', '2'])
+        assert callable(args.func)
+        assert args.stat == [1, 2]
+        assert args.split == 'all'
+        assert not args.load
+
+
 class TestLeagueTotals():
 
     def test_select_bench_players(self):
