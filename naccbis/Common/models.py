@@ -490,10 +490,14 @@ game_log = Table(
 )
 
 
-if __name__ == "__main__":
+def main() -> None:
     config = utils.init_config()
     engine = utils.create_db_engine(config["DB"])
     for table in metadata.sorted_tables:
         print(CreateTable(table).compile(engine))
     metadata.drop_all(engine)
     metadata.create_all(engine)
+
+
+if __name__ == "__main__":
+    main()  # pragma: no cover

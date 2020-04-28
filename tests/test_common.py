@@ -4,6 +4,7 @@
 import pytest
 # Local imports
 import naccbis.Common.utils as utils
+from naccbis.Common import models
 
 
 @pytest.fixture
