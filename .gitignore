@@ -1,7 +1,5 @@
 .idea
 __pycache__
-junk
-TODO.txt
 *.log
 doc/build
 dist/
