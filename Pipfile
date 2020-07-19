@@ -17,7 +17,7 @@ python-language-server = {extras = ["all"],version = "*"}
 beautifulsoup4 = "*"
 pandas = "*"
 requests = "*"
-django = "*"
+django = ">=3.0.7"
 python-levenshtein = "*"
 sqlalchemy = "*"
 psycopg2-binary = "*"
