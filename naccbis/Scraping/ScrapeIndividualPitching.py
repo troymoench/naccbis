@@ -6,6 +6,7 @@ import logging
 from urllib.parse import urljoin
 # Third party imports
 from bs4 import BeautifulSoup
+import numpy as np
 import pandas as pd
 # Local imports
 from . import ScrapeFunctions as sf
@@ -125,14 +126,14 @@ class IndividualPitchingScraper(BaseScraper):
 
             data[intCols] = data[intCols].replace('-', '0')
             data[floatCols] = data[floatCols].replace('-', '')
-            data[floatCols] = data[floatCols].replace('INF', pd.np.nan)
+            data[floatCols] = data[floatCols].replace('INF', np.nan)
 
             data["Team"] = team_id
             data["Season"] = str(utils.year_to_season(self._year))
             if self._inseason:
                 data["Date"] = str(date.today())
             data["Yr"] = data["Yr"].str.rstrip('.')
-            data["Pos"] = data["Pos"].replace('', pd.np.nan)
+            data["Pos"] = data["Pos"].replace('', np.nan)
 
             data = data[finalColNames]
             data.columns = data.columns.to_series().str.lower()
@@ -152,15 +153,15 @@ class IndividualPitchingScraper(BaseScraper):
             data.rename(columns=renameCols, inplace=True)
 
             data[intCols] = data[intCols].replace('-', '0')
-            data[floatCols] = data[floatCols].replace('-', pd.np.nan)
-            data[floatCols] = data[floatCols].replace('INF', pd.np.nan)
+            data[floatCols] = data[floatCols].replace('-', np.nan)
+            data[floatCols] = data[floatCols].replace('INF', np.nan)
 
             data["Team"] = team_id
             data["Season"] = str(utils.year_to_season(self._year))
             if self._inseason:
                 data["Date"] = str(date.today())
             data["Yr"] = data["Yr"].str.rstrip('.')
-            data["Pos"] = data["Pos"].replace('', pd.np.nan)
+            data["Pos"] = data["Pos"].replace('', np.nan)
 
             data = data[finalColNames]
             data.columns = data.columns.to_series().str.lower()

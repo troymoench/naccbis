@@ -5,6 +5,7 @@ import sys
 from urllib.parse import urljoin
 # Third party imports
 from bs4 import BeautifulSoup
+import numpy as np
 import pandas as pd
 # Local imports
 from . import ScrapeFunctions as sf
@@ -129,8 +130,8 @@ class GameLogScraper(BaseScraper):
         data.rename(columns=renameCols, inplace=True)
 
         data[intCols] = data[intCols].replace('-', '0')
-        data[floatCols] = data[floatCols].replace('-', pd.np.nan)
-        data[floatCols] = data[floatCols].replace('INF', pd.np.nan)
+        data[floatCols] = data[floatCols].replace('-', np.nan)
+        data[floatCols] = data[floatCols].replace('INF', np.nan)
 
         # replace tabs
         data["Opponent"] = [x.replace('\t', '') for x in data["Opponent"]]

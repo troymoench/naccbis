@@ -5,6 +5,7 @@ import logging
 import sys
 # Third party imports
 from bs4 import BeautifulSoup
+import numpy as np
 import pandas as pd
 # Local imports
 from . import ScrapeFunctions as sf
@@ -106,7 +107,7 @@ class IndividualOffenseScraper(BaseScraper):
                              "SF", "SH", "TB", "XBH", "GDP", "GO", "FO", "GO_FO"]
 
         data[intCols] = data[intCols].replace('-', '0')
-        data[floatCols] = data[floatCols].replace('-', pd.np.nan)
+        data[floatCols] = data[floatCols].replace('-', np.nan)
 
         # convert column names to a friendlier format
         data.columns = newColNames
@@ -116,7 +117,7 @@ class IndividualOffenseScraper(BaseScraper):
         if self._inseason:
             data["Date"] = str(date.today())
         data["Yr"] = data["Yr"].str.rstrip('.')
-        data["Pos"] = data["Pos"].replace('', pd.np.nan)
+        data["Pos"] = data["Pos"].replace('', np.nan)
 
         data = data[finalColNames]
         data.columns = data.columns.to_series().str.lower()

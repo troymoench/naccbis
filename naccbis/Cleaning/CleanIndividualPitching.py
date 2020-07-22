@@ -7,6 +7,7 @@ import argparse
 import logging
 import os
 # Third party imports
+import numpy as np
 import pandas as pd
 # Local imports
 from . import CleanFunctions as cf
@@ -52,7 +53,7 @@ class IndividualPitchingETL:
         self.data["ip"] = self.data["ip"].apply(cf.convert_ip)
         conference = (self.split == "conference")
         self.data = metrics.basic_pitching_metrics(self.data, conference=conference)
-        self.data.replace(pd.np.inf, pd.np.nan, inplace=True)
+        self.data.replace(pd.np.inf, np.nan, inplace=True)
         if self.split == "overall":
             columns = ['no', 'fname', 'lname', 'team', 'season', 'yr', 'pos', 'g', 'gs',
                        'w', 'l', 'sv', 'cg', 'sho', 'ip', 'h', 'r', 'er', 'bb', 'so',

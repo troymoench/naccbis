@@ -5,6 +5,7 @@ import logging
 import sys
 # Third party imports
 from bs4 import BeautifulSoup
+import numpy as np
 import pandas as pd
 # Local imports
 from . import ScrapeFunctions as sf
@@ -92,7 +93,7 @@ class TeamOffenseScraper(BaseScraper):
         data.drop(columns=unnecessaryCols, inplace=True)
 
         data[intCols] = data[intCols].replace('-', '0')
-        data[floatCols] = data[floatCols].replace('-', pd.np.nan)
+        data[floatCols] = data[floatCols].replace('-', np.nan)
 
         # convert column names to a friendlier format
         data.columns = newColNames

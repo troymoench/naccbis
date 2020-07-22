@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 # Third party imports
+import numpy as np
 import pandas as pd
 # Local imports
 from . import CleanFunctions as cf
@@ -51,7 +52,7 @@ class IndividualOffenseETL:
 
         if self.inseason:
             columns.insert(5, "date")
-        self.data.replace(pd.np.inf, pd.np.nan, inplace=True)
+        self.data.replace(pd.np.inf, np.nan, inplace=True)
         self.data = self.data[columns]
 
     def load(self) -> None:
