@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: gunicorn --bind 0.0.0.0:8000 --access-logfile - webapp.wsgi
+    container_name: naccbis_web
+    ports:
+      - 8000:8000
+    environment:
+      - "DEBUG=1"
