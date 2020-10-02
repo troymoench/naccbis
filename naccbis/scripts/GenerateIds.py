@@ -9,7 +9,7 @@
 import argparse
 import os
 import sys
-from typing import List
+from typing import List, Optional
 # Third party imports
 import pandas as pd
 # Local imports
@@ -137,7 +137,7 @@ def generate_ids(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def parse_args(args: List[str]) -> argparse.Namespace:
+def parse_args(args: Optional[List[str]]) -> argparse.Namespace:
     """ Build parser object and parse arguments """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__)
@@ -152,7 +152,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     return parser.parse_args(args)
 
 
-def main(raw_args: List[str]) -> None:
+def main(raw_args: Optional[List[str]] = sys.argv[1:]) -> None:
     """ Script entry point """
     args = parse_args(raw_args)
 

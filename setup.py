@@ -1,10 +1,16 @@
 from setuptools import setup, find_packages
-from glob import glob
 
 setup(
     name="naccbis",
     version="0.2",
-    packages=find_packages(exclude=["scripts"]),
-    scripts=glob('naccbis/scripts/[!__init__]*.py'),
+    packages=find_packages(exclude=["tests"]),
+    entry_points={"console_scripts": [
+        "scrape = naccbis.scripts.scrape:main",
+        "clean = naccbis.scripts.clean:main",
+        "GenerateIds = naccbis.scripts.GenerateIds:main",
+        "DumpNames = naccbis.scripts.DumpNames:main",
+        "verify = naccbis.scripts.verify:main",
+        ]
+    },
     python_requires='>=3.6',
 )

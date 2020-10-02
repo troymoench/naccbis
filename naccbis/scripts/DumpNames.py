@@ -8,7 +8,7 @@ These inconsistencies include, but are not limited to:
 import argparse
 import os
 import sys
-from typing import List
+from typing import List, Optional
 # Third party imports
 import pandas as pd
 from Levenshtein import distance
@@ -93,7 +93,7 @@ def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
     return output[["fname", "lname", "team", "season"]]
 
 
-def parse_args(args: List[str]) -> argparse.Namespace:
+def parse_args(args: Optional[List[str]]) -> argparse.Namespace:
     """ Build parser object and parse arguments """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__)
@@ -112,7 +112,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     return parser.parse_args(args)
 
 
-def main(raw_args: List[str]) -> None:
+def main(raw_args: Optional[List[str]] = sys.argv[1:]) -> None:
     """ Script entry point """
     args = parse_args(raw_args)
     levenshtein_first = args.fname

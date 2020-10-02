@@ -3,7 +3,7 @@
 import argparse
 import logging
 import sys
-from typing import List
+from typing import List, Optional
 # Third party imports
 # Local imports
 from naccbis.Cleaning import (
@@ -117,7 +117,7 @@ def add_common_args(parser: argparse.ArgumentParser) -> None:
                         help="Load data into database")
 
 
-def parse_args(args: List[str]) -> argparse.Namespace:
+def parse_args(args: Optional[List[str]]) -> argparse.Namespace:
     """ Build parser object and parse arguments """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description="NACCBIS Cleaning controller")
@@ -139,7 +139,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     return parser.parse_args(args)
 
 
-def main(raw_args: List[str]) -> None:
+def main(raw_args: Optional[List[str]] = sys.argv[1:]) -> None:
     """ Script entry point """
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
