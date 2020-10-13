@@ -1,6 +1,7 @@
 """ This module provides utility functions """
 # Standard library imports
 import logging
+import os
 import sys
 from typing import List, Dict
 # Third party imports
@@ -104,16 +105,18 @@ def init_config():
     """ Initialize configuration """
     config = {
         "DB": getattr(conf, "DB", None),
-        "LOGGING": getattr(conf, "LOGGING", None)
+        "LOGGING": os.environ.get("LOG_LEVEL", "INFO")
     }
     return config
 
 
-def init_logging(config: Dict[str, str]) -> None:
+def init_logging(level: str) -> None:
     """ Initialize logging """
-    logging.basicConfig(level=config["level"],
-                        format=config["format"],
-                        datefmt=config["datefmt"])
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s %(levelname)s %(message)s <%(name)s>",
+        datefmt="%H:%M:%S"
+    )
     # TODO: Dynamically configure additional loggers
     logging.getLogger('sqlalchemy.engine').setLevel("WARNING")
     logging.getLogger('sqlalchemy.pool').setLevel("INFO")
