@@ -1,6 +1,7 @@
 from sqlalchemy import (
-    Column, Integer, String, Numeric, Boolean, Date, ForeignKeyConstraint
+    Column, Integer, String, Numeric, Boolean, Date, DateTime, ForeignKeyConstraint
 )
+from sqlalchemy.sql import func
 from .database import Base
 
 
@@ -216,6 +217,150 @@ class PitchersConference(Base):
     )
 
 
+class TeamOffenseOverall(Base):
+    __tablename__ = "team_offense_overall"
+
+    team = Column(String(30), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    pa = Column(Integer)
+    ab = Column(Integer)
+    r = Column(Integer)
+    h = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    rbi = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    hbp = Column(Integer)
+    tb = Column(Integer)
+    xbh = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    gdp = Column(Integer)
+    sb = Column(Integer)
+    cs = Column(Integer)
+    go = Column(Integer)
+    fo = Column(Integer)
+    go_fo = Column(Numeric)
+    hbp_p = Column(Numeric)
+    bb_p = Column(Numeric)
+    so_p = Column(Numeric)
+    babip = Column(Numeric)
+    iso = Column(Numeric)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    ops = Column(Numeric)
+    sar = Column(Numeric)
+
+
+class TeamOffenseConference(Base):
+    __tablename__ = "team_offense_conference"
+
+    team = Column(String(30), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    pa = Column(Integer)
+    ab = Column(Integer)
+    r = Column(Integer)
+    h = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    rbi = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    hbp = Column(Integer)
+    tb = Column(Integer)
+    xbh = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    gdp = Column(Integer)
+    sb = Column(Integer)
+    cs = Column(Integer)
+    go = Column(Integer)
+    fo = Column(Integer)
+    go_fo = Column(Numeric)
+    hbp_p = Column(Numeric)
+    bb_p = Column(Numeric)
+    so_p = Column(Numeric)
+    babip = Column(Numeric)
+    iso = Column(Numeric)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    ops = Column(Numeric)
+    sar = Column(Numeric)
+
+
+class TeamPitchingOverall(Base):
+    __tablename__ = "team_pitching_overall"
+
+    team = Column(String(30), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    w = Column(Integer)
+    l = Column(Integer)
+    sv = Column(Integer)
+    cg = Column(Integer)
+    sho = Column(Integer)
+    ip = Column(Numeric)
+    h = Column(Integer)
+    r = Column(Integer)
+    er = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    ab = Column(Integer)
+    wp = Column(Integer)
+    hbp = Column(Integer)
+    bk = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    pa = Column(Integer)
+    hbp_p = Column(Numeric)
+    bb_p = Column(Numeric)
+    so_p = Column(Numeric)
+    iso = Column(Numeric)
+    babip = Column(Numeric)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    ops = Column(Numeric)
+    lob_p = Column(Numeric)
+    era = Column(Numeric)
+    ra_9 = Column(Numeric)
+    so_9 = Column(Numeric)
+    bb_9 = Column(Numeric)
+    hr_9 = Column(Numeric)
+    whip = Column(Numeric)
+
+
+class TeamPitchingConference(Base):
+    __tablename__ = "team_pitching_conference"
+
+    team = Column(String(30), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    ip = Column(Numeric)
+    h = Column(Integer)
+    r = Column(Integer)
+    er = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    so_9 = Column(Numeric)
+    hr = Column(Integer)
+    era = Column(Numeric)
+    ra_9 = Column(Numeric)
+    bb_9 = Column(Numeric)
+    hr_9 = Column(Numeric)
+    whip = Column(Numeric)
+
+
 class GameLog(Base):
     __tablename__ = "game_log"
 
@@ -229,3 +374,33 @@ class GameLog(Base):
     ra = Column(Integer)
     home = Column(Boolean)
     conference = Column(Boolean)
+
+
+class NameCorrection(Base):
+    __tablename__ = "name_corrections"
+
+    uc_fname = Column(String(20), primary_key=True)
+    uc_lname = Column(String(20), primary_key=True)
+    uc_team = Column(String(5), primary_key=True)
+    uc_season = Column(Integer, primary_key=True)
+    c_fname = Column(String(20), nullable=False)
+    c_lname = Column(String(20), nullable=False)
+    type = Column(String(1))
+    submitted = Column(DateTime, server_default=func.now())
+
+
+class Nickname(Base):
+    __tablename__ = "nicknames"
+
+    rid = Column(Integer, nullable=False)
+    name = Column(String(20), primary_key=True)
+    nickname = Column(String(20), primary_key=True)
+
+
+class DuplicateName(Base):
+    __tablename__ = "duplicate_names"
+    fname = Column(String(20), primary_key=True)
+    lname = Column(String(20), primary_key=True)
+    team = Column(String(5), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    id = Column(Integer, nullable=False)
