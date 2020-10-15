@@ -45,3 +45,18 @@ def read_pitchers(
     db: Session = Depends(get_db)
 ):
     return queries.get_pitchers(db, season, team, split, min_ip)
+
+
+@app.get("/player/{player_id}", response_model=schemas.PlayerSchema)
+def read_player(player_id: str, db: Session = Depends(get_db)):
+    off = queries.get_player_offense(db, player_id)
+    off_totals = queries.get_player_career_offense(db, player_id)
+    pitch = queries.get_player_pitching(db, player_id)
+    pitch_totals = queries.get_player_career_pitching(db, player_id)
+
+    return {
+        "offense": [value for _, value in off.iterrows()],
+        "offense_career": [value for _, value in off_totals.iterrows()],
+        "pitching": [value for _, value in pitch.iterrows()],
+        "pitching_career": [value for _, value in pitch_totals.iterrows()],
+    }
