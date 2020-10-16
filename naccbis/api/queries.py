@@ -10,6 +10,7 @@ from .models import (
     PitchersConference,
     PlayerId,
 )
+from naccbis.Common import metrics
 
 
 def get_batters(
@@ -91,7 +92,8 @@ def get_player_career_offense(db: Session, player_id: str):
         select_from(b).join(PlayerId).\
         filter(PlayerId.player_id == player_id)
 
-    return pd.read_sql_query(q.statement, q.session.bind)
+    df = pd.read_sql_query(q.statement, q.session.bind)
+    return metrics.basic_offensive_metrics(df)
 
 
 def get_player_pitching(db: Session, player_id: str):
@@ -133,4 +135,5 @@ def get_player_career_pitching(db: Session, player_id: str):
         select_from(p).join(PlayerId).\
         filter(PlayerId.player_id == player_id)
 
-    return pd.read_sql_query(q.statement, q.session.bind)
+    df = pd.read_sql_query(q.statement, q.session.bind)
+    return metrics.basic_pitching_metrics(df)
