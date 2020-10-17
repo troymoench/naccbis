@@ -3,10 +3,8 @@ from typing import List, Optional
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
 
-from . import queries, models, schemas
-from .database import SessionLocal, engine
-
-models.Base.metadata.create_all(bind=engine)
+from . import queries, schemas
+from .database import SessionLocal
 
 app = FastAPI()
 
@@ -45,6 +43,17 @@ def read_pitchers(
     db: Session = Depends(get_db)
 ):
     return queries.get_pitchers(db, season, team, split, min_ip)
+
+
+@app.get("/team_offense", response_model=List[schemas.TeamOffenseSchema])
+def read_team_offense(
+    season: Optional[int] = None,
+    team: Optional[str] = None,
+    split: str = "overall",
+    db: Session = Depends(get_db)
+):
+    df = queries.get_team_offense(db, season, team, split)
+    return [row for row in df.itertuples(index=False)]
 
 
 @app.get("/player/{player_id}", response_model=schemas.PlayerSchema)

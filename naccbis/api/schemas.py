@@ -85,6 +85,46 @@ class BattersSchema(BaseModel):
         orm_mode = True
 
 
+class TeamOffenseSchema(BaseModel):
+    name: str
+    season: int
+    g: int
+    pa: int
+    ab: int
+    r: int
+    h: int
+    x2b: int
+    x3b: int
+    hr: int
+    rbi: int
+    bb: int
+    so: int
+    hbp: int
+    tb: int
+    xbh: int
+    sf: int
+    sh: int
+    gdp: int
+    sb: int
+    cs: int
+    go: int
+    fo: int
+    go_fo: Optional[float]
+    hbp_p: Optional[float]
+    bb_p: Optional[float]
+    so_p: Optional[float]
+    babip: Optional[float]
+    iso: Optional[float]
+    avg: Optional[float]
+    obp: Optional[float]
+    slg: Optional[float]
+    ops: Optional[float]
+    sar: Optional[float]
+
+    class Config:
+        orm_mode = True
+
+
 class PitchersSchema(BaseModel):
     no: int
     fname: str

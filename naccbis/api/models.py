@@ -220,7 +220,7 @@ class PitchersConference(Base):
 class TeamOffenseOverall(Base):
     __tablename__ = "team_offense_overall"
 
-    team = Column(String(30), primary_key=True)
+    name = Column(String(30), primary_key=True)
     season = Column(Integer, primary_key=True)
     g = Column(Integer)
     pa = Column(Integer)
@@ -259,7 +259,7 @@ class TeamOffenseOverall(Base):
 class TeamOffenseConference(Base):
     __tablename__ = "team_offense_conference"
 
-    team = Column(String(30), primary_key=True)
+    name = Column(String(30), primary_key=True)
     season = Column(Integer, primary_key=True)
     g = Column(Integer)
     pa = Column(Integer)
@@ -298,7 +298,7 @@ class TeamOffenseConference(Base):
 class TeamPitchingOverall(Base):
     __tablename__ = "team_pitching_overall"
 
-    team = Column(String(30), primary_key=True)
+    name = Column(String(30), primary_key=True)
     season = Column(Integer, primary_key=True)
     g = Column(Integer)
     w = Column(Integer)
@@ -343,7 +343,7 @@ class TeamPitchingOverall(Base):
 class TeamPitchingConference(Base):
     __tablename__ = "team_pitching_conference"
 
-    team = Column(String(30), primary_key=True)
+    name = Column(String(30), primary_key=True)
     season = Column(Integer, primary_key=True)
     g = Column(Integer)
     ip = Column(Numeric)
