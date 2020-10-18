@@ -11,6 +11,8 @@ from .models import (
     PlayerId,
     TeamOffenseOverall,
     TeamOffenseConference,
+    TeamPitchingOverall,
+    TeamPitchingConference,
 )
 from naccbis.Common import metrics
 
@@ -151,6 +153,26 @@ def get_team_offense(
         table = TeamOffenseOverall
     else:
         table = TeamOffenseConference
+
+    q = db.query(table)
+    if season:
+        q = q.filter(table.season == season)
+    if team:
+        q = q.filter(table.name == team)
+    q = q.order_by(table.season)
+    return pd.read_sql_query(q.statement, q.session.bind)
+
+
+def get_team_pitching(
+    db: Session,
+    season: Optional[int] = None,
+    team: Optional[str] = None,
+    split: str = "overall",
+):
+    if split == "overall":
+        table = TeamPitchingOverall
+    else:
+        table = TeamPitchingConference
 
     q = db.query(table)
     if season:
