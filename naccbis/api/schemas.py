@@ -125,6 +125,75 @@ class TeamOffenseSchema(BaseModel):
         orm_mode = True
 
 
+class LeagueOffenseSchema(BaseModel):
+    season: int
+    g: int
+    pa: int
+    ab: int
+    r: int
+    h: int
+    x2b: int
+    x3b: int
+    hr: int
+    rbi: int
+    bb: int
+    so: int
+    hbp: int
+    tb: int
+    xbh: int
+    sf: int
+    sh: int
+    gdp: int
+    sb: int
+    cs: int
+    go: int
+    fo: int
+    go_fo: float
+    hbp_p: float
+    bb_p: float
+    so_p: float
+    babip: float
+    iso: float
+    avg: float
+    obp: float
+    slg: float
+    ops: float
+    sar: float
+    lg_r_pa: float
+    bsr_bmult: float
+    bsr: float
+    lw_hbp: float
+    lw_bb: float
+    lw_x1b: float
+    lw_x2b: float
+    lw_x3b: float
+    lw_hr: float
+    lw_sb: float
+    lw_cs: float
+    lw_out: float
+    ww_hbp: float
+    ww_bb: float
+    ww_x1b: float
+    ww_x2b: float
+    ww_x3b: float
+    ww_hr: float
+    woba_scale: float
+    woba: float
+    sbr: float
+    lg_wsb: float
+    wsb: float
+    wraa: float
+    off: float
+    wrc: float
+    wrc_p: float
+    off_p: float
+    rep_level: float
+    rar: float
+
+    class Config:
+        orm_mode = True
+
+
 class PitchersSchema(BaseModel):
     no: int
     fname: str

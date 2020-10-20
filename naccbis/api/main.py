@@ -67,6 +67,16 @@ def read_team_pitching(
     return [row for row in df.itertuples(index=False)]
 
 
+@app.get("/league_offense", response_model=List[schemas.LeagueOffenseSchema])
+def read_league_offense(
+    season: Optional[int] = None,
+    split: str = "overall",
+    db: Session = Depends(get_db)
+):
+    df = queries.get_league_offense(db, season, split)
+    return [row for row in df.itertuples(index=False)]
+
+
 @app.get("/player/{player_id}", response_model=schemas.PlayerSchema)
 def read_player(player_id: str, db: Session = Depends(get_db)):
     off = queries.get_player_offense(db, player_id)
