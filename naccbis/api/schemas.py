@@ -334,6 +334,63 @@ class TeamPitchingSchema(BaseModel):
         orm_mode = True
 
 
+class LeaguePitchingSchema(BaseModel):
+    season: int
+    g: int
+    w: Optional[int]
+    l: Optional[int]
+    sv: Optional[int]
+    cg: Optional[int]
+    sho: Optional[int]
+    ip: float
+    h: int
+    r: int
+    er: int
+    bb: int
+    so: int
+    x2b: Optional[int]
+    x3b: Optional[int]
+    hr: int
+    ab: Optional[int]
+    wp: Optional[int]
+    hbp: Optional[int]
+    bk: Optional[int]
+    sf: Optional[int]
+    sh: Optional[int]
+    pa: Optional[int]
+    hbp_p: Optional[float]
+    bb_p: Optional[float]
+    so_p: Optional[float]
+    iso: Optional[float]
+    babip: Optional[float]
+    avg: Optional[float]
+    obp: Optional[float]
+    slg: Optional[float]
+    ops: Optional[float]
+    lob_p: Optional[float]
+    era: Optional[float]
+    ra_9: Optional[float]
+    so_9: Optional[float]
+    bb_9: Optional[float]
+    hr_9: Optional[float]
+    whip: Optional[float]
+    lg_r_pa: Optional[float]
+    bsr_bmult: Optional[float]
+    bsr: Optional[float]
+    bsr_9: Optional[float]
+    fip_constant: Optional[float]
+    fip: Optional[float]
+    raa: Optional[float]
+    bsraa: Optional[float]
+    fipraa: Optional[float]
+    era_minus: Optional[float]
+    fip_minus: Optional[float]
+    bsr_minus: Optional[float]
+
+    class Config:
+        orm_mode = True
+
+
 class PlayerSchema(BaseModel):
     offense: List[BattersSchema] = []
     offense_career: List[OffenseSchema] = []

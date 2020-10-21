@@ -497,6 +497,87 @@ class LeagueOffenseConference(Base):
     rar = Column(Numeric)
 
 
+class LeaguePitchingOverall(Base):
+    __tablename__ = "league_pitching_overall"
+
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    w = Column(Integer)
+    l = Column(Integer)
+    sv = Column(Integer)
+    cg = Column(Integer)
+    sho = Column(Integer)
+    ip = Column(Numeric)
+    h = Column(Integer)
+    r = Column(Integer)
+    er = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    ab = Column(Integer)
+    wp = Column(Integer)
+    hbp = Column(Integer)
+    bk = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    pa = Column(Integer)
+    hbp_p = Column(Numeric)
+    bb_p = Column(Numeric)
+    so_p = Column(Numeric)
+    iso = Column(Numeric)
+    babip = Column(Numeric)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    ops = Column(Numeric)
+    lob_p = Column(Numeric)
+    era = Column(Numeric)
+    ra_9 = Column(Numeric)
+    so_9 = Column(Numeric)
+    bb_9 = Column(Numeric)
+    hr_9 = Column(Numeric)
+    whip = Column(Numeric)
+    lg_r_pa = Column(Numeric)
+    bsr_bmult = Column(Numeric)
+    bsr = Column(Numeric)
+    bsr_9 = Column(Numeric)
+    fip_constant = Column(Numeric)
+    fip = Column(Numeric)
+    raa = Column(Numeric)
+    bsraa = Column(Numeric)
+    fipraa = Column(Numeric)
+    era_minus = Column(Numeric)
+    fip_minus = Column(Numeric)
+    bsr_minus = Column(Numeric)
+
+
+class LeaguePitchingConference(Base):
+    __tablename__ = "league_pitching_conference"
+
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    ip = Column(Numeric)
+    h = Column(Integer)
+    r = Column(Integer)
+    er = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    so_9 = Column(Numeric)
+    hr = Column(Integer)
+    era = Column(Numeric)
+    ra_9 = Column(Numeric)
+    bb_9 = Column(Numeric)
+    hr_9 = Column(Numeric)
+    whip = Column(Numeric)
+    raa = Column(Numeric)
+    era_minus = Column(Numeric)
+
+    class Config:
+        orm_mode = True
+
+
 class GameLog(Base):
     __tablename__ = "game_log"
 
