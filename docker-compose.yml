@@ -3,9 +3,17 @@ version: '3'
 services:
   web:
     build: .
-    command: gunicorn --bind 0.0.0.0:8000 --access-logfile - webapp.wsgi
+    command: gunicorn --bind 127.0.0.1:8001 --access-logfile - webapp.wsgi
     container_name: naccbis_web
-    ports:
-      - 8000:8000
+    # ports:
+    #   - 8001:8001
+    network_mode: host
     environment:
       - "DEBUG=1"
+  api:
+    build: .
+    command: uvicorn naccbis.api.main:app
+    container_name: naccbis_api
+    # ports:
+    #   - 8000:8000
+    network_mode: host
