@@ -15,6 +15,7 @@ import pandas as pd
 # Local imports
 import naccbis.Cleaning.CleanFunctions as cf
 import naccbis.Common.utils as utils
+from naccbis import __version__
 
 
 def make_full_name(fname: str, lname: str) -> str:
@@ -141,6 +142,7 @@ def parse_args(args: Optional[List[str]]) -> argparse.Namespace:
     """ Build parser object and parse arguments """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__)
+    parser.add_argument("--version", action="version", version="naccbis {}".format(__version__))
     parser.add_argument("--load", action="store_true",
                         help="Load data into database")
     parser.add_argument("--clear", action="store_true",

@@ -16,6 +16,8 @@ from naccbis.Cleaning import (
     LeaguePitchingETL,
 )
 import naccbis.Common.utils as utils
+from naccbis import __version__
+
 
 FINAL_PARSER_DESCRIPTION = """
 Clean final stats
@@ -121,6 +123,7 @@ def parse_args(args: Optional[List[str]]) -> argparse.Namespace:
     """ Build parser object and parse arguments """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description="NACCBIS Cleaning controller")
+    parser.add_argument("--version", action="version", version="naccbis {}".format(__version__))
     subparsers = parser.add_subparsers()
 
     final_parser = subparsers.add_parser("final",

@@ -15,6 +15,7 @@ from Levenshtein import distance
 # Local imports
 import naccbis.Cleaning.CleanFunctions as cf
 import naccbis.Common.utils as utils
+from naccbis import __version__
 
 
 def levenshtein_analysis(data: pd.DataFrame, levenshtein_first: int,
@@ -97,6 +98,7 @@ def parse_args(args: Optional[List[str]]) -> argparse.Namespace:
     """ Build parser object and parse arguments """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__)
+    parser.add_argument("--version", action="version", version="naccbis {}".format(__version__))
     parser.add_argument("-c", "--corrections", action="store_true",
                         help="Apply existing name corrections")
     parser.add_argument("-f", "--fname", type=int, metavar="FNAME",

@@ -5,8 +5,10 @@ from sqlalchemy.orm import Session
 
 from . import queries, schemas
 from .database import SessionLocal
+from naccbis import __version__
 
-app = FastAPI()
+
+app = FastAPI(version=__version__)
 
 
 # Dependency

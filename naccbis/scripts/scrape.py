@@ -17,6 +17,7 @@ from naccbis.Scraping import (
     TeamPitchingScraper,
 )
 import naccbis.Common.utils as utils
+from naccbis import __version__
 
 
 PARSER_EPILOG = """
@@ -157,6 +158,7 @@ def parse_args(args: Optional[List[str]]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__,
                                      epilog=PARSER_EPILOG)
+    parser.add_argument("--version", action="version", version="naccbis {}".format(__version__))
     subparsers = parser.add_subparsers()
 
     final_parser = subparsers.add_parser("final",
