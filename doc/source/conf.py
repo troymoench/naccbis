@@ -6,6 +6,8 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
+from pkg_resources import get_distribution
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -19,11 +21,10 @@ project = 'NACCBIS'
 copyright = '2019, Troy Moench'
 author = 'Troy Moench'
 
-# The short X.Y version
-version = '0.2'
 # The full version, including alpha/beta/rc tags
-release = '0.2'
-
+release = get_distribution('naccbis').version
+# The short X.Y version
+version = '.'.join(release.split('.')[:2])
 
 # -- General configuration ---------------------------------------------------
 
