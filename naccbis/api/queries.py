@@ -3,7 +3,7 @@ import pandas as pd
 from sqlalchemy import func
 from sqlalchemy.orm import Session, aliased
 
-from .models import (
+from naccbis.Common.models import (
     BattersOverall,
     BattersConference,
     PitchersOverall,

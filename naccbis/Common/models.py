@@ -1,14 +1,14 @@
-""" Database models and DDL generation """
-
+""" Database models """
 from sqlalchemy import (
-    MetaData, Table, Column, Integer, String, Numeric, Boolean, DateTime, Date, ForeignKeyConstraint
+    Column, Integer, String, Numeric, Boolean, Date, DateTime, ForeignKeyConstraint
 )
-from sqlalchemy.schema import CreateTable
 from sqlalchemy.sql import func
-import naccbis.Common.utils as utils
+from sqlalchemy.ext.declarative import declarative_base
 
 
-convention = {
+Base = declarative_base()
+
+Base.metadata.naming_convention = {
   "ix": "ix_%(column_0_label)s",
   "uq": "uq_%(table_name)s_%(column_0_name)s",
   "ck": "ck_%(table_name)s_%(constraint_name)s",
@@ -16,488 +16,827 @@ convention = {
   "pk": "pk_%(table_name)s"
 }
 
-metadata = MetaData(naming_convention=convention)
+
+class PlayerId(Base):
+    __tablename__ = "player_id"
+
+    fname = Column(String(20), primary_key=True)
+    lname = Column(String(20), primary_key=True)
+    team = Column(String(5), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    player_id = Column(String(10), nullable=False)
 
 
-raw_batters_overall = Table(
-    "raw_batters_overall", metadata,
-    Column("no", Integer),
-    Column("name", String(35), primary_key=True),
-    Column("team", String(5), primary_key=True),
-    Column("season", Integer, primary_key=True),
-    Column("yr", String(2)),
-    Column("pos", String(15)),
-    Column("g", Integer),
-    Column("pa", Integer),
-    Column("ab", Integer),
-    Column("r", Integer),
-    Column("h", Integer),
-    Column("x2b", Integer),
-    Column("x3b", Integer),
-    Column("hr", Integer),
-    Column("rbi", Integer),
-    Column("bb", Integer),
-    Column("so", Integer),
-    Column("sb", Integer),
-    Column("cs", Integer),
-    Column("avg", Numeric),
-    Column("obp", Numeric),
-    Column("slg", Numeric),
-    Column("hbp", Integer),
-    Column("sf", Integer),
-    Column("sh", Integer),
-    Column("tb", Integer),
-    Column("xbh", Integer),
-    Column("gdp", Integer),
-    Column("go", Integer),
-    Column("fo", Integer),
-    Column("go_fo", Numeric),
-)
+class BattersOverall(Base):
+    __tablename__ = "batters_overall"
 
-raw_batters_conference = Table(
-    "raw_batters_conference", metadata,
-    Column("no", Integer),
-    Column("name", String(35), primary_key=True),
-    Column("team", String(5), primary_key=True),
-    Column("season", Integer, primary_key=True),
-    Column("yr", String(2)),
-    Column("pos", String(15)),
-    Column("g", Integer),
-    Column("pa", Integer),
-    Column("ab", Integer),
-    Column("r", Integer),
-    Column("h", Integer),
-    Column("x2b", Integer),
-    Column("x3b", Integer),
-    Column("hr", Integer),
-    Column("rbi", Integer),
-    Column("bb", Integer),
-    Column("so", Integer),
-    Column("sb", Integer),
-    Column("cs", Integer),
-    Column("avg", Numeric),
-    Column("obp", Numeric),
-    Column("slg", Numeric),
-    Column("hbp", Integer),
-    Column("sf", Integer),
-    Column("sh", Integer),
-    Column("tb", Integer),
-    Column("xbh", Integer),
-    Column("gdp", Integer),
-    Column("go", Integer),
-    Column("fo", Integer),
-    Column("go_fo", Numeric),
-)
+    no = Column(Integer)
+    fname = Column(String(20), primary_key=True)
+    lname = Column(String(20), primary_key=True)
+    team = Column(String(5), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    yr = Column(String(2))
+    pos = Column(String(15))
+    g = Column(Integer)
+    pa = Column(Integer)
+    ab = Column(Integer)
+    r = Column(Integer)
+    h = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    rbi = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    hbp = Column(Integer)
+    tb = Column(Integer)
+    xbh = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    gdp = Column(Integer)
+    sb = Column(Integer)
+    cs = Column(Integer)
+    go = Column(Integer)
+    fo = Column(Integer)
+    go_fo = Column(Numeric)
+    hbp_p = Column(Numeric)
+    bb_p = Column(Numeric)
+    so_p = Column(Numeric)
+    babip = Column(Numeric)
+    iso = Column(Numeric)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    ops = Column(Numeric)
+    sar = Column(Numeric)
 
-raw_pitchers_overall = Table(
-    "raw_pitchers_overall", metadata,
-    Column("no", Integer),
-    Column("name", String(35), primary_key=True),
-    Column("team", String(5), primary_key=True),
-    Column("season", Integer, primary_key=True),
-    Column("yr", String(2)),
-    Column("pos", String(15)),
-    Column("g", Integer),
-    Column("gs", Integer),
-    Column("w", Integer),
-    Column("l", Integer),
-    Column("sv", Integer),
-    Column("cg", Integer),
-    Column("sho", Integer),
-    Column("ip", String(20)),
-    Column("h", Integer),
-    Column("r", Integer),
-    Column("er", Integer),
-    Column("bb", Integer),
-    Column("so", Integer),
-    Column("era", Numeric),
-    Column("x2b", Integer),
-    Column("x3b", Integer),
-    Column("hr", Integer),
-    Column("ab", Integer),
-    Column("avg", Numeric),
-    Column("wp", Integer),
-    Column("hbp", Integer),
-    Column("bk", Integer),
-    Column("sf", Integer),
-    Column("sh", Integer),
-    Column("so_9", Numeric),
-)
-
-raw_pitchers_conference = Table(
-    "raw_pitchers_conference", metadata,
-    Column("no", Integer),
-    Column("name", String(35), primary_key=True),
-    Column("team", String(5), primary_key=True),
-    Column("season", Integer, primary_key=True),
-    Column("yr", String(2)),
-    Column("pos", String(15)),
-    Column("g", Integer),
-    Column("gs", Integer),
-    Column("w", Integer),
-    Column("l", Integer),
-    Column("sv", Integer),
-    Column("cg", Integer),
-    Column("sho", Integer),
-    Column("ip", String(20)),
-    Column("h", Integer),
-    Column("r", Integer),
-    Column("er", Integer),
-    Column("bb", Integer),
-    Column("so", Integer),
-    Column("era", Numeric),
-    Column("x2b", Integer),
-    Column("x3b", Integer),
-    Column("hr", Integer),
-    Column("ab", Integer),
-    Column("avg", Numeric),
-    Column("wp", Integer),
-    Column("hbp", Integer),
-    Column("bk", Integer),
-    Column("sf", Integer),
-    Column("sh", Integer),
-    Column("so_9", Numeric),
-)
-
-raw_game_log_fielding = Table(
-    "raw_game_log_fielding", metadata,
-    Column("game_num", Integer, primary_key=True),
-    Column("date", String(10), primary_key=True),
-    Column("season", Integer, primary_key=True),
-    Column("name", String(30), primary_key=True),
-    Column("opponent", String),
-    Column("score", String(10)),
-    Column("tc", Integer),
-    Column("po", Integer),
-    Column("a", Integer),
-    Column("e", Integer),
-    Column("fpct", Numeric),
-    Column("dp", Integer),
-    Column("sba", Integer),
-    Column("cs", Integer),
-    Column("cspct", Numeric),
-    Column("pb", Integer),
-    Column("ci", Integer),
-)
-
-raw_game_log_hitting = Table(
-    "raw_game_log_hitting", metadata,
-    Column("game_num", Integer, primary_key=True),
-    Column("date", String(10), primary_key=True),
-    Column("season", Integer, primary_key=True),
-    Column("name", String(30), primary_key=True),
-    Column("opponent", String),
-    Column("score", String(10)),
-    Column("ab", Integer),
-    Column("r", Integer),
-    Column("h", Integer),
-    Column("x2b", Integer),
-    Column("x3b", Integer),
-    Column("hr", Integer),
-    Column("rbi", Integer),
-    Column("bb", Integer),
-    Column("so", Integer),
-    Column("sb", Integer),
-    Column("cs", Integer),
-    Column("hbp", Integer),
-    Column("sf", Integer),
-    Column("sh", Integer),
-    Column("tb", Integer),
-    Column("xbh", Integer),
-    Column("gdp", Integer),
-    Column("go", Integer),
-    Column("fo", Integer),
-    Column("go_fo", Numeric),
-    Column("pa", Integer),
-)
-
-raw_game_log_pitching = Table(
-    "raw_game_log_pitching", metadata,
-    Column("game_num", Integer, primary_key=True),
-    Column("date", String(10), primary_key=True),
-    Column("season", Integer, primary_key=True),
-    Column("name", String(30), primary_key=True),
-    Column("opponent", String),
-    Column("score", String(10)),
-    Column("w", Integer),
-    Column("l", Integer),
-    Column("sv", Integer),
-    Column("ip", Numeric),
-    Column("h", Integer),
-    Column("r", Integer),
-    Column("er", Integer),
-    Column("era", Numeric),
-    Column("bb", Integer),
-    Column("so", Integer),
-    Column("hr", Integer),
-)
-
-name_corrections = Table(
-    "name_corrections", metadata,
-    Column("uc_fname", String(20), primary_key=True),
-    Column("uc_lname", String(20), primary_key=True),
-    Column("uc_team", String(5), primary_key=True),
-    Column("uc_season", Integer, primary_key=True),
-    Column("c_fname", String(20), nullable=False),
-    Column("c_lname", String(20), nullable=False),
-    Column("type", String(1)),
-    Column("submitted", DateTime, server_default=func.now()),
-)
-
-nicknames = Table(
-    "nicknames", metadata,
-    Column("rid", Integer, nullable=False),
-    Column("name", String(20), primary_key=True),
-    Column("nickname", String(20), primary_key=True),
-)
-
-duplicate_names = Table(
-    "duplicate_names", metadata,
-    Column("fname", String(20), primary_key=True),
-    Column("lname", String(20), primary_key=True),
-    Column("team", String(5), primary_key=True),
-    Column("season", Integer, primary_key=True),
-    Column("id", Integer, nullable=False),
-)
-
-player_id = Table(
-    "player_id", metadata,
-    Column("fname", String(20), primary_key=True),
-    Column("lname", String(20), primary_key=True),
-    Column("team", String(5), primary_key=True),
-    Column("season", Integer, primary_key=True),
-    Column("player_id", String(10), nullable=False),
-)
-
-batters_overall = Table(
-    "batters_overall", metadata,
-    Column("no", Integer),
-    Column("fname", String(20), primary_key=True),
-    Column("lname", String(20), primary_key=True),
-    Column("team", String(5), primary_key=True),
-    Column("season", Integer, primary_key=True),
-    Column("yr", String(2)),
-    Column("pos", String(15)),
-    Column("g", Integer),
-    Column("pa", Integer),
-    Column("ab", Integer),
-    Column("r", Integer),
-    Column("h", Integer),
-    Column("x2b", Integer),
-    Column("x3b", Integer),
-    Column("hr", Integer),
-    Column("rbi", Integer),
-    Column("bb", Integer),
-    Column("so", Integer),
-    Column("hbp", Integer),
-    Column("tb", Integer),
-    Column("xbh", Integer),
-    Column("sf", Integer),
-    Column("sh", Integer),
-    Column("gdp", Integer),
-    Column("sb", Integer),
-    Column("cs", Integer),
-    Column("go", Integer),
-    Column("fo", Integer),
-    Column("go_fo", Numeric),
-    Column("hbp_p", Numeric),
-    Column("bb_p", Numeric),
-    Column("so_p", Numeric),
-    Column("babip", Numeric),
-    Column("iso", Numeric),
-    Column("avg", Numeric),
-    Column("obp", Numeric),
-    Column("slg", Numeric),
-    Column("ops", Numeric),
-    Column("sar", Numeric),
-    ForeignKeyConstraint(
-        ["fname", "lname", "team", "season"],
-        ["player_id.fname", "player_id.lname", "player_id.team", "player_id.season"],
-        onupdate="CASCADE", ondelete="CASCADE"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fname", "lname", "team", "season"],
+            ["player_id.fname", "player_id.lname", "player_id.team", "player_id.season"],
+            onupdate="CASCADE", ondelete="CASCADE"
+        ),
     )
-)
 
-batters_conference = Table(
-    "batters_conference", metadata,
-    Column("no", Integer),
-    Column("fname", String(20), primary_key=True),
-    Column("lname", String(20), primary_key=True),
-    Column("team", String(5), primary_key=True),
-    Column("season", Integer, primary_key=True),
-    Column("yr", String(2)),
-    Column("pos", String(15)),
-    Column("g", Integer),
-    Column("pa", Integer),
-    Column("ab", Integer),
-    Column("r", Integer),
-    Column("h", Integer),
-    Column("x2b", Integer),
-    Column("x3b", Integer),
-    Column("hr", Integer),
-    Column("rbi", Integer),
-    Column("bb", Integer),
-    Column("so", Integer),
-    Column("hbp", Integer),
-    Column("tb", Integer),
-    Column("xbh", Integer),
-    Column("sf", Integer),
-    Column("sh", Integer),
-    Column("gdp", Integer),
-    Column("sb", Integer),
-    Column("cs", Integer),
-    Column("go", Integer),
-    Column("fo", Integer),
-    Column("go_fo", Numeric),
-    Column("hbp_p", Numeric),
-    Column("bb_p", Numeric),
-    Column("so_p", Numeric),
-    Column("babip", Numeric),
-    Column("iso", Numeric),
-    Column("avg", Numeric),
-    Column("obp", Numeric),
-    Column("slg", Numeric),
-    Column("ops", Numeric),
-    Column("sar", Numeric),
-    ForeignKeyConstraint(
-        ["fname", "lname", "team", "season"],
-        ["player_id.fname", "player_id.lname", "player_id.team", "player_id.season"],
-        onupdate="CASCADE", ondelete="CASCADE"
+
+class BattersConference(Base):
+    __tablename__ = "batters_conference"
+
+    no = Column(Integer)
+    fname = Column(String(20), primary_key=True)
+    lname = Column(String(20), primary_key=True)
+    team = Column(String(5), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    yr = Column(String(2))
+    pos = Column(String(15))
+    g = Column(Integer)
+    pa = Column(Integer)
+    ab = Column(Integer)
+    r = Column(Integer)
+    h = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    rbi = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    hbp = Column(Integer)
+    tb = Column(Integer)
+    xbh = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    gdp = Column(Integer)
+    sb = Column(Integer)
+    cs = Column(Integer)
+    go = Column(Integer)
+    fo = Column(Integer)
+    go_fo = Column(Numeric)
+    hbp_p = Column(Numeric)
+    bb_p = Column(Numeric)
+    so_p = Column(Numeric)
+    babip = Column(Numeric)
+    iso = Column(Numeric)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    ops = Column(Numeric)
+    sar = Column(Numeric)
+
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fname", "lname", "team", "season"],
+            ["player_id.fname", "player_id.lname", "player_id.team", "player_id.season"],
+            onupdate="CASCADE", ondelete="CASCADE"
+        ),
     )
-)
 
-pitchers_overall = Table(
-    "pitchers_overall", metadata,
-    Column("no", Integer),
-    Column("fname", String(20), primary_key=True),
-    Column("lname", String(20), primary_key=True),
-    Column("team", String(5), primary_key=True),
-    Column("season", Integer, primary_key=True),
-    Column("yr", String(2)),
-    Column("pos", String(15)),
-    Column("g", Integer),
-    Column("gs", Integer),
-    Column("w", Integer),
-    Column("l", Integer),
-    Column("sv", Integer),
-    Column("cg", Integer),
-    Column("sho", Integer),
-    Column("ip", Numeric),
-    Column("h", Integer),
-    Column("r", Integer),
-    Column("er", Integer),
-    Column("bb", Integer),
-    Column("so", Integer),
-    Column("x2b", Integer),
-    Column("x3b", Integer),
-    Column("hr", Integer),
-    Column("ab", Integer),
-    Column("wp", Integer),
-    Column("hbp", Integer),
-    Column("bk", Integer),
-    Column("sf", Integer),
-    Column("sh", Integer),
-    Column("pa", Integer),
-    Column("hbp_p", Numeric),
-    Column("bb_p", Numeric),
-    Column("so_p", Numeric),
-    Column("iso", Numeric),
-    Column("babip", Numeric),
-    Column("avg", Numeric),
-    Column("obp", Numeric),
-    Column("slg", Numeric),
-    Column("ops", Numeric),
-    Column("lob_p", Numeric),
-    Column("era", Numeric),
-    Column("ra_9", Numeric),
-    Column("so_9", Numeric),
-    Column("bb_9", Numeric),
-    Column("hr_9", Numeric),
-    Column("whip", Numeric),
-    ForeignKeyConstraint(
-        ["fname", "lname", "team", "season"],
-        ["player_id.fname", "player_id.lname", "player_id.team", "player_id.season"],
-        onupdate="CASCADE", ondelete="CASCADE"
+
+class PitchersOverall(Base):
+    __tablename__ = "pitchers_overall"
+
+    no = Column(Integer)
+    fname = Column(String(20), primary_key=True)
+    lname = Column(String(20), primary_key=True)
+    team = Column(String(5), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    yr = Column(String(2))
+    pos = Column(String(15))
+    g = Column(Integer)
+    gs = Column(Integer)
+    w = Column(Integer)
+    l = Column(Integer)
+    sv = Column(Integer)
+    cg = Column(Integer)
+    sho = Column(Integer)
+    ip = Column(Numeric)
+    h = Column(Integer)
+    r = Column(Integer)
+    er = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    ab = Column(Integer)
+    wp = Column(Integer)
+    hbp = Column(Integer)
+    bk = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    pa = Column(Integer)
+    hbp_p = Column(Numeric)
+    bb_p = Column(Numeric)
+    so_p = Column(Numeric)
+    iso = Column(Numeric)
+    babip = Column(Numeric)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    ops = Column(Numeric)
+    lob_p = Column(Numeric)
+    era = Column(Numeric)
+    ra_9 = Column(Numeric)
+    so_9 = Column(Numeric)
+    bb_9 = Column(Numeric)
+    hr_9 = Column(Numeric)
+    whip = Column(Numeric)
+
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fname", "lname", "team", "season"],
+            ["player_id.fname", "player_id.lname", "player_id.team", "player_id.season"],
+            onupdate="CASCADE", ondelete="CASCADE"
+        ),
     )
-)
 
-pitchers_conference = Table(
-    "pitchers_conference", metadata,
-    Column("no", Integer),
-    Column("fname", String(20), primary_key=True),
-    Column("lname", String(20), primary_key=True),
-    Column("team", String(5), primary_key=True),
-    Column("season", Integer, primary_key=True),
-    Column("yr", String(2)),
-    Column("pos", String(15)),
-    Column("g", Integer),
-    Column("gs", Integer),
-    Column("w", Integer),
-    Column("l", Integer),
-    Column("sv", Integer),
-    Column("cg", Integer),
-    Column("sho", Integer),
-    Column("ip", Numeric),
-    Column("h", Integer),
-    Column("r", Integer),
-    Column("er", Integer),
-    Column("bb", Integer),
-    Column("so", Integer),
-    Column("x2b", Integer),
-    Column("x3b", Integer),
-    Column("hr", Integer),
-    Column("ab", Integer),
-    Column("wp", Integer),
-    Column("hbp", Integer),
-    Column("bk", Integer),
-    Column("sf", Integer),
-    Column("sh", Integer),
-    Column("pa", Integer),
-    Column("hbp_p", Numeric),
-    Column("bb_p", Numeric),
-    Column("so_p", Numeric),
-    Column("iso", Numeric),
-    Column("babip", Numeric),
-    Column("avg", Numeric),
-    Column("obp", Numeric),
-    Column("slg", Numeric),
-    Column("ops", Numeric),
-    Column("lob_p", Numeric),
-    Column("era", Numeric),
-    Column("ra_9", Numeric),
-    Column("so_9", Numeric),
-    Column("bb_9", Numeric),
-    Column("hr_9", Numeric),
-    Column("whip", Numeric),
-    ForeignKeyConstraint(
-        ["fname", "lname", "team", "season"],
-        ["player_id.fname", "player_id.lname", "player_id.team", "player_id.season"],
-        onupdate="CASCADE", ondelete="CASCADE"
+
+class PitchersConference(Base):
+    __tablename__ = "pitchers_conference"
+
+    no = Column(Integer)
+    fname = Column(String(20), primary_key=True)
+    lname = Column(String(20), primary_key=True)
+    team = Column(String(5), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    yr = Column(String(2))
+    pos = Column(String(15))
+    g = Column(Integer)
+    gs = Column(Integer)
+    w = Column(Integer)
+    l = Column(Integer)
+    sv = Column(Integer)
+    cg = Column(Integer)
+    ip = Column(Numeric)
+    h = Column(Integer)
+    r = Column(Integer)
+    er = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    hr = Column(Integer)
+    era = Column(Numeric)
+    ra_9 = Column(Numeric)
+    so_9 = Column(Numeric)
+    bb_9 = Column(Numeric)
+    hr_9 = Column(Numeric)
+    whip = Column(Numeric)
+
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["fname", "lname", "team", "season"],
+            ["player_id.fname", "player_id.lname", "player_id.team", "player_id.season"],
+            onupdate="CASCADE", ondelete="CASCADE"
+        ),
     )
-)
-
-game_log = Table(
-    "game_log", metadata,
-    Column("game_num", Integer, primary_key=True),
-    Column("date", Date),
-    Column("season", Integer, primary_key=True),
-    Column("team", String(30), primary_key=True),
-    Column("opponent", String(30)),
-    Column("result", String(1)),
-    Column("rs", Integer),
-    Column("ra", Integer),
-    Column("home", Boolean),
-    Column("conference", Boolean),
-)
 
 
-def main() -> None:
-    config = utils.init_config()
-    engine = utils.create_db_engine(config["DB"])
-    for table in metadata.sorted_tables:
-        print(CreateTable(table).compile(engine))
-    metadata.drop_all(engine)
-    metadata.create_all(engine)
+class TeamOffenseOverall(Base):
+    __tablename__ = "team_offense_overall"
+
+    name = Column(String(30), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    pa = Column(Integer)
+    ab = Column(Integer)
+    r = Column(Integer)
+    h = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    rbi = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    hbp = Column(Integer)
+    tb = Column(Integer)
+    xbh = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    gdp = Column(Integer)
+    sb = Column(Integer)
+    cs = Column(Integer)
+    go = Column(Integer)
+    fo = Column(Integer)
+    go_fo = Column(Numeric)
+    hbp_p = Column(Numeric)
+    bb_p = Column(Numeric)
+    so_p = Column(Numeric)
+    babip = Column(Numeric)
+    iso = Column(Numeric)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    ops = Column(Numeric)
+    sar = Column(Numeric)
 
 
-if __name__ == "__main__":
-    main()  # pragma: no cover
+class TeamOffenseConference(Base):
+    __tablename__ = "team_offense_conference"
+
+    name = Column(String(30), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    pa = Column(Integer)
+    ab = Column(Integer)
+    r = Column(Integer)
+    h = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    rbi = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    hbp = Column(Integer)
+    tb = Column(Integer)
+    xbh = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    gdp = Column(Integer)
+    sb = Column(Integer)
+    cs = Column(Integer)
+    go = Column(Integer)
+    fo = Column(Integer)
+    go_fo = Column(Numeric)
+    hbp_p = Column(Numeric)
+    bb_p = Column(Numeric)
+    so_p = Column(Numeric)
+    babip = Column(Numeric)
+    iso = Column(Numeric)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    ops = Column(Numeric)
+    sar = Column(Numeric)
+
+
+class TeamPitchingOverall(Base):
+    __tablename__ = "team_pitching_overall"
+
+    name = Column(String(30), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    w = Column(Integer)
+    l = Column(Integer)
+    sv = Column(Integer)
+    cg = Column(Integer)
+    sho = Column(Integer)
+    ip = Column(Numeric)
+    h = Column(Integer)
+    r = Column(Integer)
+    er = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    ab = Column(Integer)
+    wp = Column(Integer)
+    hbp = Column(Integer)
+    bk = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    pa = Column(Integer)
+    hbp_p = Column(Numeric)
+    bb_p = Column(Numeric)
+    so_p = Column(Numeric)
+    iso = Column(Numeric)
+    babip = Column(Numeric)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    ops = Column(Numeric)
+    lob_p = Column(Numeric)
+    era = Column(Numeric)
+    ra_9 = Column(Numeric)
+    so_9 = Column(Numeric)
+    bb_9 = Column(Numeric)
+    hr_9 = Column(Numeric)
+    whip = Column(Numeric)
+
+
+class TeamPitchingConference(Base):
+    __tablename__ = "team_pitching_conference"
+
+    name = Column(String(30), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    ip = Column(Numeric)
+    h = Column(Integer)
+    r = Column(Integer)
+    er = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    so_9 = Column(Numeric)
+    hr = Column(Integer)
+    era = Column(Numeric)
+    ra_9 = Column(Numeric)
+    bb_9 = Column(Numeric)
+    hr_9 = Column(Numeric)
+    whip = Column(Numeric)
+
+
+class LeagueOffenseOverall(Base):
+    __tablename__ = "league_offense_overall"
+
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    pa = Column(Integer)
+    ab = Column(Integer)
+    r = Column(Integer)
+    h = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    rbi = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    hbp = Column(Integer)
+    tb = Column(Integer)
+    xbh = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    gdp = Column(Integer)
+    sb = Column(Integer)
+    cs = Column(Integer)
+    go = Column(Integer)
+    fo = Column(Integer)
+    go_fo = Column(Numeric)
+    hbp_p = Column(Numeric)
+    bb_p = Column(Numeric)
+    so_p = Column(Numeric)
+    babip = Column(Numeric)
+    iso = Column(Numeric)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    ops = Column(Numeric)
+    sar = Column(Numeric)
+    lg_r_pa = Column(Numeric)
+    bsr_bmult = Column(Numeric)
+    bsr = Column(Numeric)
+    lw_hbp = Column(Numeric)
+    lw_bb = Column(Numeric)
+    lw_x1b = Column(Numeric)
+    lw_x2b = Column(Numeric)
+    lw_x3b = Column(Numeric)
+    lw_hr = Column(Numeric)
+    lw_sb = Column(Numeric)
+    lw_cs = Column(Numeric)
+    lw_out = Column(Numeric)
+    ww_hbp = Column(Numeric)
+    ww_bb = Column(Numeric)
+    ww_x1b = Column(Numeric)
+    ww_x2b = Column(Numeric)
+    ww_x3b = Column(Numeric)
+    ww_hr = Column(Numeric)
+    woba_scale = Column(Numeric)
+    woba = Column(Numeric)
+    sbr = Column(Numeric)
+    lg_wsb = Column(Numeric)
+    wsb = Column(Numeric)
+    wraa = Column(Numeric)
+    off = Column(Numeric)
+    wrc = Column(Numeric)
+    wrc_p = Column(Numeric)
+    off_p = Column(Numeric)
+    rep_level = Column(Numeric)
+    rar = Column(Numeric)
+
+
+class LeagueOffenseConference(Base):
+    __tablename__ = "league_offense_conference"
+
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    pa = Column(Integer)
+    ab = Column(Integer)
+    r = Column(Integer)
+    h = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    rbi = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    hbp = Column(Integer)
+    tb = Column(Integer)
+    xbh = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    gdp = Column(Integer)
+    sb = Column(Integer)
+    cs = Column(Integer)
+    go = Column(Integer)
+    fo = Column(Integer)
+    go_fo = Column(Numeric)
+    hbp_p = Column(Numeric)
+    bb_p = Column(Numeric)
+    so_p = Column(Numeric)
+    babip = Column(Numeric)
+    iso = Column(Numeric)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    ops = Column(Numeric)
+    sar = Column(Numeric)
+    lg_r_pa = Column(Numeric)
+    bsr_bmult = Column(Numeric)
+    bsr = Column(Numeric)
+    lw_hbp = Column(Numeric)
+    lw_bb = Column(Numeric)
+    lw_x1b = Column(Numeric)
+    lw_x2b = Column(Numeric)
+    lw_x3b = Column(Numeric)
+    lw_hr = Column(Numeric)
+    lw_sb = Column(Numeric)
+    lw_cs = Column(Numeric)
+    lw_out = Column(Numeric)
+    ww_hbp = Column(Numeric)
+    ww_bb = Column(Numeric)
+    ww_x1b = Column(Numeric)
+    ww_x2b = Column(Numeric)
+    ww_x3b = Column(Numeric)
+    ww_hr = Column(Numeric)
+    woba_scale = Column(Numeric)
+    woba = Column(Numeric)
+    sbr = Column(Numeric)
+    lg_wsb = Column(Numeric)
+    wsb = Column(Numeric)
+    wraa = Column(Numeric)
+    off = Column(Numeric)
+    wrc = Column(Numeric)
+    wrc_p = Column(Numeric)
+    off_p = Column(Numeric)
+    rep_level = Column(Numeric)
+    rar = Column(Numeric)
+
+
+class LeaguePitchingOverall(Base):
+    __tablename__ = "league_pitching_overall"
+
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    w = Column(Integer)
+    l = Column(Integer)
+    sv = Column(Integer)
+    cg = Column(Integer)
+    sho = Column(Integer)
+    ip = Column(Numeric)
+    h = Column(Integer)
+    r = Column(Integer)
+    er = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    ab = Column(Integer)
+    wp = Column(Integer)
+    hbp = Column(Integer)
+    bk = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    pa = Column(Integer)
+    hbp_p = Column(Numeric)
+    bb_p = Column(Numeric)
+    so_p = Column(Numeric)
+    iso = Column(Numeric)
+    babip = Column(Numeric)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    ops = Column(Numeric)
+    lob_p = Column(Numeric)
+    era = Column(Numeric)
+    ra_9 = Column(Numeric)
+    so_9 = Column(Numeric)
+    bb_9 = Column(Numeric)
+    hr_9 = Column(Numeric)
+    whip = Column(Numeric)
+    lg_r_pa = Column(Numeric)
+    bsr_bmult = Column(Numeric)
+    bsr = Column(Numeric)
+    bsr_9 = Column(Numeric)
+    fip_constant = Column(Numeric)
+    fip = Column(Numeric)
+    raa = Column(Numeric)
+    bsraa = Column(Numeric)
+    fipraa = Column(Numeric)
+    era_minus = Column(Numeric)
+    fip_minus = Column(Numeric)
+    bsr_minus = Column(Numeric)
+
+
+class LeaguePitchingConference(Base):
+    __tablename__ = "league_pitching_conference"
+
+    season = Column(Integer, primary_key=True)
+    g = Column(Integer)
+    ip = Column(Numeric)
+    h = Column(Integer)
+    r = Column(Integer)
+    er = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    so_9 = Column(Numeric)
+    hr = Column(Integer)
+    era = Column(Numeric)
+    ra_9 = Column(Numeric)
+    bb_9 = Column(Numeric)
+    hr_9 = Column(Numeric)
+    whip = Column(Numeric)
+    raa = Column(Numeric)
+    era_minus = Column(Numeric)
+
+
+class GameLog(Base):
+    __tablename__ = "game_log"
+
+    game_num = Column(Integer, primary_key=True)
+    date = Column(Date)
+    season = Column(Integer, primary_key=True)
+    team = Column(String(30), primary_key=True)
+    opponent = Column(String(30))
+    result = Column(String(1))
+    rs = Column(Integer)
+    ra = Column(Integer)
+    home = Column(Boolean)
+    conference = Column(Boolean)
+
+
+class NameCorrection(Base):
+    __tablename__ = "name_corrections"
+
+    uc_fname = Column(String(20), primary_key=True)
+    uc_lname = Column(String(20), primary_key=True)
+    uc_team = Column(String(5), primary_key=True)
+    uc_season = Column(Integer, primary_key=True)
+    c_fname = Column(String(20), nullable=False)
+    c_lname = Column(String(20), nullable=False)
+    type = Column(String(1))
+    submitted = Column(DateTime, server_default=func.now())
+
+
+class Nickname(Base):
+    __tablename__ = "nicknames"
+
+    rid = Column(Integer, nullable=False)
+    name = Column(String(20), primary_key=True)
+    nickname = Column(String(20), primary_key=True)
+
+
+class DuplicateName(Base):
+    __tablename__ = "duplicate_names"
+    fname = Column(String(20), primary_key=True)
+    lname = Column(String(20), primary_key=True)
+    team = Column(String(5), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    id = Column(Integer, nullable=False)
+
+
+class RawBattersOverall(Base):
+    __tablename__ = "raw_batters_overall"
+
+    no = Column(Integer)
+    name = Column(String(35), primary_key=True)
+    team = Column(String(5), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    yr = Column(String(2))
+    pos = Column(String(15))
+    g = Column(Integer)
+    pa = Column(Integer)
+    ab = Column(Integer)
+    r = Column(Integer)
+    h = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    rbi = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    sb = Column(Integer)
+    cs = Column(Integer)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    hbp = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    tb = Column(Integer)
+    xbh = Column(Integer)
+    gdp = Column(Integer)
+    go = Column(Integer)
+    fo = Column(Integer)
+    go_fo = Column(Numeric)
+
+
+class RawBattersConference(Base):
+    __tablename__ = "raw_batters_conference"
+
+    no = Column(Integer)
+    name = Column(String(35), primary_key=True)
+    team = Column(String(5), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    yr = Column(String(2))
+    pos = Column(String(15))
+    g = Column(Integer)
+    pa = Column(Integer)
+    ab = Column(Integer)
+    r = Column(Integer)
+    h = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    rbi = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    sb = Column(Integer)
+    cs = Column(Integer)
+    avg = Column(Numeric)
+    obp = Column(Numeric)
+    slg = Column(Numeric)
+    hbp = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    tb = Column(Integer)
+    xbh = Column(Integer)
+    gdp = Column(Integer)
+    go = Column(Integer)
+    fo = Column(Integer)
+    go_fo = Column(Numeric)
+
+
+class RawPitchersOverall(Base):
+    __tablename__ = "raw_pitchers_overall"
+
+    no = Column(Integer)
+    name = Column(String(35), primary_key=True)
+    team = Column(String(5), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    yr = Column(String(2))
+    pos = Column(String(15))
+    g = Column(Integer)
+    gs = Column(Integer)
+    w = Column(Integer)
+    l = Column(Integer)
+    sv = Column(Integer)
+    cg = Column(Integer)
+    sho = Column(Integer)
+    ip = Column(String(20))
+    h = Column(Integer)
+    r = Column(Integer)
+    er = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    era = Column(Numeric)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    ab = Column(Integer)
+    avg = Column(Numeric)
+    wp = Column(Integer)
+    hbp = Column(Integer)
+    bk = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    so_9 = Column(Numeric)
+
+
+class RawPitchersConference(Base):
+    __tablename__ = "raw_pitchers_conference"
+
+    no = Column(Integer)
+    name = Column(String(35), primary_key=True)
+    team = Column(String(5), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    yr = Column(String(2))
+    pos = Column(String(15))
+    g = Column(Integer)
+    gs = Column(Integer)
+    w = Column(Integer)
+    l = Column(Integer)
+    sv = Column(Integer)
+    cg = Column(Integer)
+    ip = Column(String(20))
+    h = Column(Integer)
+    r = Column(Integer)
+    er = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    so_9 = Column(Numeric)
+    hr = Column(Integer)
+    era = Column(Numeric)
+
+
+class RawGameLogFielding(Base):
+    __tablename__ = "raw_game_log_fielding"
+
+    game_num = Column(Integer, primary_key=True)
+    date = Column(String(10), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    name = Column(String(30), primary_key=True)
+    opponent = Column(String)
+    score = Column(String(10))
+    tc = Column(Integer)
+    po = Column(Integer)
+    a = Column(Integer)
+    e = Column(Integer)
+    fpct = Column(Numeric)
+    dp = Column(Integer)
+    sba = Column(Integer)
+    cs = Column(Integer)
+    cspct = Column(Numeric)
+    pb = Column(Integer)
+    ci = Column(Integer)
+
+
+class RawGameLogHitting(Base):
+    __tablename__ = "raw_game_log_hitting"
+
+    game_num = Column(Integer, primary_key=True)
+    date = Column(String(10), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    name = Column(String(30), primary_key=True)
+    opponent = Column(String)
+    score = Column(String(10))
+    ab = Column(Integer)
+    r = Column(Integer)
+    h = Column(Integer)
+    x2b = Column(Integer)
+    x3b = Column(Integer)
+    hr = Column(Integer)
+    rbi = Column(Integer)
+    bb = Column(Integer)
+    so = Column(Integer)
+    sb = Column(Integer)
+    cs = Column(Integer)
+    hbp = Column(Integer)
+    sf = Column(Integer)
+    sh = Column(Integer)
+    tb = Column(Integer)
+    xbh = Column(Integer)
+    gbp = Column(Integer)
+    go = Column(Integer)
+    fo = Column(Integer)
+    go_fo = Column(Numeric)
+    pa = Column(Integer)
+
+
+class RawGameLogPitching(Base):
+    __tablename__ = "raw_game_log_pitching"
+
+    game_num = Column(Integer, primary_key=True)
+    date = Column(String(10), primary_key=True)
+    season = Column(Integer, primary_key=True)
+    name = Column(String(30), primary_key=True)
+    opponent = Column(String)
+    score = Column(String(10))
+    w = Column(Integer)
+    l = Column(Integer)
+    sv = Column(Integer)
+    ip = Column(Numeric)
+    h = Column(Integer)
+    r = Column(Integer)
+    er = Column(Integer)
+    era = Column(Numeric)
+    bb = Column(Integer)
+    so = Column(Integer)
+    hr = Column(Integer)
