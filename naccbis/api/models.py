@@ -1,3 +1,4 @@
+""" Database models """
 from sqlalchemy import (
     Column, Integer, String, Numeric, Boolean, Date, DateTime, ForeignKeyConstraint
 )
@@ -582,9 +583,6 @@ class LeaguePitchingConference(Base):
     whip = Column(Numeric)
     raa = Column(Numeric)
     era_minus = Column(Numeric)
-
-    class Config:
-        orm_mode = True
 
 
 class GameLog(Base):
