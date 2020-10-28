@@ -1,5 +1,17 @@
 from typing import Optional, List
-from pydantic import BaseModel
+# from pydantic import BaseModel
+from math import isnan
+
+from pydantic import BaseModel as PydanticBaseModel, validator
+
+
+class BaseModel(PydanticBaseModel):
+    @validator('*')
+    def change_nan_to_none(cls, v, values, field):
+        # pydantic doesn't like pandas NaN
+        if field.outer_type_ is float and isnan(v):
+            return None
+        return v
 
 
 class OffenseSchema(BaseModel):
@@ -35,6 +47,16 @@ class OffenseSchema(BaseModel):
     slg: Optional[float]
     ops: Optional[float]
     sar: Optional[float]
+    # advanced stats (not in db)
+    sbr: Optional[float]
+    wsb: Optional[float]
+    woba: Optional[float]
+    wraa: Optional[float]
+    off: Optional[float]
+    wrc: Optional[float]
+    wrc_p: Optional[float]
+    off_p: Optional[float]
+    rar: Optional[float]
 
     class Config:
         orm_mode = True
@@ -80,6 +102,16 @@ class BattersSchema(BaseModel):
     slg: Optional[float]
     ops: Optional[float]
     sar: Optional[float]
+    # advanced stats (not in db)
+    sbr: Optional[float]
+    wsb: Optional[float]
+    woba: Optional[float]
+    wraa: Optional[float]
+    off: Optional[float]
+    wrc: Optional[float]
+    wrc_p: Optional[float]
+    off_p: Optional[float]
+    rar: Optional[float]
 
     class Config:
         orm_mode = True
@@ -120,6 +152,16 @@ class TeamOffenseSchema(BaseModel):
     slg: Optional[float]
     ops: Optional[float]
     sar: Optional[float]
+    # advanced stats (not in db)
+    sbr: Optional[float]
+    wsb: Optional[float]
+    woba: Optional[float]
+    wraa: Optional[float]
+    off: Optional[float]
+    wrc: Optional[float]
+    wrc_p: Optional[float]
+    off_p: Optional[float]
+    rar: Optional[float]
 
     class Config:
         orm_mode = True

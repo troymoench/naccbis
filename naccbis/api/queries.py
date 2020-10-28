@@ -39,7 +39,7 @@ def get_batters(
     if team:
         q = q.filter(table.team == team)
     q = q.filter(table.pa >= min_pa)
-    return q.all()
+    return pd.read_sql_query(q.statement, q.session.bind)
 
 
 def get_pitchers(
@@ -60,7 +60,7 @@ def get_pitchers(
     if team:
         q = q.filter(table.team == team)
     q = q.filter(table.ip >= min_ip)
-    return q.all()
+    return pd.read_sql_query(q.statement, q.session.bind)
 
 
 def get_player_offense(db: Session, player_id: str):

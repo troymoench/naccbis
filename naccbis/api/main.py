@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from . import queries, schemas
 from .database import SessionLocal
 from naccbis import __version__
+from naccbis.Common import metrics
 
 
 app = FastAPI(version=__version__)
@@ -33,7 +34,10 @@ def read_batters(
     min_pa: int = 0,
     db: Session = Depends(get_db)
 ):
-    return queries.get_batters(db, season, team, split, min_pa)
+    batters = queries.get_batters(db, season, team, split, min_pa)
+    totals = queries.get_league_offense(db, season, split)
+    df = metrics.multi_season(batters, totals, metrics.season_offensive_metrics_rar)
+    return [row for row in df.itertuples(index=False)]
 
 
 @app.get("/pitchers/", response_model=List[schemas.PitchersSchema])
@@ -54,7 +58,9 @@ def read_team_offense(
     split: str = "overall",
     db: Session = Depends(get_db)
 ):
-    df = queries.get_team_offense(db, season, team, split)
+    teams = queries.get_team_offense(db, season, team, split)
+    totals = queries.get_league_offense(db, season, split)
+    df = metrics.multi_season(teams, totals, metrics.season_offensive_metrics_rar)
     return [row for row in df.itertuples(index=False)]
 
 
