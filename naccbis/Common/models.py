@@ -1,12 +1,13 @@
 """ Database models """
+from typing import Any
 from sqlalchemy import (
     Column, Integer, String, Numeric, Boolean, Date, DateTime, ForeignKeyConstraint
 )
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 
-
-Base = declarative_base()
+# HACK: sqlalchemy-stubs should be used instead
+Base: Any = declarative_base()
 
 Base.metadata.naming_convention = {
   "ix": "ix_%(column_0_label)s",
