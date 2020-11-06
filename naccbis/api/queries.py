@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 import pandas as pd
 from sqlalchemy import func
@@ -17,6 +18,7 @@ from naccbis.Common.models import (
     LeagueOffenseConference,
     LeaguePitchingOverall,
     LeaguePitchingConference,
+    GameLog,
 )
 from naccbis.Common import metrics
 
@@ -218,4 +220,25 @@ def get_league_pitching(
     if season:
         q = q.filter(table.season == season)
     q = q.order_by(table.season)
+    return pd.read_sql_query(q.statement, q.session.bind)
+
+
+def get_game_log(
+    db: Session,
+    team: Optional[str],
+    season: Optional[int],
+    game_date: Optional[date],
+    home: Optional[bool],
+    split: Optional[str] = "overall"
+):
+    q = db.query(GameLog)
+    if team:
+        q = q.filter(GameLog.team == team)
+    if season:
+        q = q.filter(GameLog.season == season)
+    if game_date:
+        q = q.filter(GameLog.date == game_date)
+    if home:
+        q = q.filter(GameLog.home == home)
+    q = q.order_by(GameLog.season, GameLog.team, GameLog.game_num)
     return pd.read_sql_query(q.statement, q.session.bind)

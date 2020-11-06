@@ -1,3 +1,4 @@
+from datetime import date
 from typing import List, Optional
 
 from fastapi import Depends, FastAPI
@@ -108,3 +109,16 @@ def read_player(player_id: str, db: Session = Depends(get_db)):
         "pitching": [value for _, value in pitch.iterrows()],
         "pitching_career": [value for _, value in pitch_totals.iterrows()],
     }
+
+
+@app.get("/game_log/", response_model=List[schemas.GameLogSchema])
+def read_game_log(
+    team: Optional[str] = None,
+    season: Optional[int] = None,
+    game_date: Optional[date] = None,
+    home: Optional[bool] = None,
+    split: str = "overall",
+    db: Session = Depends(get_db)
+):
+    df = queries.get_game_log(db, team, season, game_date, home)
+    return [row for row in df.itertuples(index=False)]

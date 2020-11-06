@@ -1,5 +1,5 @@
+from datetime import date
 from typing import Optional, List
-# from pydantic import BaseModel
 from math import isnan
 
 from pydantic import BaseModel as PydanticBaseModel, validator
@@ -438,3 +438,19 @@ class PlayerSchema(BaseModel):
     offense_career: List[OffenseSchema] = []
     pitching: List[PitchersSchema] = []
     pitching_career: List[PitchingSchema] = []
+
+
+class GameLogSchema(BaseModel):
+    game_num: int
+    date: date
+    season: int
+    team: str
+    opponent: str
+    result: str
+    rs: int
+    ra: int
+    home: bool
+    conference: bool
+
+    class Config:
+        orm_mode = True
