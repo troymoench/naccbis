@@ -8,7 +8,7 @@ from typing import Dict
 # Third party imports
 import pandas as pd
 # Local imports
-import naccbis.Common.utils as utils
+from naccbis.Common import utils
 
 
 class BaseScraper(metaclass=ABCMeta):

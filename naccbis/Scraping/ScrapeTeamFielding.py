@@ -2,7 +2,6 @@
 # Standard library imports
 from datetime import date
 import logging
-import sys
 # Third party imports
 from bs4 import BeautifulSoup
 import numpy as np
@@ -10,7 +9,7 @@ import pandas as pd
 # Local imports
 from . import ScrapeFunctions as sf
 from .ScrapeBase import BaseScraper
-import naccbis.Common.utils as utils
+from naccbis.Common import utils
 
 
 class TeamFieldingScraper(BaseScraper):
@@ -55,9 +54,6 @@ class TeamFieldingScraper(BaseScraper):
             index = 0
         elif self._split == "conference":
             index = 1
-        else:
-            print("Invalid split:", self._split)
-            sys.exit(1)
 
         # find index of fielding table
         tableNum1 = sf.find_table(soup, self.FIELDING_COLS)[index]

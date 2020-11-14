@@ -16,7 +16,7 @@ from naccbis.Scraping import (
     TeamOffenseScraper,
     TeamPitchingScraper,
 )
-import naccbis.Common.utils as utils
+from naccbis.Common import utils
 from naccbis import __version__
 
 

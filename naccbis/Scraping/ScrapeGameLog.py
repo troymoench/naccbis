@@ -1,7 +1,6 @@
 # Standard library imports
 from datetime import date
 import logging
-import sys
 from urllib.parse import urljoin
 # Third party imports
 from bs4 import BeautifulSoup
@@ -10,7 +9,7 @@ import pandas as pd
 # Local imports
 from . import ScrapeFunctions as sf
 from .ScrapeBase import BaseScraper
-import naccbis.Common.utils as utils
+from naccbis.Common import utils
 
 
 class GameLogScraper(BaseScraper):
@@ -67,9 +66,8 @@ class GameLogScraper(BaseScraper):
 
         tags = team_soup.find_all('a', string="Game Log")
         if len(tags) != 1:
-            print("Can't find Game Log")
             logging.error("Can't find Game Log")
-            sys.exit(1)
+            raise RuntimeError("Can't find Game Log")
         url = tags[0].get('href')
         url = urljoin(self.BASE_URL, url)
 
@@ -95,9 +93,6 @@ class GameLogScraper(BaseScraper):
             fielding = sf.scrape_table(game_soup, tableNum1 + 1, first_row=2, skip_rows=0)
 
             return fielding
-        else:
-            print("Invalid split:", self._split)
-            sys.exit(1)
 
     def _clean(self, data: pd.DataFrame, team: str) -> pd.DataFrame:
         if self._split == "hitting":
@@ -122,10 +117,6 @@ class GameLogScraper(BaseScraper):
             intCols = ['tc', 'po', 'a', 'e', 'dp', 'sba', 'cs', 'pb', 'ci']
             floatCols = ['fpct', 'cspct']
             renameCols = {'rcs': 'cs', 'rcs%': 'cspct'}
-
-        else:
-            print("Invalid split:", self._split)
-            sys.exit(1)
 
         data.rename(columns=renameCols, inplace=True)
 
