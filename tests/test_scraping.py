@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 import pytest
 # Local imports
-import naccbis.Scraping.ScrapeFunctions as sf
 from naccbis.Scraping import (
+    ScrapeFunctions,
     BaseScraper,
     GameLogScraper,
     IndividualOffenseScraper,
@@ -16,7 +16,7 @@ from naccbis.Scraping import (
     TeamOffenseScraper,
     TeamPitchingScraper,
 )
-import naccbis.scripts.scrape as scrape
+from naccbis.scripts import scrape
 
 
 @pytest.fixture
@@ -92,7 +92,7 @@ def mock_get_soup(monkeypatch):
         """
         return BeautifulSoup(html, "html.parser")
 
-    monkeypatch.setattr(sf, "get_soup", mock_response)
+    monkeypatch.setattr(ScrapeFunctions, "get_soup", mock_response)
 
 
 class TestScrapeFunctions():
@@ -116,18 +116,18 @@ class TestScrapeFunctions():
     def test_get_text(self):
         soup = BeautifulSoup("<a href='https://www.google.com'> Google </a>", 'html.parser')
         html_tag = soup.a
-        assert sf.get_text(html_tag) == "Google"
+        assert ScrapeFunctions.get_text(html_tag) == "Google"
 
     def test_get_href(self):
         soup = BeautifulSoup("<a href='https://www.google.com'> Google </a>", 'html.parser')
         html_tag = soup.a
-        assert sf.get_href(html_tag) == "https://www.google.com"
+        assert ScrapeFunctions.get_href(html_tag) == "https://www.google.com"
 
     def test_find_table(self, html_table):
         header_values = ["Col 1", "col 3"]
         soup = BeautifulSoup(html_table, "html.parser")
-        assert sf.find_table(soup, header_values) == [0]
-        assert sf.find_table(soup, ["Col 1", "Col 5"]) == []
+        assert ScrapeFunctions.find_table(soup, header_values) == [0]
+        assert ScrapeFunctions.find_table(soup, ["Col 1", "Col 5"]) == []
 
     def test_scrape_table(self, html_table):
         df = pd.DataFrame({
@@ -137,9 +137,9 @@ class TestScrapeFunctions():
             "Col 4": ["(1,4)", "(2,4)", "(3,4)", "(4,4)"]
         })
         soup = BeautifulSoup(html_table, "html.parser")
-        assert df.equals(sf.scrape_table(soup, 1))
+        assert df.equals(ScrapeFunctions.scrape_table(soup, 1))
         with pytest.raises(IndexError):
-            sf.scrape_table(soup, 2)
+            ScrapeFunctions.scrape_table(soup, 2)
 
     def test_get_team_list(self, mock_get_soup):
         year = '2017-18'
@@ -156,7 +156,7 @@ class TestScrapeFunctions():
             {'team': 'Rockford', 'id': 'ROCK', 'url': 'teams/rockford?view=lineup'},
             {'team': 'Wisconsin Lutheran', 'id': 'WLC', 'url': 'teams/wislutheran?view=lineup'},
         ]
-        assert sf.get_team_list(self.BASE_URL, year, self.TEAM_IDS) == expected
+        assert ScrapeFunctions.get_team_list(self.BASE_URL, year, self.TEAM_IDS) == expected
 
     def test_skip_team(self):
         html = """
@@ -167,7 +167,7 @@ class TestScrapeFunctions():
         </tr>
         """
         soup = BeautifulSoup(html, 'html.parser')
-        assert sf.skip_team(soup)
+        assert ScrapeFunctions.skip_team(soup)
 
 
 def test_cant_instantiate_base_scraper():

@@ -3,8 +3,7 @@
 # Third party imports
 import pytest
 # Local imports
-import naccbis.Common.utils as utils
-from naccbis.Common import models
+from naccbis.Common import (utils, models)
 
 
 @pytest.fixture

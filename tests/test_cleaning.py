@@ -5,13 +5,8 @@ import datetime
 import pandas as pd
 import pytest
 # Local imports
-import naccbis.Cleaning.CleanFunctions as cf
-from naccbis.Cleaning import GameLogETL as gl
-from naccbis.Cleaning import LeagueOffenseETL as lo
-import naccbis.scripts.clean as clean
-import naccbis.scripts.DumpNames as DumpNames
-import naccbis.scripts.GenerateIds as gi
-import naccbis.scripts.verify as verify
+from naccbis.Cleaning import (CleanFunctions, GameLogETL, LeagueOffenseETL)
+from naccbis.scripts import (clean, DumpNames, GenerateIds, verify)
 
 
 class TestCleanFunctions():
@@ -41,7 +36,7 @@ class TestCleanFunctions():
         ]
     )
     def test_create_id(self, fname, lname, expected):
-        assert cf.create_id(fname, lname) == expected
+        assert CleanFunctions.create_id(fname, lname) == expected
 
     @pytest.mark.parametrize(
         'id, n, expected', [
@@ -51,7 +46,7 @@ class TestCleanFunctions():
         ]
     )
     def test_add_n(self, id, n, expected):
-        assert cf.add_n(id, n) == expected
+        assert CleanFunctions.add_n(id, n) == expected
 
     def test_normalize_names(self):
         df1 = pd.DataFrame([("Jeffrey  Mayes", "AUR", 2017),
@@ -61,19 +56,9 @@ class TestCleanFunctions():
         df2 = pd.DataFrame(df1)
         df2["fname"] = ["Jeffrey", "DJ", "Quinlan"]
         df2["lname"] = ["Mayes", "Dillon", "Milne Rojek"]
-        assert cf.normalize_names(df1).equals(df2)
+        assert CleanFunctions.normalize_names(df1).equals(df2)
 
     def test_apply_corrections(self):
-        #          uc_fname     uc_lname uc_team  uc_season      c_fname           c_lname
-        # 0        Steven       Jaquez     AUR       2014           Ty            Jaquez
-        # 1        Steven       Jaquez     AUR       2015           Ty            Jaquez
-        # 2        Steven       Jaquez     AUR       2016           Ty            Jaquez
-        # 3           Dan     Lo dolce     CUC       2014          Dan          Lo Dolce
-        # 4           Dan      Lodolce     CUC       2015          Dan          Lo Dolce
-        # 5            Tj        McCoy     MAR       2013           TJ             McCoy
-        # 6            Tj        McCoy     MAR       2014           TJ             McCoy
-        # 7            Aj       Alessi     MAR       2014           AJ            Alessi
-
         corrections = pd.DataFrame([
             ("Steven", "Jaquez", "AUR", 2014, "Ty", "Jaquez", "C"),
             ("Steven", "Jaquez", "AUR", 2015, "Ty", "Jaquez", "C"),
@@ -104,14 +89,14 @@ class TestCleanFunctions():
         # make sure apply_corrections doesn't remove any columns
         self.data["pos"] = "INF"
         expected["pos"] = "INF"
-        assert cf.apply_corrections(self.data, corrections).equals(expected)
+        assert CleanFunctions.apply_corrections(self.data, corrections).equals(expected)
 
     def test_apply_corrections_no_change(self):
         corrections = pd.DataFrame([], columns=["uc_fname", "uc_lname", "uc_team",
                                                 "uc_season", "c_fname", "c_lname", "type"])
         self.data["pos"] = "INF"
         expected = self.data
-        assert cf.apply_corrections(self.data, corrections).equals(expected)
+        assert CleanFunctions.apply_corrections(self.data, corrections).equals(expected)
 
     @pytest.mark.parametrize(
         'raw, expected', [
@@ -121,7 +106,7 @@ class TestCleanFunctions():
         ]
     )
     def test_convert_ip(self, raw, expected):
-        assert cf.convert_ip(raw) == expected
+        assert CleanFunctions.convert_ip(raw) == expected
 
 
 class TestGenerateIds():
@@ -190,16 +175,16 @@ class TestGenerateIds():
     ], columns=["lname", "fname", "team", "season", "player_id", "full_name"])
 
     def test_update_id_conflicts(self):
-        assert gi.update_id_conflicts(self.conflicts_raw).equals(self.conflicts_expected)
+        assert GenerateIds.update_id_conflicts(self.conflicts_raw).equals(self.conflicts_expected)
 
     def test_update_duplicates(self):
         # print([row for row in foo.itertuples(False, None)])
-        assert gi.update_duplicates(self.dupes_raw, self.duplicates).equals(self.dupes_expected)
+        assert GenerateIds.update_duplicates(self.dupes_raw, self.duplicates).equals(self.dupes_expected)
 
     def test_verify_unique_ids(self):
         unique_before = self.dupes_raw["player_id"].nunique()
         unique_after = self.dupes_expected["player_id"].nunique()
-        assert gi.verify_unique_ids(unique_before, unique_after, self.duplicates)
+        assert GenerateIds.verify_unique_ids(unique_before, unique_after, self.duplicates)
 
     def test_generate_ids(self):
         raw = pd.concat([self.conflicts_raw, self.dupes_raw], ignore_index=True)
@@ -207,17 +192,17 @@ class TestGenerateIds():
         expected = pd.concat([self.conflicts_expected, self.dupes_expected],
                              ignore_index=True)
         expected.drop(columns=["full_name"], inplace=True)
-        assert gi.generate_ids(raw, self.duplicates).equals(expected)
+        assert GenerateIds.generate_ids(raw, self.duplicates).equals(expected)
 
     def test_parse_args_defaults(self):
-        args = gi.parse_args([])
+        args = GenerateIds.parse_args([])
         assert not args.load
         assert not args.clear
         assert args.season is None
         assert args.dir == ""
 
     def test_parse_args_all_options(self):
-        args = gi.parse_args(['--load', '--clear', '--dir', 'csv/', '--season', '2019'])
+        args = GenerateIds.parse_args(['--load', '--clear', '--dir', 'csv/', '--season', '2019'])
         assert args.load
         assert args.clear
         assert args.season == 2019
@@ -257,7 +242,7 @@ class TestCleanGameLogs():
         ]
     )
     def test_extract_result(self, score, expected):
-        assert gl.extract_result(score) == expected
+        assert GameLogETL.extract_result(score) == expected
 
     @pytest.mark.parametrize(
         'score, expected', [
@@ -268,7 +253,7 @@ class TestCleanGameLogs():
         ]
     )
     def test_extract_runs(self, score, expected):
-        assert gl.extract_runs(score) == expected
+        assert GameLogETL.extract_runs(score) == expected
 
     @pytest.mark.parametrize(
         'opponent, expected', [
@@ -280,7 +265,7 @@ class TestCleanGameLogs():
         ]
     )
     def test_extract_opponent(self, opponent, expected):
-        assert gl.extract_opponent(opponent) == expected
+        assert GameLogETL.extract_opponent(opponent) == expected
 
     @pytest.mark.parametrize(
         'opponent, expected', [
@@ -290,7 +275,7 @@ class TestCleanGameLogs():
         ]
     )
     def test_extract_home(self, opponent, expected):
-        assert gl.extract_home(opponent) == expected
+        assert GameLogETL.extract_home(opponent) == expected
 
     @pytest.mark.parametrize(
         'opponent, season, expected', [
@@ -303,7 +288,7 @@ class TestCleanGameLogs():
     def test_extract_conference(self, opponent, season, expected):
         teams = ["Aurora", "Benedictine", "Concordia Chicago", "Concordia Wisconsin", "Dominican",
                  "Edgewood", "Lakeland", "MSOE", "Marian", "Maranatha", "Rockford", "Wisconsin Lutheran"]
-        assert gl.extract_conference(opponent, season, teams) == expected
+        assert GameLogETL.extract_conference(opponent, season, teams) == expected
 
     @pytest.mark.parametrize(
         'date_str, season, expected', [
@@ -316,7 +301,7 @@ class TestCleanGameLogs():
         ]
     )
     def test_extract_date(self, date_str, season, expected):
-        assert gl.extract_date(date_str, season) == expected
+        assert GameLogETL.extract_date(date_str, season) == expected
 
 
 class TestClean():
@@ -398,7 +383,7 @@ class TestLeagueTotals():
             ('Justin', 'Aloisio', 'AUR', 2010, 'Fr', 'OF', 1, 1)
         ], columns=["fname", "lname", "team", "season", "yr", "pos", "g", "pa"])
 
-        temp = lo.select_bench_players(team)
+        temp = LeagueOffenseETL.select_bench_players(team)
 
         temp.sort_values(by=["pa", "lname"], ascending=False, inplace=True)
         temp.reset_index(drop=True, inplace=True)
