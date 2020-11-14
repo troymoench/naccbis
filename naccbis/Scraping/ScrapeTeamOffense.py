@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 # Local imports
-from . import ScrapeFunctions as sf
+from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
 from naccbis.Common import utils
 
@@ -42,7 +42,7 @@ class TeamOffenseScraper(BaseScraper):
         logging.info("%s", self._name)
         logging.info("Fetching teams")
         url = "{}{}/teams".format(self.BASE_URL, self._year)
-        soup = sf.get_soup(url)
+        soup = ScrapeFunctions.get_soup(url)
         logging.info("Looking for hitting tables")
         df = self._scrape(soup)
         logging.info("Cleaning scraped data")
@@ -58,11 +58,11 @@ class TeamOffenseScraper(BaseScraper):
             index = 1
 
         # find index of hitting table
-        tableNum1 = sf.find_table(soup, self.HITTING_COLS)[index]
-        hitting = sf.scrape_table(soup, tableNum1 + 1, skip_rows=0)
+        tableNum1 = ScrapeFunctions.find_table(soup, self.HITTING_COLS)[index]
+        hitting = ScrapeFunctions.scrape_table(soup, tableNum1 + 1, skip_rows=0)
         # find index of extended_hitting table
-        tableNum2 = sf.find_table(soup, self.EXTENDED_HITTING_COLS)[index]
-        extendedHitting = sf.scrape_table(soup, tableNum2 + 1, skip_rows=0)
+        tableNum2 = ScrapeFunctions.find_table(soup, self.EXTENDED_HITTING_COLS)[index]
+        extendedHitting = ScrapeFunctions.scrape_table(soup, tableNum2 + 1, skip_rows=0)
 
         # may want to normalize the column names before merging, eg, lower(), gp to g
         return pd.merge(hitting, extendedHitting, on=["Rk", "Name", "gp"])

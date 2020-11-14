@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 # Local imports
-from . import ScrapeFunctions as sf
+from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
 from naccbis.Common import utils
 
@@ -39,16 +39,15 @@ class IndividualOffenseScraper(BaseScraper):
         """ Run the scraper """
         logging.info("%s", self._name)
 
-        teamList = sf.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
+        teamList = ScrapeFunctions.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
         logging.info("Found %d teams to scrape", len(teamList))
 
-        # iterate over the teams
         for team in teamList:
             logging.info("Fetching %s", team['team'])
 
             url = "{}{}/{}".format(self.BASE_URL, self._year, team['url'])
-            teamSoup = sf.get_soup(url)
-            if sf.skip_team(teamSoup):
+            teamSoup = ScrapeFunctions.get_soup(url)
+            if ScrapeFunctions.skip_team(teamSoup):
                 continue
             logging.info("Looking for hitting tables")
             df = self._scrape(teamSoup)
@@ -66,16 +65,16 @@ class IndividualOffenseScraper(BaseScraper):
         # Instead, find the indices of the tables on the same page
 
         if self._split == "overall":
-            index = 0  # overall is first item in list returned by find_table()
+            index = 0
         elif self._split == "conference":
-            index = 1  # conference is the second item in list returned by find_table()
+            index = 1
 
         # find index of hitting table
-        tableNum1 = sf.find_table(team_soup, self.HITTING_COLS)[index]
-        hitting = sf.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
+        tableNum1 = ScrapeFunctions.find_table(team_soup, self.HITTING_COLS)[index]
+        hitting = ScrapeFunctions.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
         # find index of extended_hitting table
-        tableNum2 = sf.find_table(team_soup, self.EXTENDED_HITTING_COLS)[index]
-        extendedHitting = sf.scrape_table(team_soup, tableNum2 + 1, skip_rows=2)
+        tableNum2 = ScrapeFunctions.find_table(team_soup, self.EXTENDED_HITTING_COLS)[index]
+        extendedHitting = ScrapeFunctions.scrape_table(team_soup, tableNum2 + 1, skip_rows=2)
 
         return pd.merge(hitting, extendedHitting, on=["No.", "Name", "Yr", "Pos", "g"])
 

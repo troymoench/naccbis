@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 # Local imports
-from . import ScrapeFunctions as sf
+from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
 from naccbis.Common import utils
 
@@ -41,16 +41,15 @@ class IndividualPitchingScraper(BaseScraper):
         """ Run the scraper """
         logging.info("%s", self._name)
 
-        teamList = sf.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
+        teamList = ScrapeFunctions.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
         logging.info("Found %d teams to scrape", len(teamList))
 
-        # iterate over the teams
         for team in teamList:
             logging.info("Fetching %s", team['team'])
 
             url = "{}{}/{}".format(self.BASE_URL, self._year, team['url'])
-            teamSoup = sf.get_soup(url)
-            if sf.skip_team(teamSoup):
+            teamSoup = ScrapeFunctions.get_soup(url)
+            if ScrapeFunctions.skip_team(teamSoup):
                 continue
             logging.info("Looking for pitching tables")
             df = self._scrape(teamSoup)
@@ -63,8 +62,8 @@ class IndividualPitchingScraper(BaseScraper):
     def _scrape_overall(self, team_soup: BeautifulSoup) -> pd.DataFrame:
         index = 0
         # find index of pitching table
-        tableNum1 = sf.find_table(team_soup, self.PITCHING_COLS)[index]
-        pitching = sf.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
+        tableNum1 = ScrapeFunctions.find_table(team_soup, self.PITCHING_COLS)[index]
+        pitching = ScrapeFunctions.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
 
         tags = team_soup.find_all('a', string="Coach's View")
         if len(tags) != 1:
@@ -73,9 +72,11 @@ class IndividualPitchingScraper(BaseScraper):
 
         url = tags[0].get('href')
         url = urljoin(self.BASE_URL, url)
-        coach_soup = sf.get_soup(url)
-        tableNum2 = sf.find_table(coach_soup, self.COACHES_VIEW_COLS)[0]
-        coach_view = sf.scrape_table(coach_soup, tableNum2 + 1, first_row=3, skip_rows=3)
+        coach_soup = ScrapeFunctions.get_soup(url)
+        tableNum2 = ScrapeFunctions.find_table(coach_soup, self.COACHES_VIEW_COLS)[0]
+        coach_view = ScrapeFunctions.scrape_table(
+            coach_soup, tableNum2 + 1, first_row=3, skip_rows=3
+        )
 
         coach_view['Player'] = coach_view['Player'].str.rstrip('.')
         pitching['Name'] = [x.replace('  ', ' ') for x in pitching['Name']]
@@ -85,8 +86,8 @@ class IndividualPitchingScraper(BaseScraper):
     def _scrape_conference(self, team_soup: BeautifulSoup) -> pd.DataFrame:
         index = 1
         # find index of pitching table
-        tableNum1 = sf.find_table(team_soup, self.PITCHING_COLS)[index]
-        conference = sf.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
+        tableNum1 = ScrapeFunctions.find_table(team_soup, self.PITCHING_COLS)[index]
+        conference = ScrapeFunctions.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
 
         # may want to normalize the column names eg, lower(), gp to g
         return conference

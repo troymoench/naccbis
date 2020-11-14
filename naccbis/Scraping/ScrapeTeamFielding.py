@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 # Local imports
-from . import ScrapeFunctions as sf
+from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
 from naccbis.Common import utils
 
@@ -41,7 +41,7 @@ class TeamFieldingScraper(BaseScraper):
         logging.info("%s", self._name)
         logging.info("Fetching teams")
         url = "{}{}/teams".format(self.BASE_URL, self._year)
-        soup = sf.get_soup(url)
+        soup = ScrapeFunctions.get_soup(url)
         logging.info("Looking for fielding table")
         df = self._scrape(soup)
         logging.info("Cleaning scraped data")
@@ -56,8 +56,8 @@ class TeamFieldingScraper(BaseScraper):
             index = 1
 
         # find index of fielding table
-        tableNum1 = sf.find_table(soup, self.FIELDING_COLS)[index]
-        fielding = sf.scrape_table(soup, tableNum1 + 1, skip_rows=0)
+        tableNum1 = ScrapeFunctions.find_table(soup, self.FIELDING_COLS)[index]
+        fielding = ScrapeFunctions.scrape_table(soup, tableNum1 + 1, skip_rows=0)
 
         # may want to normalize the column names eg, lower(), gp to g
         return fielding

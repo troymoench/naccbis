@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 # Local imports
-from . import ScrapeFunctions as sf
+from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
 from naccbis.Common import utils
 
@@ -44,7 +44,7 @@ class GameLogScraper(BaseScraper):
         """ Run the scraper """
         logging.info("%s", self._name)
 
-        teamList = sf.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
+        teamList = ScrapeFunctions.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
         logging.info("Found %d teams to scrape", len(teamList))
 
         # iterate over the teams
@@ -52,7 +52,7 @@ class GameLogScraper(BaseScraper):
             logging.info("Fetching %s", team['team'])
 
             url = "{}{}/{}".format(self.BASE_URL, self._year, team['url'])
-            teamSoup = sf.get_soup(url)
+            teamSoup = ScrapeFunctions.get_soup(url)
             logging.info("Looking for game log table")
             df = self._scrape(teamSoup)
             logging.info("Cleaning scraped data")
@@ -71,26 +71,34 @@ class GameLogScraper(BaseScraper):
         url = tags[0].get('href')
         url = urljoin(self.BASE_URL, url)
 
-        game_soup = sf.get_soup(url)
+        game_soup = ScrapeFunctions.get_soup(url)
 
         if self._split == "hitting":
-            tableNum1 = sf.find_table(game_soup, self.HITTING_COLS)[0]
-            hitting = sf.scrape_table(game_soup, tableNum1 + 1, first_row=2, skip_rows=0)
+            tableNum1 = ScrapeFunctions.find_table(game_soup, self.HITTING_COLS)[0]
+            hitting = ScrapeFunctions.scrape_table(
+                game_soup, tableNum1 + 1, first_row=2, skip_rows=0
+            )
 
-            tableNum2 = sf.find_table(game_soup, self.EXTENDED_HITTING_COLS)[0]
-            extendedHitting = sf.scrape_table(game_soup, tableNum2 + 1, first_row=2, skip_rows=0)
+            tableNum2 = ScrapeFunctions.find_table(game_soup, self.EXTENDED_HITTING_COLS)[0]
+            extendedHitting = ScrapeFunctions.scrape_table(
+                game_soup, tableNum2 + 1, first_row=2, skip_rows=0
+            )
 
             # may want to normalize the column names before merging, eg, lower()
             return pd.merge(hitting, extendedHitting, on=["Date", "Opponent", "Score"])
 
         elif self._split == "pitching":
-            tableNum1 = sf.find_table(game_soup, self.PITCHING_COLS)[0]
-            pitching = sf.scrape_table(game_soup, tableNum1 + 1, first_row=2, skip_rows=0)
+            tableNum1 = ScrapeFunctions.find_table(game_soup, self.PITCHING_COLS)[0]
+            pitching = ScrapeFunctions.scrape_table(
+                game_soup, tableNum1 + 1, first_row=2, skip_rows=0
+            )
 
             return pitching
         elif self._split == "fielding":
-            tableNum1 = sf.find_table(game_soup, self.FIELDING_COLS)[0]
-            fielding = sf.scrape_table(game_soup, tableNum1 + 1, first_row=2, skip_rows=0)
+            tableNum1 = ScrapeFunctions.find_table(game_soup, self.FIELDING_COLS)[0]
+            fielding = ScrapeFunctions.scrape_table(
+                game_soup, tableNum1 + 1, first_row=2, skip_rows=0
+            )
 
             return fielding
 

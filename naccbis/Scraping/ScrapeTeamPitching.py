@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 # Local imports
-from . import ScrapeFunctions as sf
+from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
 from naccbis.Common import utils
 
@@ -46,14 +46,13 @@ class TeamPitchingScraper(BaseScraper):
         logging.info("%s", self._name)
 
         if self._split == "overall":
-            teamList = sf.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
+            teamList = ScrapeFunctions.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
             logging.info("Found %d teams to scrape", len(teamList))
 
-            # iterate over the teams
             for team in teamList:
                 logging.info("Fetching %s", team['team'])
                 url = "{}{}/{}".format(self.BASE_URL, self._year, team['url'])
-                teamSoup = sf.get_soup(url)
+                teamSoup = ScrapeFunctions.get_soup(url)
                 logging.info("Looking for pitching table")
                 df = self._scrape(teamSoup)
                 logging.info("Cleaning scraped data")
@@ -63,7 +62,7 @@ class TeamPitchingScraper(BaseScraper):
         elif self._split == "conference":
             logging.info("Fetching teams")
             url = "{}{}/teams".format(self.BASE_URL, self._year)
-            soup = sf.get_soup(url)
+            soup = ScrapeFunctions.get_soup(url)
             logging.info("Looking for pitching table")
             df = self._scrape(soup)
             logging.info("Cleaning scraped data")
@@ -73,8 +72,8 @@ class TeamPitchingScraper(BaseScraper):
 
     def _scrape_overall(self, team_soup: BeautifulSoup) -> pd.DataFrame:
         # find index of pitching table
-        tableNum1 = sf.find_table(team_soup, self.PITCHING_COLS)[0]
-        pitching = sf.scrape_table(team_soup, tableNum1 + 1, skip_rows=1)
+        tableNum1 = ScrapeFunctions.find_table(team_soup, self.PITCHING_COLS)[0]
+        pitching = ScrapeFunctions.scrape_table(team_soup, tableNum1 + 1, skip_rows=1)
         # select the totals row
         pitching = pitching[(pitching.Name == "Totals") | (pitching.Name == "Total")]
         pitching = pitching.reset_index(drop=True)
@@ -91,9 +90,11 @@ class TeamPitchingScraper(BaseScraper):
 
         url = tags[0].get('href')
         url = urljoin(self.BASE_URL, url)
-        coach_soup = sf.get_soup(url)
-        tableNum2 = sf.find_table(coach_soup, self.COACHES_VIEW_COLS)[0]
-        coach_view = sf.scrape_table(coach_soup, tableNum2 + 1, first_row=3, skip_rows=1)
+        coach_soup = ScrapeFunctions.get_soup(url)
+        tableNum2 = ScrapeFunctions.find_table(coach_soup, self.COACHES_VIEW_COLS)[0]
+        coach_view = ScrapeFunctions.scrape_table(
+            coach_soup, tableNum2 + 1, first_row=3, skip_rows=1
+        )
 
         if 'Player' in coach_view.columns:
             coach_view = coach_view.rename(columns={'Player': 'Name'})
@@ -112,8 +113,8 @@ class TeamPitchingScraper(BaseScraper):
     def _scrape_conference(self, team_soup: BeautifulSoup) -> pd.DataFrame:
         index = 1
 
-        tableNum1 = sf.find_table(team_soup, self.CONFERENCE_COLS)[index]
-        conference = sf.scrape_table(team_soup, tableNum1 + 1, skip_rows=0)
+        tableNum1 = ScrapeFunctions.find_table(team_soup, self.CONFERENCE_COLS)[index]
+        conference = ScrapeFunctions.scrape_table(team_soup, tableNum1 + 1, skip_rows=0)
 
         # may want to normalize the column names eg, lower(), gp to g
         return conference
