@@ -2,7 +2,6 @@
 # Standard library imports
 from datetime import date
 import logging
-import sys
 # Third party imports
 from bs4 import BeautifulSoup
 import numpy as np
@@ -10,7 +9,7 @@ import pandas as pd
 # Local imports
 from . import ScrapeFunctions as sf
 from .ScrapeBase import BaseScraper
-import naccbis.Common.utils as utils
+from naccbis.Common import utils
 
 
 class IndividualOffenseScraper(BaseScraper):
@@ -70,9 +69,6 @@ class IndividualOffenseScraper(BaseScraper):
             index = 0  # overall is first item in list returned by find_table()
         elif self._split == "conference":
             index = 1  # conference is the second item in list returned by find_table()
-        else:
-            print("Invalid split:", self._split)
-            sys.exit(1)
 
         # find index of hitting table
         tableNum1 = sf.find_table(team_soup, self.HITTING_COLS)[index]
@@ -88,7 +84,7 @@ class IndividualOffenseScraper(BaseScraper):
         # replace dashes and strip dots from Yr (Fr. -> Fr)
         # column names cannot start with a digit in PostgreSQL!!!!!
         # disallowed column names: no., 2b, 3b, go/fo
-
+        data = data.copy()
         intCols = ["No.", "g", "ab", "r", "h", "2b", "3b", "hr", "rbi", "bb", "k",
                    "sb", "cs", "hbp", "sf", "sh", "tb", "xbh", "hdp", "go", "fo", "pa"]
         floatCols = ["avg", "obp", "slg", "go/fo"]

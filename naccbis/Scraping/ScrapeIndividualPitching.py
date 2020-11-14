@@ -11,7 +11,7 @@ import pandas as pd
 # Local imports
 from . import ScrapeFunctions as sf
 from .ScrapeBase import BaseScraper
-import naccbis.Common.utils as utils
+from naccbis.Common import utils
 
 
 class IndividualPitchingScraper(BaseScraper):
@@ -93,11 +93,9 @@ class IndividualPitchingScraper(BaseScraper):
 
             # may want to normalize the column names eg, lower(), gp to g
             return conference
-        else:
-            print("Invalid split:", self._split)
-            sys.exit(1)
 
     def _clean(self, data: pd.DataFrame, team_id: str) -> pd.DataFrame:
+        data = data.copy()
         if self._split == "overall":
             unnecessaryCols = ['app', 'gs', 'w', 'l', 'sv', 'cg', 'ip', 'h', 'r',
                                'er', 'bb', 'k', 'hr', 'era']
@@ -166,6 +164,3 @@ class IndividualPitchingScraper(BaseScraper):
             data = data[finalColNames]
             data.columns = data.columns.to_series().str.lower()
             return data
-        else:
-            print("Invalid split:", self._split)
-            sys.exit(1)
