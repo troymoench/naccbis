@@ -1,11 +1,10 @@
 """ This script is the scraping controller """
 # Standard library imports
-import argparse
 from datetime import date
-import sys
 import logging
-from typing import List, Dict, Type, Optional
+from typing import List, Dict, Type, Tuple
 # Third party imports
+import click
 # Local imports
 from naccbis.Scraping import (
     BaseScraper,
@@ -20,8 +19,8 @@ from naccbis.Common import utils
 from naccbis import __version__
 
 
-PARSER_EPILOG = """
-examples:
+PARSER_EPILOG = """\b
+Examples:
    scrape.py final 2015:2017
    scrape.py final 2017 -S 1,3 -s conference -o sql
    scrape.py inseason
@@ -29,8 +28,9 @@ examples:
 """
 
 FINAL_PARSER_DESCRIPTION = """
-Scrape end of the year final stats
+Scrape end of the year final stats.
 
+\b
      Stat Options
   ---------------------
   1) Individual Offense
@@ -46,6 +46,7 @@ INSEASON_PARSER_DESCRIPTION = """
 Scrape stats during the season.
 A column is added for the scrape date.
 
+\b
      Stat Options
   ---------------------
   1) Individual Offense
@@ -56,6 +57,13 @@ A column is added for the scrape date.
   6) Game Logs
   all) All
 """
+
+
+@click.group(help=__doc__, epilog=PARSER_EPILOG)
+@click.version_option(version=__version__, message='naccbis %(version)s')
+def cli():
+    config = utils.init_config()
+    utils.init_logging(config["LOGGING"])
 
 
 def run_scrapers(scraper_nums: List[int], year: str, splits: List[str],
@@ -94,102 +102,72 @@ def run_scrapers(scraper_nums: List[int], year: str, splits: List[str],
             gameLogScraper.export()
 
 
-def final(args) -> None:
-    """ Run scrapers for the final subcommand
+@cli.command(help=FINAL_PARSER_DESCRIPTION)
+@click.argument("year", type=utils.parse_year)
+@click.option(
+    "-S", "--stat", type=click.IntRange(min=1, max=6), multiple=True, default=list(range(1, 7)),
+    help="Select stat scraper(s) to run. Provide list or omit argument for all scrapers"
+)
+@click.option(
+    "-s", "--split", type=click.Choice(["overall", "conference", "all"]),
+    default="all", show_default=True, help="Split choices"
+)
+@click.option(
+    "-o", "--output", type=click.Choice(["csv", "sql"]), default="csv",
+    show_default=True, help="Output choices"
+)
+@click.option('-v', '--verbose', is_flag=True, help='Print extra information to standard out')
+def final(year: List[int], stat: Tuple[int], split: str, output: str, verbose: bool) -> None:
+    """Scrape end of the year final stats
 
     :param args: Arguments for the scrapers
     """
-    years = [utils.season_to_year(x) for x in args.year]
+    logging.info("Initializing scraping controller script")
+    years = [utils.season_to_year(x) for x in year]
 
-    # parse split
-    if args.split == "all":
+    if split == "all":
         splits = ["overall", "conference"]
     else:
-        splits = [args.split]
+        splits = [split]
 
-    for year in years:
-        print("\nScraping:", year, "\n")
+    for year_ in years:
+        print("\nScraping:", year_, "\n")
 
-        run_scrapers(args.stat, year, splits, args.output, inseason=False, verbose=args.verbose)
+        run_scrapers(list(stat), year_, splits, output, inseason=False, verbose=verbose)
+    logging.info("Scraping completed")
 
 
-def inseason(args) -> None:
+@cli.command(help=INSEASON_PARSER_DESCRIPTION)
+@click.option(
+    "-S", "--stat", type=click.IntRange(min=1, max=6), multiple=True, default=list(range(1, 7)),
+    help="Select stat scraper(s) to run. Provide list or omit argument for all scrapers"
+)
+@click.option(
+    "-s", "--split", type=click.Choice(["overall", "conference", "all"]),
+    default="all", show_default=True, help="Split choices"
+)
+@click.option(
+    "-o", "--output", type=click.Choice(["csv", "sql"]), default="csv",
+    show_default=True, help="Output choices"
+)
+@click.option('-v', '--verbose', is_flag=True, help='Print extra information to standard out')
+def inseason(stat: Tuple[int], split: str, output: str, verbose: bool) -> None:
     """ Run scrapers for the inseason subcommand
 
     :param args: Arguments for the scrapers
     """
-    # current year
+    logging.info("Initializing scraping controller script")
     season = date.today().year
     year = utils.season_to_year(season)
 
-    # parse split
-    if args.split == "all":
+    if split == "all":
         splits = ["overall", "conference"]
     else:
-        splits = [args.split]
+        splits = [split]
 
-    run_scrapers(args.stat, year, splits, args.output, inseason=True, verbose=args.verbose)
-
-
-def add_common_args(parser: argparse.ArgumentParser) -> None:
-    """ Add common arguments to the parser
-
-    :param parser: Parser object to add arguments to
-    """
-    # NOTE: These args are common to all subcommands. Unfortunately, they can't just
-    # be added to the top level parser because the subcommand parser parses all
-    # args after the subcommand.
-
-    parser.add_argument("-o", "--output", type=str, choices=["csv", "sql"],
-                        default="csv", metavar="OUTPUT", help="Output choices: csv (default), sql")
-    parser.add_argument("-v", "--verbose", action="store_true",
-                        help="Print extra information to standard out")
-    parser.add_argument("-s", "--split", type=str, choices=["overall", "conference", "all"],
-                        default="all", metavar="SPLIT",
-                        help="Split choices: overall, conference, all (default)")
-    parser.add_argument("-S", "--stat", type=int, nargs="*", choices=range(1, 7),
-                        default=range(1, 7), metavar="STAT",
-                        help="Select stat scraper(s) to run. "
-                             "Provide list or omit argument for all scrapers")
-
-
-def parse_args(args: Optional[List[str]]) -> argparse.Namespace:
-    """ Build parser object and parse arguments """
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description=__doc__,
-                                     epilog=PARSER_EPILOG)
-    parser.add_argument("--version", action="version", version="naccbis {}".format(__version__))
-    subparsers = parser.add_subparsers()
-
-    final_parser = subparsers.add_parser("final",
-                                         formatter_class=argparse.RawDescriptionHelpFormatter,
-                                         description=FINAL_PARSER_DESCRIPTION)
-
-    final_parser.add_argument("year", type=utils.parse_year, help="A year or range of years")
-    add_common_args(final_parser)
-    final_parser.set_defaults(func=final)
-
-    inseason_parser = subparsers.add_parser("inseason",
-                                            formatter_class=argparse.RawDescriptionHelpFormatter,
-                                            description=INSEASON_PARSER_DESCRIPTION)
-    add_common_args(inseason_parser)
-    inseason_parser.set_defaults(func=inseason)
-
-    return parser.parse_args(args)
-
-
-def main(raw_args: Optional[List[str]] = sys.argv[1:]) -> None:
-    """ Script entry point """
-    config = utils.init_config()
-    utils.init_logging(config["LOGGING"])
-
-    args = parse_args(raw_args)
-    logging.info("Initializing scraping controller script")
-    logging.info("Command line args received: %s", raw_args)
-    args.func(args)
-
+    run_scrapers(list(stat), year, splits, output, inseason=True, verbose=verbose)
     logging.info("Scraping completed")
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])  # pragma: no cover
+    cli()  # pragma: no cover

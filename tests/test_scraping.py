@@ -2,6 +2,7 @@
 # Standard library imports
 # Third party imports
 from bs4 import BeautifulSoup
+from click.testing import CliRunner
 import numpy as np
 import pandas as pd
 import pytest
@@ -263,39 +264,38 @@ class TestIndividualPitchingScraper():
         assert expected.equals(scraper._clean(raw_df, "AUR"))
 
 
-def test_parse_args_final_defaults():
-    args = scrape.parse_args(['final', '2019'])
-    assert callable(args.func)
-    assert args.year == [2019]
-    assert args.stat == range(1, 7)
-    assert args.split == 'all'
-    assert args.output == 'csv'
-    assert not args.verbose
+@pytest.fixture
+def cli_runner():
+    return CliRunner()
 
 
-def test_parse_args_final_stat():
-    args = scrape.parse_args(['final', '2019', '-S', '1', '2'])
-    assert callable(args.func)
-    assert args.year == [2019]
-    assert args.stat == [1, 2]
-    assert args.split == 'all'
-    assert args.output == 'csv'
-    assert not args.verbose
+def test_scrape_cli_help(cli_runner):
+    result = cli_runner.invoke(scrape.cli, ['--help'])
+    assert result.exit_code == 0
+    assert "scraping controller" in result.output
 
 
-def test_parse_args_inseason_defaults():
-    args = scrape.parse_args(['inseason'])
-    assert callable(args.func)
-    assert args.stat == range(1, 7)
-    assert args.split == 'all'
-    assert args.output == 'csv'
-    assert not args.verbose
+def test_scrape_cli_version(cli_runner):
+    result = cli_runner.invoke(scrape.cli, ['--version'])
+    assert result.exit_code == 0
+    assert "naccbis" in result.output
 
 
-def test_parse_args_inseason_stat():
-    args = scrape.parse_args(['inseason', '-S', '1', '2'])
-    assert callable(args.func)
-    assert args.stat == [1, 2]
-    assert args.split == 'all'
-    assert args.output == 'csv'
-    assert not args.verbose
+def test_scrape_cli_final_help(cli_runner):
+    result = cli_runner.invoke(scrape.cli, ['final', '--help'])
+    assert result.exit_code == 0
+    assert "final [OPTIONS] YEAR" in result.output
+    assert "-S, --stat" in result.output
+    assert "-s, --split" in result.output
+    assert "-o, --output" in result.output
+    assert "-v, --verbose" in result.output
+
+
+def test_scrape_cli_inseason_help(cli_runner):
+    result = cli_runner.invoke(scrape.cli, ['inseason', '--help'])
+    assert result.exit_code == 0
+    assert "inseason [OPTIONS]" in result.output
+    assert "-S, --stat" in result.output
+    assert "-s, --split" in result.output
+    assert "-o, --output" in result.output
+    assert "-v, --verbose" in result.output
