@@ -1,10 +1,9 @@
 """ This script is the data cleaning controller """
 # Standard library imports
-import argparse
 import logging
-import sys
-from typing import List, Optional
+from typing import List, Tuple
 # Third party imports
+import click
 # Local imports
 from naccbis.Cleaning import (
     GameLogETL,
@@ -15,13 +14,14 @@ from naccbis.Cleaning import (
     LeagueOffenseETL,
     LeaguePitchingETL,
 )
-import naccbis.Common.utils as utils
+from naccbis.Common import utils
 from naccbis import __version__
 
 
 FINAL_PARSER_DESCRIPTION = """
-Clean final stats
+Clean final stats.
 
+\b
      Stat Options
   ---------------------
   1) Individual Offense
@@ -38,6 +38,7 @@ INSEASON_PARSER_DESCRIPTION = """
 Clean stats during the season.
 A column is added for the scrape date.
 
+\b
      Stat Options
   ---------------------
   1) Individual Offense
@@ -51,8 +52,15 @@ A column is added for the scrape date.
 """
 
 
-def run_etls(etl_nums: List[int], year: str, splits: List[str],
-             load_db: bool, conn: object) -> None:
+@click.group(help=__doc__)
+@click.version_option(version=__version__, message='naccbis %(version)s')
+def cli():
+    pass
+
+
+def run_etls(
+    etl_nums: List[int], year: str, splits: List[str], load_db: bool, conn: object
+) -> None:
     """ Run ETL's for a given year
 
     :param
@@ -79,83 +87,46 @@ def run_etls(etl_nums: List[int], year: str, splits: List[str],
         gameLogETL.run()
 
 
-def final(args, conn: object) -> None:
+@cli.command(help=FINAL_PARSER_DESCRIPTION)
+@click.argument("year", type=utils.parse_year)
+@click.option(
+    "-S", "--stat", type=click.IntRange(min=1, max=7), multiple=True, default=range(1, 8),
+    help="Select ETL(s) to run. Provide list or omit argument for all ETLs"
+)
+@click.option(
+    "-s", "--split", type=click.Choice(["overall", "conference", "all"]),
+    default="all", show_default=True, help="Split choices"
+)
+@click.option("--load", is_flag=True, help="Load data into database")
+@click.option('-v', '--verbose', is_flag=True, help='Print extra information to standard out')
+def final(year: List[int], stat: Tuple[int], split: str, load: bool, verbose: bool) -> None:
     """ Run ETLs for the final subcommand
 
     :param args: Arguments for the ETLs
     :param conn: Database connection object
     """
-    # parse split
-    if args.split == "all":
-        splits = ["overall", "conference"]
-    else:
-        splits = [args.split]
-
-    for year in args.year:
-        logging.info("Running ETLs for %s", year)
-        run_etls(args.stat, year, splits, args.load, conn)
-
-
-def inseason(args, conn: object) -> None:
-    raise NotImplementedError("Inseason ETL is not supported yet")
-
-
-def add_common_args(parser: argparse.ArgumentParser) -> None:
-    """ Add common arguments to the parser
-
-    :param parser: Parser object to add arguments to
-    """
-    # NOTE: These args are common to all subcommands. Unfortunately, they can't just
-    # be added to the top level parser because the subcommand parser parses all
-    # args after the subcommand.
-    parser.add_argument("-s", "--split", type=str, choices=["overall", "conference", "all"],
-                        default="all", metavar="SPLIT", help="Filter by split")
-    parser.add_argument("-S", "--stat", type=int, nargs="*", choices=range(1, 8),
-                        default=range(1, 8), metavar="STAT",
-                        help="Select ETL(s) to run. "
-                             "Provide list or omit argument for all ETLs")
-
-    parser.add_argument("--load", action="store_true",
-                        help="Load data into database")
-
-
-def parse_args(args: Optional[List[str]]) -> argparse.Namespace:
-    """ Build parser object and parse arguments """
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description="NACCBIS Cleaning controller")
-    parser.add_argument("--version", action="version", version="naccbis {}".format(__version__))
-    subparsers = parser.add_subparsers()
-
-    final_parser = subparsers.add_parser("final",
-                                         formatter_class=argparse.RawDescriptionHelpFormatter,
-                                         description=FINAL_PARSER_DESCRIPTION)
-
-    final_parser.add_argument("year", type=utils.parse_year, help="A year or range of years")
-    add_common_args(final_parser)
-    final_parser.set_defaults(func=final)
-
-    inseason_parser = subparsers.add_parser("inseason",
-                                            formatter_class=argparse.RawDescriptionHelpFormatter,
-                                            description=INSEASON_PARSER_DESCRIPTION)
-    add_common_args(inseason_parser)
-    inseason_parser.set_defaults(func=inseason)
-    return parser.parse_args(args)
-
-
-def main(raw_args: Optional[List[str]] = sys.argv[1:]) -> None:
-    """ Script entry point """
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
-
-    args = parse_args(raw_args)
     logging.info("Initializing cleaning controller script")
-    logging.info("Command line args received: %s", raw_args)
     conn = utils.connect_db(config["DB"])
-    args.func(args, conn)
+
+    if split == "all":
+        splits = ["overall", "conference"]
+    else:
+        splits = [split]
+
+    for year_ in year:
+        logging.info("Running ETLs for %s", year)
+        run_etls(stat, year_, splits, load, conn)
 
     conn.close()
     logging.info("Cleaning completed")
 
 
+# @cli.command(help=INSEASON_PARSER_DESCRIPTION)
+# def inseason() -> None:
+#     raise NotImplementedError("Inseason ETL is not supported yet")
+
+
 if __name__ == "__main__":
-    main(sys.argv[1:])  # pragma: no cover
+    cli()  # pragma: no cover

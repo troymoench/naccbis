@@ -18,7 +18,7 @@ setup(
     packages=find_packages(exclude=["tests"]),
     entry_points={"console_scripts": [
         "scrape = naccbis.scripts.scrape:cli",
-        "clean = naccbis.scripts.clean:main",
+        "clean = naccbis.scripts.clean:cli",
         "GenerateIds = naccbis.scripts.GenerateIds:main",
         "DumpNames = naccbis.scripts.DumpNames:main",
         "verify = naccbis.scripts.verify:main",

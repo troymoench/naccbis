@@ -105,7 +105,7 @@ def run_scrapers(scraper_nums: List[int], year: str, splits: List[str],
 @cli.command(help=FINAL_PARSER_DESCRIPTION)
 @click.argument("year", type=utils.parse_year)
 @click.option(
-    "-S", "--stat", type=click.IntRange(min=1, max=6), multiple=True, default=list(range(1, 7)),
+    "-S", "--stat", type=click.IntRange(min=1, max=6), multiple=True, default=range(1, 7),
     help="Select stat scraper(s) to run. Provide list or omit argument for all scrapers"
 )
 @click.option(

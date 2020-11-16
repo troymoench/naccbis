@@ -2,6 +2,7 @@
 # Standard library imports
 import datetime
 # Third party imports
+from click.testing import CliRunner
 import pandas as pd
 import pytest
 # Local imports
@@ -304,37 +305,31 @@ class TestCleanGameLogs():
         assert GameLogETL.extract_date(date_str, season) == expected
 
 
+@pytest.fixture
+def cli_runner():
+    return CliRunner()
+
+
 class TestClean():
 
-    def test_parse_args_final_defaults(self):
-        args = clean.parse_args(['final', '2019'])
-        assert callable(args.func)
-        assert args.year == [2019]
-        assert args.stat == range(1, 8)
-        assert args.split == 'all'
-        assert not args.load
+    def test_clean_cli_help(self, cli_runner):
+        result = cli_runner.invoke(clean.cli, ['--help'])
+        assert result.exit_code == 0
+        assert "cleaning controller" in result.output
 
-    def test_parse_args_final_stat(self):
-        args = clean.parse_args(['final', '2019', '-S', '1', '2'])
-        assert callable(args.func)
-        assert args.year == [2019]
-        assert args.stat == [1, 2]
-        assert args.split == 'all'
-        assert not args.load
+    def test_clean_cli_version(self, cli_runner):
+        result = cli_runner.invoke(clean.cli, ['--version'])
+        assert result.exit_code == 0
+        assert "naccbis" in result.output
 
-    def test_parse_args_inseason_defaults(self):
-        args = clean.parse_args(['inseason'])
-        assert callable(args.func)
-        assert args.stat == range(1, 8)
-        assert args.split == 'all'
-        assert not args.load
-
-    def test_parse_args_inseason_stat(self):
-        args = clean.parse_args(['inseason', '-S', '1', '2'])
-        assert callable(args.func)
-        assert args.stat == [1, 2]
-        assert args.split == 'all'
-        assert not args.load
+    def test_clean_cli_final_help(self, cli_runner):
+        result = cli_runner.invoke(clean.cli, ['final', '--help'])
+        assert result.exit_code == 0
+        assert "final [OPTIONS] YEAR" in result.output
+        assert "-S, --stat" in result.output
+        assert "-s, --split" in result.output
+        assert "--load" in result.output
+        assert "-v, --verbose" in result.output
 
 
 class TestLeagueTotals():
