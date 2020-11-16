@@ -10,6 +10,11 @@ from naccbis.Cleaning import (CleanFunctions, GameLogETL, LeagueOffenseETL)
 from naccbis.scripts import (clean, DumpNames, GenerateIds, verify)
 
 
+@pytest.fixture
+def cli_runner():
+    return CliRunner()
+
+
 class TestCleanFunctions():
 
     data = pd.DataFrame([
@@ -212,24 +217,21 @@ class TestGenerateIds():
 
 class TestDumpNames():
 
-    def test_parse_args_defaults(self):
-        args = DumpNames.parse_args([])
-        assert not args.corrections
-        assert args.fname is None
-        assert args.lname is None
-        assert not args.nicknames
-        assert not args.duplicates
-        assert args.dir == ""
+    def test_cli_help(self, cli_runner):
+        result = cli_runner.invoke(DumpNames.cli, ['--help'])
+        assert result.exit_code == 0
+        assert "Identify inconsistencies with player names" in result.output
+        assert "-c, --corrections" in result.output
+        assert "-f, --fname" in result.output
+        assert "-l, --lname" in result.output
+        assert "--nicknames" in result.output
+        assert "--duplicates" in result.output
+        assert "--dir" in result.output
 
-    def test_parse_args_all_options(self):
-        args = DumpNames.parse_args(['-c', '-f', '1', '-l', '1', '--nicknames',
-                                     '--duplicates', '--dir', 'csv/'])
-        assert args.corrections
-        assert args.fname == 1
-        assert args.lname == 1
-        assert args.nicknames
-        assert args.duplicates
-        assert args.dir == "csv/"
+    def test_cli_version(self, cli_runner):
+        result = cli_runner.invoke(DumpNames.cli, ['--version'])
+        assert result.exit_code == 0
+        assert "naccbis" in result.output
 
 
 class TestCleanGameLogs():
@@ -303,11 +305,6 @@ class TestCleanGameLogs():
     )
     def test_extract_date(self, date_str, season, expected):
         assert GameLogETL.extract_date(date_str, season) == expected
-
-
-@pytest.fixture
-def cli_runner():
-    return CliRunner()
 
 
 class TestClean():

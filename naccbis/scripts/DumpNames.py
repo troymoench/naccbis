@@ -5,27 +5,24 @@ These inconsistencies include, but are not limited to:
 3. Nicknames
 """
 # Standard library imports
-import argparse
 import os
-import sys
-from typing import List, Optional
 # Third party imports
+import click
 import pandas as pd
 from Levenshtein import distance
 # Local imports
-import naccbis.Cleaning.CleanFunctions as cf
-import naccbis.Common.utils as utils
+from naccbis.Cleaning import CleanFunctions
+from naccbis.Common import utils
 from naccbis import __version__
 
 
-def levenshtein_analysis(data: pd.DataFrame, levenshtein_first: int,
-                         levenshtein_last: int) -> pd.DataFrame:
+def levenshtein_analysis(data: pd.DataFrame, lev_first: int, lev_last: int) -> pd.DataFrame:
     """ Perform a Levenshtein analysis on first names and last names.
     This is used for identifying typos.
 
     :param data: A DataFrame
-    :param levenshtein_first: Levenshtein distance between first names
-    :param levenshtein_last: Levenshtein distance between last names
+    :param lev_first: Levenshtein distance between first names
+    :param lev_last: Levenshtein distance between last names
     :returns: A DataFrame with player-season pairs that meet the filter parameters
     """
     # Get unique last names
@@ -39,14 +36,14 @@ def levenshtein_analysis(data: pd.DataFrame, levenshtein_first: int,
 
     # Compute the Levenshtein distance between each pair of names
     cart_prod["levenshtein"] = list(map(distance, cart_prod["lname1"], cart_prod["lname2"]))
-    cart_prod = cart_prod[cart_prod.levenshtein == levenshtein_last]
+    cart_prod = cart_prod[cart_prod.levenshtein == lev_last]
 
     output = pd.merge(data, cart_prod, left_on="lname", right_on="lname1")
 
     output = pd.merge(output, data, left_on="lname2", right_on="lname", how="inner")
 
     output["levenshtein_first"] = list(map(distance, output["fname_x"], output["fname_y"]))
-    output = output[output["levenshtein_first"] == levenshtein_first]
+    output = output[output["levenshtein_first"] == lev_first]
 
     output = output.sort_values(by=["levenshtein", "lname1"])
     return output
@@ -88,63 +85,58 @@ def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
     temp = temp.groupby(["name"]).filter(lambda x: len(x) > 1)
     output = names[names["name"].isin(temp["name"])].\
         groupby(["name", "team", "season"]).head(1)
-    output["fname"] = output["name"].apply(cf.split_fname)
-    output["lname"] = output["name"].apply(cf.split_lname)
+    output["fname"] = output["name"].apply(CleanFunctions.split_fname)
+    output["lname"] = output["name"].apply(CleanFunctions.split_lname)
 
     return output[["fname", "lname", "team", "season"]]
 
 
-def parse_args(args: Optional[List[str]]) -> argparse.Namespace:
-    """ Build parser object and parse arguments """
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description=__doc__)
-    parser.add_argument("--version", action="version", version="naccbis {}".format(__version__))
-    parser.add_argument("-c", "--corrections", action="store_true",
-                        help="Apply existing name corrections")
-    parser.add_argument("-f", "--fname", type=int, metavar="FNAME",
-                        help="Filter first names by a Levenshtein distance")
-    parser.add_argument("-l", "--lname", type=int, metavar="LNAME",
-                        help="Filter last names by a Levenshtein distance")
-    parser.add_argument("--nicknames", action="store_true",
-                        help="Perform a nickname analysis")
-    parser.add_argument("--duplicates", action="store_true",
-                        help="Perform duplicate names analysis")
-    parser.add_argument("--dir", type=str, default="",
-                        help="Directory to save the output to")
-    return parser.parse_args(args)
-
-
-def main(raw_args: Optional[List[str]] = sys.argv[1:]) -> None:
+@click.command(help="Identify inconsistencies with player names")
+@click.version_option(version=__version__, message='naccbis %(version)s')
+@click.option("-c", "--corrections", is_flag=True, help="Apply existing name corrections")
+@click.option(
+    "-f", "--fname", type=int, default=0, show_default=True,
+    help="Filter first names by a Levenshtein distance"
+)
+@click.option(
+    "-l", "--lname", type=int, default=0, show_default=True,
+    help="Filter last names by a Levenshtein distance"
+)
+@click.option("--nicknames", is_flag=True, help="Perform a nickname analysis")
+@click.option("--duplicates", is_flag=True, help="Perform duplicate names analysis")
+@click.option("--dir", type=str, default="", help="Directory to save the output to")
+def cli(
+    corrections: bool, fname: int, lname: int, nicknames: bool,
+    duplicates: bool, dir: str
+) -> None:
     """ Script entry point """
-    args = parse_args(raw_args)
-    levenshtein_first = args.fname
-    levenshtein_last = args.lname
-
+    levenshtein_first = fname
+    levenshtein_last = lname
+    print(fname, lname)
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
     conn = utils.connect_db(config["DB"])
 
     batters = pd.read_sql_table("raw_batters_overall", conn)
     pitchers = pd.read_sql_table("raw_pitchers_overall", conn)
-    if args.corrections:
-        corrections = pd.read_sql_table("name_corrections", conn)
-    if args.nicknames:
-        nicknames = pd.read_sql_table("nicknames", conn)
+    if corrections:
+        corrections_df = pd.read_sql_table("name_corrections", conn)
+    if nicknames:
+        nicknames_df = pd.read_sql_table("nicknames", conn)
 
     conn.close()
 
-    batters = cf.normalize_names(batters)
-    pitchers = cf.normalize_names(pitchers)
+    batters = CleanFunctions.normalize_names(batters)
+    pitchers = CleanFunctions.normalize_names(pitchers)
 
     batters = batters[["lname", "fname", "team", "season", "pos"]]
     pitchers = pitchers[["lname", "fname", "team", "season", "pos"]]
 
-    # All batters and pitchers
     data = pd.concat([batters, pitchers], ignore_index=True)
     data = data.sort_values(by=["lname", "fname", "team", "season"])
 
-    if args.corrections:
-        data = cf.apply_corrections(data, corrections)
+    if corrections:
+        data = CleanFunctions.apply_corrections(data, corrections_df)
         data = data.sort_values(by=["lname", "fname", "team", "season"])
 
     if levenshtein_last or levenshtein_first:
@@ -153,32 +145,31 @@ def main(raw_args: Optional[List[str]] = sys.argv[1:]) -> None:
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
-            fname = os.path.join(args.dir, "levenshtein_analysis.csv")
-            output.to_csv(fname, index=False)
+            filename = os.path.join(dir, "levenshtein_analysis.csv")
+            output.to_csv(filename, index=False)
 
-    if args.nicknames:
+    if nicknames:
         print("Performing nickname analysis")
-        output = nickname_analysis(data, nicknames)
+        output = nickname_analysis(data, nicknames_df)
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
-            fname = os.path.join(args.dir, "nickname_analysis.csv")
-            output.to_csv(fname, index=False)
+            filename = os.path.join(dir, "nickname_analysis.csv")
+            output.to_csv(filename, index=False)
 
-    if args.duplicates:
+    if duplicates:
         print("Performing duplicate names analysis")
         output = duplicate_names_analysis(data)
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
-            fname = os.path.join(args.dir, "duplicate_names_analysis.csv")
-            output.to_csv(fname, index=False)
+            filename = os.path.join(dir, "duplicate_names_analysis.csv")
+            output.to_csv(filename, index=False)
 
-    # dump all names
     print("Dumping all names to csv")
-    fname = os.path.join(args.dir, "all_names.csv")
-    data.to_csv(fname, index=False)
+    filename = os.path.join(dir, "all_names.csv")
+    data.to_csv(filename, index=False)
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])  # pragma: no cover
+    cli()  # pragma: no cover
