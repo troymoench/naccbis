@@ -10,8 +10,7 @@ import os
 # Third party imports
 import pandas as pd
 # Local imports
-import naccbis.Common.metrics as metrics
-import naccbis.Common.utils as utils
+from naccbis.Common import (utils, metrics)
 
 
 class LeagueOffenseETL:
@@ -197,7 +196,7 @@ class LeaguePitchingETL:
         self.load()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__)
     parser.add_argument("--year", type=int, default=None, help="Filter by year")

@@ -6,9 +6,8 @@ import os
 # Third party imports
 import pandas as pd
 # Local imports
-from . import CleanFunctions as cf
-import naccbis.Common.utils as utils
-import naccbis.Common.metrics as metrics
+from . import CleanFunctions
+from naccbis.Common import (utils, metrics)
 
 
 class TeamPitchingETL:
@@ -38,7 +37,7 @@ class TeamPitchingETL:
             self.data = self.data[self.data["season"] == self.year]
 
     def transform(self) -> None:
-        self.data["ip"] = self.data["ip"].apply(cf.convert_ip)
+        self.data["ip"] = self.data["ip"].apply(CleanFunctions.convert_ip)
         conference = (self.split == "conference")
         self.data = metrics.basic_pitching_metrics(self.data, conference=conference)
 
@@ -62,7 +61,7 @@ class TeamPitchingETL:
         self.load()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="Extract, Transform, Load Team Pitching data")
     parser.add_argument("--year", type=int, default=None, help="Filter by year")
     parser.add_argument("--split", type=str, default="overall", help="Filter by split")

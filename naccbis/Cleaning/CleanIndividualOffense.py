@@ -7,9 +7,8 @@ import os
 import numpy as np
 import pandas as pd
 # Local imports
-from . import CleanFunctions as cf
-import naccbis.Common.utils as utils
-import naccbis.Common.metrics as metrics
+from . import CleanFunctions
+from naccbis.Common import (utils, metrics)
 
 
 class IndividualOffenseETL:
@@ -41,8 +40,8 @@ class IndividualOffenseETL:
         self.corrections = pd.read_sql_table("name_corrections", self.conn)
 
     def transform(self) -> None:
-        self.data = cf.normalize_names(self.data)
-        self.data = cf.apply_corrections(self.data, self.corrections)
+        self.data = CleanFunctions.normalize_names(self.data)
+        self.data = CleanFunctions.apply_corrections(self.data, self.corrections)
         self.data.drop(columns=["name"], inplace=True)
         self.data = metrics.basic_offensive_metrics(self.data)
         columns = ["no", "fname", "lname", "team", "season", "yr", "pos", "g", "pa", "ab",
@@ -76,7 +75,7 @@ class IndividualOffenseETL:
         self.load()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="Extract, Transform, Load Individual Offense data")
     parser.add_argument("--year", type=int, default=None, help="Filter by year")
     parser.add_argument("--split", type=str, default="overall", help="Filter by split")

@@ -9,7 +9,7 @@ from typing import List
 # Third party imports
 import pandas as pd
 # Local imports
-import naccbis.Common.utils as utils
+from naccbis.Common import utils
 
 
 class GameLogETL:
@@ -160,7 +160,7 @@ class GameLogETL:
         return datetime.datetime.strptime(date_str, "%b %d %Y")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="Extract, Transform, Load Game Log data")
     parser.add_argument("--year", type=int, default=None, help="Filter by year")
     parser.add_argument("--load", action="store_true",

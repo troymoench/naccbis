@@ -10,11 +10,8 @@ import os
 import numpy as np
 import pandas as pd
 # Local imports
-from . import CleanFunctions as cf
-import naccbis.Common.metrics as metrics
-import naccbis.Common.utils as utils
-
-SPLIT = "overall"
+from . import CleanFunctions
+from naccbis.Common import (utils, metrics)
 
 
 class IndividualPitchingETL:
@@ -46,11 +43,11 @@ class IndividualPitchingETL:
         self.corrections = pd.read_sql_table("name_corrections", self.conn)
 
     def transform(self) -> None:
-        self.data = cf.normalize_names(self.data)
-        self.data = cf.apply_corrections(self.data, self.corrections)
+        self.data = CleanFunctions.normalize_names(self.data)
+        self.data = CleanFunctions.apply_corrections(self.data, self.corrections)
         self.data.drop(columns=["name"], inplace=True)
 
-        self.data["ip"] = self.data["ip"].apply(cf.convert_ip)
+        self.data["ip"] = self.data["ip"].apply(CleanFunctions.convert_ip)
         conference = (self.split == "conference")
         self.data = metrics.basic_pitching_metrics(self.data, conference=conference)
         self.data.replace(pd.np.inf, np.nan, inplace=True)
@@ -89,7 +86,7 @@ class IndividualPitchingETL:
         self.load()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=__doc__)
     parser.add_argument("--year", type=int, default=None, help="Filter by year")
