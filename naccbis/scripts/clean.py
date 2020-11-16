@@ -59,7 +59,7 @@ def cli():
 
 
 def run_etls(
-    etl_nums: List[int], year: str, splits: List[str], load_db: bool, conn: object
+    etl_nums: List[int], year: int, splits: List[str], load_db: bool, conn: object
 ) -> None:
     """ Run ETL's for a given year
 
@@ -116,8 +116,8 @@ def final(year: List[int], stat: Tuple[int], split: str, load: bool, verbose: bo
         splits = [split]
 
     for year_ in year:
-        logging.info("Running ETLs for %s", year)
-        run_etls(stat, year_, splits, load, conn)
+        logging.info("Running ETLs for %s", year_)
+        run_etls(list(stat), year_, splits, load, conn)
 
     conn.close()
     logging.info("Cleaning completed")

@@ -19,7 +19,7 @@ class GameLogETL:
                         "Rockford", "Wisconsin Lutheran"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year: str, load_db: bool, conn: object,
+    def __init__(self, year: int, load_db: bool, conn: object,
                  inseason: bool = False) -> None:
         self.year = year
         self.load_db = load_db

@@ -19,7 +19,7 @@ class LeagueOffenseETL:
     VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year: str, split: str, load_db: bool, conn: object) -> None:
+    def __init__(self, year: int, split: str, load_db: bool, conn: object) -> None:
         self.year = year
         if split not in self.VALID_SPLITS:
             raise ValueError("Invalid split: {}".format(split))
@@ -129,7 +129,7 @@ class LeaguePitchingETL:
     VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year: str, split: str, load_db: bool, conn: object) -> None:
+    def __init__(self, year: int, split: str, load_db: bool, conn: object) -> None:
         self.year = year
         if split not in self.VALID_SPLITS:
             raise ValueError("Invalid split: {}".format(split))

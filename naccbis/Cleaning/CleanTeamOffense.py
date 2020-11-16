@@ -15,7 +15,7 @@ class TeamOffenseETL:
     VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year: str, split: str, load_db: bool, conn: object,
+    def __init__(self, year: int, split: str, load_db: bool, conn: object,
                  inseason: bool = False) -> None:
         self.year = year
         if split not in self.VALID_SPLITS:
