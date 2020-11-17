@@ -13,7 +13,6 @@ from Levenshtein import distance
 # Local imports
 from naccbis.Cleaning import CleanFunctions
 from naccbis.Common import utils
-from naccbis import __version__
 
 
 def levenshtein_analysis(data: pd.DataFrame, lev_first: int, lev_last: int) -> pd.DataFrame:
@@ -92,7 +91,6 @@ def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
 
 
 @click.command(help="Identify inconsistencies with player names")
-@click.version_option(version=__version__, message='naccbis %(version)s')
 @click.option("-c", "--corrections", is_flag=True, help="Apply existing name corrections")
 @click.option(
     "-f", "--fname", type=int, default=0, show_default=True,

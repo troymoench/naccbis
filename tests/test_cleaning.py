@@ -2,17 +2,11 @@
 # Standard library imports
 import datetime
 # Third party imports
-from click.testing import CliRunner
 import pandas as pd
 import pytest
 # Local imports
 from naccbis.Cleaning import (CleanFunctions, GameLogETL, LeagueOffenseETL)
-from naccbis.scripts import (clean, DumpNames, GenerateIds, verify)
-
-
-@pytest.fixture
-def cli_runner():
-    return CliRunner()
+from naccbis.scripts import (clean, DumpNames, GenerateIds)
 
 
 class TestCleanFunctions():
@@ -200,39 +194,6 @@ class TestGenerateIds():
         expected.drop(columns=["full_name"], inplace=True)
         assert GenerateIds.generate_ids(raw, self.duplicates).equals(expected)
 
-    def test_cli_help(self, cli_runner):
-        result = cli_runner.invoke(GenerateIds.cli, ['--help'])
-        assert result.exit_code == 0
-        assert "generate player ids" in result.output
-        assert "--load" in result.output
-        assert "--clear" in result.output
-        assert "--season" in result.output
-        assert "--dir" in result.output
-
-    def test_cli_version(self, cli_runner):
-        result = cli_runner.invoke(GenerateIds.cli, ['--version'])
-        assert result.exit_code == 0
-        assert "naccbis" in result.output
-
-
-class TestDumpNames():
-
-    def test_cli_help(self, cli_runner):
-        result = cli_runner.invoke(DumpNames.cli, ['--help'])
-        assert result.exit_code == 0
-        assert "Identify inconsistencies with player names" in result.output
-        assert "-c, --corrections" in result.output
-        assert "-f, --fname" in result.output
-        assert "-l, --lname" in result.output
-        assert "--nicknames" in result.output
-        assert "--duplicates" in result.output
-        assert "--dir" in result.output
-
-    def test_cli_version(self, cli_runner):
-        result = cli_runner.invoke(DumpNames.cli, ['--version'])
-        assert result.exit_code == 0
-        assert "naccbis" in result.output
-
 
 class TestCleanGameLogs():
 
@@ -305,28 +266,6 @@ class TestCleanGameLogs():
     )
     def test_extract_date(self, date_str, season, expected):
         assert GameLogETL.extract_date(date_str, season) == expected
-
-
-class TestClean():
-
-    def test_clean_cli_help(self, cli_runner):
-        result = cli_runner.invoke(clean.cli, ['--help'])
-        assert result.exit_code == 0
-        assert "cleaning controller" in result.output
-
-    def test_clean_cli_version(self, cli_runner):
-        result = cli_runner.invoke(clean.cli, ['--version'])
-        assert result.exit_code == 0
-        assert "naccbis" in result.output
-
-    def test_clean_cli_final_help(self, cli_runner):
-        result = cli_runner.invoke(clean.cli, ['final', '--help'])
-        assert result.exit_code == 0
-        assert "final [OPTIONS] YEAR" in result.output
-        assert "-S, --stat" in result.output
-        assert "-s, --split" in result.output
-        assert "--load" in result.output
-        assert "-v, --verbose" in result.output
 
 
 class TestLeagueTotals():

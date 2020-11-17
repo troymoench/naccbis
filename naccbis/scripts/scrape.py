@@ -16,7 +16,6 @@ from naccbis.Scraping import (
     TeamPitchingScraper,
 )
 from naccbis.Common import utils
-from naccbis import __version__
 
 
 PARSER_EPILOG = """\b
@@ -60,7 +59,6 @@ A column is added for the scrape date.
 
 
 @click.group(help=__doc__, epilog=PARSER_EPILOG)
-@click.version_option(version=__version__, message='naccbis %(version)s')
 def cli():
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])

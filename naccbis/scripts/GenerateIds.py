@@ -15,7 +15,6 @@ import pandas as pd
 # Local imports
 from naccbis.Cleaning import CleanFunctions
 from naccbis.Common import utils
-from naccbis import __version__
 
 
 def make_full_name(fname: str, lname: str) -> str:
@@ -139,7 +138,6 @@ def generate_ids(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFrame:
 
 
 @click.command(help=__doc__)
-@click.version_option(version=__version__, message='naccbis %(version)s')
 @click.option("--load", is_flag=True, help="Load data into database")
 @click.option("--clear", is_flag=True, help="Clear the database table before loading")
 @click.option("--season", type=int, help="Filter output by season")

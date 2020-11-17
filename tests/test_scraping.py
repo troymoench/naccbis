@@ -2,7 +2,6 @@
 # Standard library imports
 # Third party imports
 from bs4 import BeautifulSoup
-from click.testing import CliRunner
 import numpy as np
 import pandas as pd
 import pytest
@@ -17,7 +16,6 @@ from naccbis.Scraping import (
     TeamOffenseScraper,
     TeamPitchingScraper,
 )
-from naccbis.scripts import scrape
 
 
 @pytest.fixture
@@ -262,40 +260,3 @@ class TestIndividualPitchingScraper():
                 '4', '0', '1', '72', '.222', '5', '7', '0', '2', '2', '7.17')
         ], columns=expected_cols)
         assert expected.equals(scraper._clean(raw_df, "AUR"))
-
-
-@pytest.fixture
-def cli_runner():
-    return CliRunner()
-
-
-def test_scrape_cli_help(cli_runner):
-    result = cli_runner.invoke(scrape.cli, ['--help'])
-    assert result.exit_code == 0
-    assert "scraping controller" in result.output
-
-
-def test_scrape_cli_version(cli_runner):
-    result = cli_runner.invoke(scrape.cli, ['--version'])
-    assert result.exit_code == 0
-    assert "naccbis" in result.output
-
-
-def test_scrape_cli_final_help(cli_runner):
-    result = cli_runner.invoke(scrape.cli, ['final', '--help'])
-    assert result.exit_code == 0
-    assert "final [OPTIONS] YEAR" in result.output
-    assert "-S, --stat" in result.output
-    assert "-s, --split" in result.output
-    assert "-o, --output" in result.output
-    assert "-v, --verbose" in result.output
-
-
-def test_scrape_cli_inseason_help(cli_runner):
-    result = cli_runner.invoke(scrape.cli, ['inseason', '--help'])
-    assert result.exit_code == 0
-    assert "inseason [OPTIONS]" in result.output
-    assert "-S, --stat" in result.output
-    assert "-s, --split" in result.output
-    assert "-o, --output" in result.output
-    assert "-v, --verbose" in result.output

@@ -15,7 +15,6 @@ from naccbis.Cleaning import (
     LeaguePitchingETL,
 )
 from naccbis.Common import utils
-from naccbis import __version__
 
 
 FINAL_PARSER_DESCRIPTION = """
@@ -53,7 +52,6 @@ A column is added for the scrape date.
 
 
 @click.group(help=__doc__)
-@click.version_option(version=__version__, message='naccbis %(version)s')
 def cli():
     pass
 

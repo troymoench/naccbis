@@ -2,7 +2,6 @@
 import click
 import pandas as pd
 from naccbis.Common import utils
-from naccbis import __version__
 
 
 def get_all_table_names(conn):
@@ -24,7 +23,6 @@ def table_count(conn, table):
 
 
 @click.command(help=__doc__)
-@click.version_option(version=__version__, message='naccbis %(version)s')
 def cli():
     config = utils.init_config()
     # utils.init_logging(config["LOGGING"])

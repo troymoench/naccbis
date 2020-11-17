@@ -17,11 +17,7 @@ setup(
     version=VERSION,
     packages=find_packages(exclude=["tests"]),
     entry_points={"console_scripts": [
-        "scrape = naccbis.scripts.scrape:cli",
-        "clean = naccbis.scripts.clean:cli",
-        "GenerateIds = naccbis.scripts.GenerateIds:cli",
-        "DumpNames = naccbis.scripts.DumpNames:cli",
-        "verify = naccbis.scripts.verify:cli",
+        "naccbis = naccbis.scripts.cli:cli",
         ]
     },
     python_requires='>=3.6',
