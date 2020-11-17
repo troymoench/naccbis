@@ -200,19 +200,19 @@ class TestGenerateIds():
         expected.drop(columns=["full_name"], inplace=True)
         assert GenerateIds.generate_ids(raw, self.duplicates).equals(expected)
 
-    def test_parse_args_defaults(self):
-        args = GenerateIds.parse_args([])
-        assert not args.load
-        assert not args.clear
-        assert args.season is None
-        assert args.dir == ""
+    def test_cli_help(self, cli_runner):
+        result = cli_runner.invoke(GenerateIds.cli, ['--help'])
+        assert result.exit_code == 0
+        assert "generate player ids" in result.output
+        assert "--load" in result.output
+        assert "--clear" in result.output
+        assert "--season" in result.output
+        assert "--dir" in result.output
 
-    def test_parse_args_all_options(self):
-        args = GenerateIds.parse_args(['--load', '--clear', '--dir', 'csv/', '--season', '2019'])
-        assert args.load
-        assert args.clear
-        assert args.season == 2019
-        assert args.dir == "csv/"
+    def test_cli_version(self, cli_runner):
+        result = cli_runner.invoke(GenerateIds.cli, ['--version'])
+        assert result.exit_code == 0
+        assert "naccbis" in result.output
 
 
 class TestDumpNames():

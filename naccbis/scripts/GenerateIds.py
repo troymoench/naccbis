@@ -1,20 +1,20 @@
 """ This script is used to generate player ids
 
+\b
 1. extract raw data from database
 2. apply name corrections
 3. generate player ids
 4. load transformed data into database
 """
 # Standard library imports
-import argparse
 import os
-import sys
 from typing import List, Optional
 # Third party imports
+import click
 import pandas as pd
 # Local imports
-import naccbis.Cleaning.CleanFunctions as cf
-import naccbis.Common.utils as utils
+from naccbis.Cleaning import CleanFunctions
+from naccbis.Common import utils
 from naccbis import __version__
 
 
@@ -42,7 +42,7 @@ def update_id_conflicts(data: pd.DataFrame) -> pd.DataFrame:
             # print(df_list)
             for i, item in enumerate(df_list):
                 new_col_idx.extend(item.index.values.tolist())
-                new_col.extend(map(cf.add_n, item["player_id"], [i] * len(item)))
+                new_col.extend(map(CleanFunctions.add_n, item["player_id"], [i] * len(item)))
 
     if len(new_col) != len(new_col_idx):
         print("Oops! Length of column doesn't match length of index")
@@ -86,7 +86,7 @@ def update_duplicates(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFr
     temp = pd.merge(data, duplicates, on=["fname", "lname", "team", "season"], how="outer")
     # merge is converting the id column from int to float
     temp["id"] = temp["id"].fillna(0).astype(int)
-    temp["player_id"] = list(map(cf.add_n, temp["player_id"], temp["id"]))
+    temp["player_id"] = list(map(CleanFunctions.add_n, temp["player_id"], temp["id"]))
 
     temp.drop(columns=["id"], inplace=True)
     return temp
@@ -113,7 +113,7 @@ def generate_ids(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFrame:
     :returns: A DataFrame with player ids
     """
     print("Generating player ids")
-    data["player_id"] = list(map(cf.create_id, data["fname"], data["lname"]))
+    data["player_id"] = list(map(CleanFunctions.create_id, data["fname"], data["lname"]))
     print("Unique ID's:", data["player_id"].nunique())
 
     data["full_name"] = list(map(make_full_name, data["fname"], data["lname"]))
@@ -138,25 +138,14 @@ def generate_ids(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def parse_args(args: Optional[List[str]]) -> argparse.Namespace:
-    """ Build parser object and parse arguments """
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description=__doc__)
-    parser.add_argument("--version", action="version", version="naccbis {}".format(__version__))
-    parser.add_argument("--load", action="store_true",
-                        help="Load data into database")
-    parser.add_argument("--clear", action="store_true",
-                        help="Clear the database table before loading")
-    parser.add_argument("--dir", type=str, default="",
-                        help="Directory to save the output to")
-    parser.add_argument("--season", type=int, default=None,
-                        help="Filter output by season")
-    return parser.parse_args(args)
-
-
-def main(raw_args: Optional[List[str]] = sys.argv[1:]) -> None:
+@click.command(help=__doc__)
+@click.version_option(version=__version__, message='naccbis %(version)s')
+@click.option("--load", is_flag=True, help="Load data into database")
+@click.option("--clear", is_flag=True, help="Clear the database table before loading")
+@click.option("--season", type=int, help="Filter output by season")
+@click.option("--dir", type=str, default="", help="Directory to save the output to")
+def cli(load: bool, clear: bool, season: Optional[int], dir: str) -> None:
     """ Script entry point """
-    args = parse_args(raw_args)
 
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
@@ -167,8 +156,8 @@ def main(raw_args: Optional[List[str]] = sys.argv[1:]) -> None:
     corrections = pd.read_sql_table("name_corrections", conn)
     duplicates = get_duplicates(conn)
 
-    batters = cf.normalize_names(batters)
-    pitchers = cf.normalize_names(pitchers)
+    batters = CleanFunctions.normalize_names(batters)
+    pitchers = CleanFunctions.normalize_names(pitchers)
 
     batters = batters[["lname", "fname", "team", "season"]]
     pitchers = pitchers[["lname", "fname", "team", "season"]]
@@ -178,14 +167,14 @@ def main(raw_args: Optional[List[str]] = sys.argv[1:]) -> None:
     data = pd.merge(batters, pitchers, on=["fname", "lname", "team", "season"], how="outer")
     data = data.sort_values(by=["lname", "fname", "team", "season"])
 
-    data = cf.apply_corrections(data, corrections)
+    data = CleanFunctions.apply_corrections(data, corrections)
     data = generate_ids(data, duplicates)
 
-    if args.season:
-        data = data[data["season"] == args.season]
+    if season:
+        data = data[data["season"] == season]
 
-    if args.load:
-        if args.clear:
+    if load:
+        if clear:
             print("Clearing database table")
             conn.execute("DELETE FROM player_id")
 
@@ -194,9 +183,9 @@ def main(raw_args: Optional[List[str]] = sys.argv[1:]) -> None:
 
     else:
         print("Dumping to csv")
-        data.to_csv(os.path.join(args.dir, "player_id.csv"), index=False)
+        data.to_csv(os.path.join(dir, "player_id.csv"), index=False)
     conn.close()
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])  # pragma: no cover
+    cli()  # pragma: no cover

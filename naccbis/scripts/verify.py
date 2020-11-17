@@ -1,6 +1,8 @@
 """ This script is used to verify data integrity in the database """
+import click
 import pandas as pd
-import naccbis.Common.utils as utils
+from naccbis.Common import utils
+from naccbis import __version__
 
 
 def get_all_table_names(conn):
@@ -21,7 +23,9 @@ def table_count(conn, table):
     return count
 
 
-def main():
+@click.command(help=__doc__)
+@click.version_option(version=__version__, message='naccbis %(version)s')
+def cli():
     config = utils.init_config()
     # utils.init_logging(config["LOGGING"])
     conn = utils.connect_db(config["DB"])
@@ -42,4 +46,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()  # pragma: no cover
+    cli()  # pragma: no cover
