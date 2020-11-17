@@ -18,4 +18,4 @@ cli.add_command(verify.cli, name="verify")
 
 
 if __name__ == "__main__":
-    cli()
+    cli()  # pragma: no cover

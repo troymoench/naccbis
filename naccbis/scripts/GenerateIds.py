@@ -1,4 +1,4 @@
-""" This script is used to generate player ids
+""" This script is used to generate player ids.
 
 \b
 1. extract raw data from database
