@@ -1,5 +1,8 @@
 version: '3'
 
+volumes:
+  pgdata:
+
 services:
   web:
     build: .
@@ -17,3 +20,13 @@ services:
     # ports:
     #   - 8000:8000
     network_mode: host
+  db:
+    image: postgres:12
+    container_name: naccbisdb
+    restart: always
+    environment:
+      - "POSTGRES_PASSWORD=mypassword"
+    volumes:
+      - "pgdata:/var/lib/postgresql/data"
+    ports:
+      - 5432:5432
