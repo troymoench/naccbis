@@ -23,5 +23,5 @@ sqlalchemy = "*"
 psycopg2-binary = "*"
 gunicorn = "*"
 fastapi = "*"
-uvicorn = "*"
+uvicorn = {extras = ["standard"],version = "*"}
 click = "*"

@@ -15,7 +15,7 @@ services:
       - "DEBUG=1"
   api:
     build: .
-    command: uvicorn naccbis.api.main:app
+    command: /start_api.sh
     container_name: naccbis_api
     # ports:
     #   - 8000:8000
