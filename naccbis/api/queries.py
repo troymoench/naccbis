@@ -67,9 +67,9 @@ def get_pitchers(
 
 def get_player_offense(db: Session, player_id: str):
     q = db.query(BattersOverall).\
-            select_from(BattersOverall).join(PlayerId).\
-            filter(PlayerId.player_id == player_id).\
-            order_by(BattersOverall.season)
+        select_from(BattersOverall).join(PlayerId).\
+        filter(PlayerId.player_id == player_id).\
+        order_by(BattersOverall.season)
 
     return pd.read_sql_query(q.statement, q.session.bind)
 
@@ -108,9 +108,9 @@ def get_player_career_offense(db: Session, player_id: str):
 
 def get_player_pitching(db: Session, player_id: str):
     q = db.query(PitchersOverall).\
-            select_from(PitchersOverall).join(PlayerId).\
-            filter(PlayerId.player_id == player_id).\
-            order_by(PitchersOverall.season)
+        select_from(PitchersOverall).join(PlayerId).\
+        filter(PlayerId.player_id == player_id).\
+        order_by(PitchersOverall.season)
 
     return pd.read_sql_query(q.statement, q.session.bind)
 

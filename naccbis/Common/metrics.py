@@ -18,7 +18,7 @@ def obp(data):
 
 def slg(data):
     x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
-    return (x1b + 2*data["x2b"] + 3*data["x3b"] + 4*data["hr"]) / data["ab"]
+    return (x1b + 2 * data["x2b"] + 3 * data["x3b"] + 4 * data["hr"]) / data["ab"]
 
 
 def ops(data):
@@ -26,7 +26,7 @@ def ops(data):
 
 
 def iso(data):
-    return (data["x2b"] + 2*data["x3b"] + 3*data["hr"]) / data["ab"]
+    return (data["x2b"] + 2 * data["x3b"] + 3 * data["hr"]) / data["ab"]
 
 
 def babip(data):
@@ -68,8 +68,8 @@ def lob_p(data):
     :param
     :returns:
     """
-    num = data["h"]+data["bb"]+data["hbp"]-data["r"]
-    denom = data["h"]+data["bb"]+data["hbp"]-(1.4*data["hr"])
+    num = data["h"] + data["bb"] + data["hbp"] - data["r"]
+    denom = data["h"] + data["bb"] + data["hbp"] - (1.4 * data["hr"])
     return num / denom
 
 
@@ -166,15 +166,16 @@ def bsr(data, bmult=1.0):
     x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
 
     a = data["h"] + data["bb"] + data["hbp"] - data["hr"] - data["cs"] - data["gdp"]
-    b = (.777*x1b + 2.61*data["x2b"] + 4.29*data["x3b"] + 2.43*data["hr"]
-         + 0.03*(data["bb"] + data["hbp"]) + 1.30*data["sb"] + .13*data["cs"]
-         + 1.08*data["sh"] + 1.81*data["sf"] + 0.70*data["gdp"] - 0.04*(data["ab"] - data["h"]))
+    b = (.777 * x1b + 2.61 * data["x2b"] + 4.29 * data["x3b"] + 2.43 * data["hr"]
+         + 0.03 * (data["bb"] + data["hbp"]) + 1.30 * data["sb"] + .13 * data["cs"]
+         + 1.08 * data["sh"] + 1.81 * data["sf"] + 0.70 * data["gdp"]
+         - 0.04 * (data["ab"] - data["h"]))
     c = data["ab"] - data["h"] + data["sh"] + data["sf"]
     d = data["hr"]
 
-    b = b*bmult
+    b = b * bmult
 
-    return a*(b/(b+c)) + d
+    return a * (b / (b + c)) + d
 
 
 def bsr_bmult(data):
@@ -184,15 +185,16 @@ def bsr_bmult(data):
 
     a = data["h"] + data["bb"] + data["hbp"] - data["hr"] - data["cs"] - data["gdp"]
     a = data["h"] + data["bb"] + data["hbp"] - data["hr"] - data["cs"] - data["gdp"]
-    b = (.777*x1b + 2.61*data["x2b"] + 4.29*data["x3b"] + 2.43*data["hr"]
-         + 0.03*(data["bb"] + data["hbp"]) + 1.30*data["sb"] + .13*data["cs"]
-         + 1.08*data["sh"] + 1.81*data["sf"] + 0.70*data["gdp"] - 0.04*(data["ab"] - data["h"]))
+    b = (.777 * x1b + 2.61 * data["x2b"] + 4.29 * data["x3b"] + 2.43 * data["hr"]
+         + 0.03 * (data["bb"] + data["hbp"]) + 1.30 * data["sb"] + .13 * data["cs"]
+         + 1.08 * data["sh"] + 1.81 * data["sf"] + 0.70 * data["gdp"]
+         - 0.04 * (data["ab"] - data["h"]))
     c = data["ab"] - data["h"] + data["sh"] + data["sf"]
     d = data["hr"]
 
-    b_act = c*(d - data["r"])/(data["r"] - d - a)
+    b_act = c * (d - data["r"]) / (data["r"] - d - a)
     b_est = b
-    return b_act/b_est
+    return b_act / b_est
 
 
 def linear_weights_incr(data, incr=0.00000001):
@@ -216,8 +218,10 @@ def linear_weights_incr(data, incr=0.00000001):
         [0, 0, 0, 0, 0, 0, 0, incr, 0, 0, 0, 0],  # sb
         [0, 0, 0, 0, 0, 0, 0, 0, incr, 0, 0, 0],  # cs
         [0, 0, incr, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # out
-    ], index=["lw_hbp", "lw_bb", "lw_x1b", "lw_x2b", "lw_x3b", "lw_hr", "lw_sb", "lw_cs", "lw_out"],
-       columns=cols)
+    ],
+        index=["lw_hbp", "lw_bb", "lw_x1b", "lw_x2b", "lw_x3b",
+               "lw_hr", "lw_sb", "lw_cs", "lw_out"],
+        columns=cols)
 
     M_input = M_incr + v_input
     bmult = bsr_bmult(data)
@@ -264,9 +268,9 @@ def woba(data, weights):
     :returns: Series of wOBA values
     """
     x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
-    return (weights["ww_hbp"]*data["hbp"] + weights["ww_bb"]*data["bb"] + weights["ww_x1b"]*x1b
-            + weights["ww_x2b"]*data["x2b"] + weights["ww_x3b"]*data["x3b"]
-            + weights["ww_hr"]*data["hr"]) / data["pa"]
+    return (weights["ww_hbp"] * data["hbp"] + weights["ww_bb"] * data["bb"] + weights["ww_x1b"] * x1b
+            + weights["ww_x2b"] * data["x2b"] + weights["ww_x3b"] * data["x3b"]
+            + weights["ww_hr"] * data["hr"]) / data["pa"]
 
 
 def sbr(data, weights):
@@ -277,7 +281,7 @@ def sbr(data, weights):
     :param weights: DataFrame or Series of linear weights
     :returns: Series of SBR values
     """
-    return weights["lw_sb"]*data["sb"] + weights["lw_cs"]*data["cs"]
+    return weights["lw_sb"] * data["sb"] + weights["lw_cs"] * data["cs"]
 
 
 def lg_wsb(data, weights):
@@ -289,7 +293,7 @@ def lg_wsb(data, weights):
     :returns: Series of lgwSB values
     """
     x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
-    return ((weights["lw_sb"]*data["sb"] + weights["lw_cs"]*data["cs"])
+    return ((weights["lw_sb"] * data["sb"] + weights["lw_cs"] * data["cs"])
             / (x1b + data["bb"] + data["hbp"]))
 
 
@@ -343,7 +347,7 @@ def wrc_p(data, lg_r_pa):
     :param
     :returns:
     """
-    return (((data["wraa"] / data["pa"]) + lg_r_pa) / lg_r_pa)*100
+    return (((data["wraa"] / data["pa"]) + lg_r_pa) / lg_r_pa) * 100
 
 
 def off_p(data, lg_r_pa):
@@ -353,7 +357,7 @@ def off_p(data, lg_r_pa):
     :param
     :returns:
     """
-    return (((data["off"] / data["pa"]) + lg_r_pa) / lg_r_pa)*100
+    return (((data["off"] / data["pa"]) + lg_r_pa) / lg_r_pa) * 100
 
 
 def rar(data, replacement_level):
@@ -470,7 +474,7 @@ def fip(data, constant):
     :param
     :returns:
     """
-    return ((13*data["hr"] + 3*(data["bb"] + data["hbp"]) - 2*data["so"]) / data["ip"]) + constant
+    return ((13 * data["hr"] + 3 * (data["bb"] + data["hbp"]) - 2 * data["so"]) / data["ip"]) + constant
 
 
 def fip_constant(data):
@@ -480,7 +484,7 @@ def fip_constant(data):
     :returns:
     """
     return (data["era"]
-            - (((13*data["hr"]) + (3*(data["bb"] + data["hbp"])) - 2*data["so"]) / data["ip"]))
+            - (((13 * data["hr"]) + (3 * (data["bb"] + data["hbp"])) - 2 * data["so"]) / data["ip"]))
 
 
 def fip_minus(data, lg_fip):
@@ -505,25 +509,25 @@ def bsr_pitch(data, bmult=1.0):
     x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
 
     a = data["h"] + data["bb"] + data["hbp"] - data["hr"]
-    b = (.78*x1b + 2.34*data["x2b"] + 3.9*data["x3b"] + 2.34*data["hr"]
-         + .039*(data["bb"] + data["hbp"]))
+    b = (.78 * x1b + 2.34 * data["x2b"] + 3.9 * data["x3b"] + 2.34 * data["hr"]
+         + .039 * (data["bb"] + data["hbp"]))
     c = data["ab"] - data["h"]
     d = data["hr"]
-    return a*(b*bmult/(b*bmult+c)) + d
+    return a * (b * bmult / (b * bmult + c)) + d
 
 
 def bsr_pitch_bmult(data):
     x1b = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
 
     a = data["h"] + data["bb"] + data["hbp"] - data["hr"]
-    b = (.78*x1b + 2.34*data["x2b"] + 3.9*data["x3b"] + 2.34*data["hr"]
-         + .039*(data["bb"] + data["hbp"]))
+    b = (.78 * x1b + 2.34 * data["x2b"] + 3.9 * data["x3b"] + 2.34 * data["hr"]
+         + .039 * (data["bb"] + data["hbp"]))
     c = data["ab"] - data["h"]
     d = data["hr"]
 
-    b_act = c*(d - data["r"])/(data["r"] - d - a)
+    b_act = c * (d - data["r"]) / (data["r"] - d - a)
     b_est = b
-    return b_act/b_est
+    return b_act / b_est
 
 
 def bsr_9(data):
