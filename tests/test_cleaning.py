@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 # Local imports
 from naccbis.Cleaning import (CleanFunctions, GameLogETL, LeagueOffenseETL)
-from naccbis.scripts import (clean, DumpNames, GenerateIds)
+from naccbis.scripts import (clean, DumpNames, GenerateIds) # noqa
 
 
 class TestCleanFunctions():
@@ -101,8 +101,8 @@ class TestCleanFunctions():
     @pytest.mark.parametrize(
         'raw, expected', [
             ("10.0", 10.0),
-            ("10.1", 10 + (1/3)),
-            ("10.2", 10 + (2/3)),
+            ("10.1", 10 + (1 / 3)),
+            ("10.2", 10 + (2 / 3)),
         ]
     )
     def test_convert_ip(self, raw, expected):
@@ -202,7 +202,7 @@ class TestCleanGameLogs():
             ("L, 10-8", "L"),
             ("W, 17-6", "W"),
             ("W, 5-4", "W"),
-            ("L, 5-4",  "L"),
+            ("L, 5-4", "L"),
         ]
     )
     def test_extract_result(self, score, expected):

@@ -9,6 +9,6 @@ install:
   - pipenv install --dev
 script:
   - pytest -m "not integration" --cov --cov-report term
-  - flake8 naccbis --statistics
+  - flake8 naccbis tests --statistics
   - mypy naccbis/
 after_success: codecov --required
