@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 import pytest
+
 # Local imports
 from naccbis.Scraping import (
     ScrapeFunctions,
@@ -94,31 +95,35 @@ def mock_get_soup(monkeypatch):
     monkeypatch.setattr(ScrapeFunctions, "get_soup", mock_response)
 
 
-class TestScrapeFunctions():
-    BASE_URL = 'https://naccsports.org/sports/bsb/'
+class TestScrapeFunctions:
+    BASE_URL = "https://naccsports.org/sports/bsb/"
     TEAM_IDS = {
-        'Aurora': 'AUR',
-        'Benedictine': 'BEN',
-        'Concordia Chicago': 'CUC',
-        'Concordia Wisconsin': 'CUW',
-        'Dominican': 'DOM',
-        'Edgewood': 'EDG',
-        'Illinois Tech': 'ILLT',
-        'Lakeland': 'LAK',
-        'MSOE': 'MSOE',
-        'Marian': 'MAR',
-        'Maranatha': 'MARN',
-        'Rockford': 'ROCK',
-        'Wisconsin Lutheran': 'WLC'
+        "Aurora": "AUR",
+        "Benedictine": "BEN",
+        "Concordia Chicago": "CUC",
+        "Concordia Wisconsin": "CUW",
+        "Dominican": "DOM",
+        "Edgewood": "EDG",
+        "Illinois Tech": "ILLT",
+        "Lakeland": "LAK",
+        "MSOE": "MSOE",
+        "Marian": "MAR",
+        "Maranatha": "MARN",
+        "Rockford": "ROCK",
+        "Wisconsin Lutheran": "WLC",
     }
 
     def test_get_text(self):
-        soup = BeautifulSoup("<a href='https://www.google.com'> Google </a>", 'html.parser')
+        soup = BeautifulSoup(
+            "<a href='https://www.google.com'> Google </a>", "html.parser"
+        )
         html_tag = soup.a
         assert ScrapeFunctions.get_text(html_tag) == "Google"
 
     def test_get_href(self):
-        soup = BeautifulSoup("<a href='https://www.google.com'> Google </a>", 'html.parser')
+        soup = BeautifulSoup(
+            "<a href='https://www.google.com'> Google </a>", "html.parser"
+        )
         html_tag = soup.a
         assert ScrapeFunctions.get_href(html_tag) == "https://www.google.com"
 
@@ -129,33 +134,54 @@ class TestScrapeFunctions():
         assert ScrapeFunctions.find_table(soup, ["Col 1", "Col 5"]) == []
 
     def test_scrape_table(self, html_table):
-        df = pd.DataFrame({
-            "Col 1": ["(1,1)", "(2,1)", "(3,1)", "(4,1)"],
-            "Col 2": ["(1,2)", "(2,2)", "(3,2)", "(4,2)"],
-            "Col 3": ["(1,3)", "(2,3)", "(3,3)", "(4,3)"],
-            "Col 4": ["(1,4)", "(2,4)", "(3,4)", "(4,4)"]
-        })
+        df = pd.DataFrame(
+            {
+                "Col 1": ["(1,1)", "(2,1)", "(3,1)", "(4,1)"],
+                "Col 2": ["(1,2)", "(2,2)", "(3,2)", "(4,2)"],
+                "Col 3": ["(1,3)", "(2,3)", "(3,3)", "(4,3)"],
+                "Col 4": ["(1,4)", "(2,4)", "(3,4)", "(4,4)"],
+            }
+        )
         soup = BeautifulSoup(html_table, "html.parser")
         assert df.equals(ScrapeFunctions.scrape_table(soup, 1))
         with pytest.raises(IndexError):
             ScrapeFunctions.scrape_table(soup, 2)
 
     def test_get_team_list(self, mock_get_soup):
-        year = '2017-18'
+        year = "2017-18"
         expected = [
-            {'team': 'Aurora', 'id': 'AUR', 'url': 'teams/aurora?view=lineup'},
-            {'team': 'Benedictine', 'id': 'BEN', 'url': 'teams/benedictineil?view=lineup'},
-            {'team': 'Concordia Chicago', 'id': 'CUC', 'url': 'teams/concordiaill?view=lineup'},
-            {'team': 'Concordia Wisconsin', 'id': 'CUW', 'url': 'teams/concordiawis?view=lineup'},
-            {'team': 'Dominican', 'id': 'DOM', 'url': 'teams/dominicanill?view=lineup'},
-            {'team': 'Edgewood', 'id': 'EDG', 'url': 'teams/edgewood?view=lineup'},
-            {'team': 'Lakeland', 'id': 'LAK', 'url': 'teams/lakeland?view=lineup'},
-            {'team': 'MSOE', 'id': 'MSOE', 'url': 'teams/msoe?view=lineup'},
-            {'team': 'Marian', 'id': 'MAR', 'url': 'teams/marianwis?view=lineup'},
-            {'team': 'Rockford', 'id': 'ROCK', 'url': 'teams/rockford?view=lineup'},
-            {'team': 'Wisconsin Lutheran', 'id': 'WLC', 'url': 'teams/wislutheran?view=lineup'},
+            {"team": "Aurora", "id": "AUR", "url": "teams/aurora?view=lineup"},
+            {
+                "team": "Benedictine",
+                "id": "BEN",
+                "url": "teams/benedictineil?view=lineup",
+            },
+            {
+                "team": "Concordia Chicago",
+                "id": "CUC",
+                "url": "teams/concordiaill?view=lineup",
+            },
+            {
+                "team": "Concordia Wisconsin",
+                "id": "CUW",
+                "url": "teams/concordiawis?view=lineup",
+            },
+            {"team": "Dominican", "id": "DOM", "url": "teams/dominicanill?view=lineup"},
+            {"team": "Edgewood", "id": "EDG", "url": "teams/edgewood?view=lineup"},
+            {"team": "Lakeland", "id": "LAK", "url": "teams/lakeland?view=lineup"},
+            {"team": "MSOE", "id": "MSOE", "url": "teams/msoe?view=lineup"},
+            {"team": "Marian", "id": "MAR", "url": "teams/marianwis?view=lineup"},
+            {"team": "Rockford", "id": "ROCK", "url": "teams/rockford?view=lineup"},
+            {
+                "team": "Wisconsin Lutheran",
+                "id": "WLC",
+                "url": "teams/wislutheran?view=lineup",
+            },
         ]
-        assert ScrapeFunctions.get_team_list(self.BASE_URL, year, self.TEAM_IDS) == expected
+        assert (
+            ScrapeFunctions.get_team_list(self.BASE_URL, year, self.TEAM_IDS)
+            == expected
+        )
 
     def test_skip_team(self):
         html = """
@@ -165,7 +191,7 @@ class TestScrapeFunctions():
             </td>
         </tr>
         """
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(html, "html.parser")
         assert ScrapeFunctions.skip_team(soup)
 
 
@@ -187,7 +213,7 @@ def test_init_scrapers():
         assert isinstance(scraper, BaseScraper)
 
 
-class TestIndividualOffenseScraper():
+class TestIndividualOffenseScraper:
     def test_info(self):
         scraper = IndividualOffenseScraper("2018-19", "overall", "csv")
         scraper.info()
@@ -195,35 +221,211 @@ class TestIndividualOffenseScraper():
     def test_clean(self):
         scraper = IndividualOffenseScraper("2018-19", "overall", "csv")
         raw_cols = [
-            'No.', 'Name', 'Yr', 'Pos', 'g', 'ab', 'r', 'h', '2b', '3b', 'hr', 'rbi',
-            'bb', 'k', 'sb', 'cs', 'avg', 'obp', 'slg', 'hbp', 'sf', 'sh', 'tb', 'xbh',
-            'hdp', 'go', 'fo', 'go/fo', 'pa'
+            "No.",
+            "Name",
+            "Yr",
+            "Pos",
+            "g",
+            "ab",
+            "r",
+            "h",
+            "2b",
+            "3b",
+            "hr",
+            "rbi",
+            "bb",
+            "k",
+            "sb",
+            "cs",
+            "avg",
+            "obp",
+            "slg",
+            "hbp",
+            "sf",
+            "sh",
+            "tb",
+            "xbh",
+            "hdp",
+            "go",
+            "fo",
+            "go/fo",
+            "pa",
         ]
-        raw_df = pd.DataFrame([
-            ('3', 'Jonathan  Hodo', 'So.', 'INF', '41', '161', '23', '48', '7', '1', '-',
-                '26', '12', '24', '11', '3', '.298', '.370', '.354', '7', '1', '-',
-                '57', '8', '3', '40', '45', '0.89', '181'),
-            ('9', 'Jack  Surin', 'Fr.', '', '41', '150', '18', '39', '10', '-', '-',
-                '22', '8', '16', '7', '-', '.260', '.307', '.327', '3', '2', '2', '49',
-                '10', '2', '39', '55', '0.71', '165')
-        ], columns=raw_cols)
+        raw_df = pd.DataFrame(
+            [
+                (
+                    "3",
+                    "Jonathan  Hodo",
+                    "So.",
+                    "INF",
+                    "41",
+                    "161",
+                    "23",
+                    "48",
+                    "7",
+                    "1",
+                    "-",
+                    "26",
+                    "12",
+                    "24",
+                    "11",
+                    "3",
+                    ".298",
+                    ".370",
+                    ".354",
+                    "7",
+                    "1",
+                    "-",
+                    "57",
+                    "8",
+                    "3",
+                    "40",
+                    "45",
+                    "0.89",
+                    "181",
+                ),
+                (
+                    "9",
+                    "Jack  Surin",
+                    "Fr.",
+                    "",
+                    "41",
+                    "150",
+                    "18",
+                    "39",
+                    "10",
+                    "-",
+                    "-",
+                    "22",
+                    "8",
+                    "16",
+                    "7",
+                    "-",
+                    ".260",
+                    ".307",
+                    ".327",
+                    "3",
+                    "2",
+                    "2",
+                    "49",
+                    "10",
+                    "2",
+                    "39",
+                    "55",
+                    "0.71",
+                    "165",
+                ),
+            ],
+            columns=raw_cols,
+        )
         expected_cols = [
-            'no', 'name', 'team', 'season', 'yr', 'pos', 'g', 'pa', 'ab', 'r', 'h',
-            'x2b', 'x3b', 'hr', 'rbi', 'bb', 'so', 'sb', 'cs', 'avg', 'obp', 'slg',
-            'hbp', 'sf', 'sh', 'tb', 'xbh', 'gdp', 'go', 'fo', 'go_fo'
+            "no",
+            "name",
+            "team",
+            "season",
+            "yr",
+            "pos",
+            "g",
+            "pa",
+            "ab",
+            "r",
+            "h",
+            "x2b",
+            "x3b",
+            "hr",
+            "rbi",
+            "bb",
+            "so",
+            "sb",
+            "cs",
+            "avg",
+            "obp",
+            "slg",
+            "hbp",
+            "sf",
+            "sh",
+            "tb",
+            "xbh",
+            "gdp",
+            "go",
+            "fo",
+            "go_fo",
         ]
-        expected = pd.DataFrame([
-            ('3', 'Jonathan  Hodo', 'BEN', '2019', 'So', 'INF', '41', '181', '161', '23', '48',
-                '7', '1', '0', '26', '12', '24', '11', '3', '.298', '.370', '.354',
-                '7', '1', '0', '57', '8', '3', '40', '45', '0.89'),
-            ('9', 'Jack  Surin', 'BEN', '2019', 'Fr', np.nan, '41', '165', '150', '18', '39',
-                '10', '0', '0', '22', '8', '16', '7', '0', '.260', '.307', '.327',
-                '3', '2', '2', '49', '10', '2', '39', '55', '0.71')
-        ], columns=expected_cols)
+        expected = pd.DataFrame(
+            [
+                (
+                    "3",
+                    "Jonathan  Hodo",
+                    "BEN",
+                    "2019",
+                    "So",
+                    "INF",
+                    "41",
+                    "181",
+                    "161",
+                    "23",
+                    "48",
+                    "7",
+                    "1",
+                    "0",
+                    "26",
+                    "12",
+                    "24",
+                    "11",
+                    "3",
+                    ".298",
+                    ".370",
+                    ".354",
+                    "7",
+                    "1",
+                    "0",
+                    "57",
+                    "8",
+                    "3",
+                    "40",
+                    "45",
+                    "0.89",
+                ),
+                (
+                    "9",
+                    "Jack  Surin",
+                    "BEN",
+                    "2019",
+                    "Fr",
+                    np.nan,
+                    "41",
+                    "165",
+                    "150",
+                    "18",
+                    "39",
+                    "10",
+                    "0",
+                    "0",
+                    "22",
+                    "8",
+                    "16",
+                    "7",
+                    "0",
+                    ".260",
+                    ".307",
+                    ".327",
+                    "3",
+                    "2",
+                    "2",
+                    "49",
+                    "10",
+                    "2",
+                    "39",
+                    "55",
+                    "0.71",
+                ),
+            ],
+            columns=expected_cols,
+        )
         assert expected.equals(scraper._clean(raw_df, "BEN"))
 
 
-class TestIndividualPitchingScraper():
+class TestIndividualPitchingScraper:
     def test_info(self):
         scraper = IndividualPitchingScraper("2018-19", "overall", "csv")
         scraper.info()
@@ -231,32 +433,247 @@ class TestIndividualPitchingScraper():
     def test_clean_overall(self):
         scraper = IndividualPitchingScraper("2018-19", "overall", "csv")
         raw_cols = [
-            'No.', 'Name', 'ERA', 'W', 'L', 'APP', 'GS', 'CG', 'SHO', 'SV', 'IP',
-            'H', 'R', 'ER', 'BB', 'SO', '2B', '3B', 'HR', 'AB', 'B/AVG', 'WP', 'HBP',
-            'BK', 'SFA', 'SHA', 'Yr', 'Pos', 'app', 'gs', 'w', 'l', 'sv', 'cg', 'ip',
-            'h', 'r', 'er', 'bb', 'k', 'k/9', 'hr', 'era'
+            "No.",
+            "Name",
+            "ERA",
+            "W",
+            "L",
+            "APP",
+            "GS",
+            "CG",
+            "SHO",
+            "SV",
+            "IP",
+            "H",
+            "R",
+            "ER",
+            "BB",
+            "SO",
+            "2B",
+            "3B",
+            "HR",
+            "AB",
+            "B/AVG",
+            "WP",
+            "HBP",
+            "BK",
+            "SFA",
+            "SHA",
+            "Yr",
+            "Pos",
+            "app",
+            "gs",
+            "w",
+            "l",
+            "sv",
+            "cg",
+            "ip",
+            "h",
+            "r",
+            "er",
+            "bb",
+            "k",
+            "k/9",
+            "hr",
+            "era",
         ]
-        raw_df = pd.DataFrame([
-            ('31', 'Nicholas Mathey', '2.28', '2', '0', '20', '0', '-', '-', '12',
-                '43.1', '31', '15', '11', '8', '47', '2', '-', '2', '153', '.203',
-                '5', '1', '-', '1', '2', 'Sr.', 'OF/P', '20', '0', '2', '0', '12', '-',
-                '43.1', '31', '15', '11', '8', '47', '9.76', '2', '2.28'),
-            ('32', 'Michael Fidler', '2.53', '1', '1', '13', '0', '-', '-', '4',
-                '21.1', '16', '6', '6', '9', '17', '4', '-', '1', '72', '.222', '5',
-                '7', '-', '2', '2', 'Sr.', 'P/IF', '13', '0', '1', '1', '4', '-',
-                '21.1', '16', '6', '6', '9', '17', '7.17', '1', '2.53')
-        ], columns=raw_cols)
+        raw_df = pd.DataFrame(
+            [
+                (
+                    "31",
+                    "Nicholas Mathey",
+                    "2.28",
+                    "2",
+                    "0",
+                    "20",
+                    "0",
+                    "-",
+                    "-",
+                    "12",
+                    "43.1",
+                    "31",
+                    "15",
+                    "11",
+                    "8",
+                    "47",
+                    "2",
+                    "-",
+                    "2",
+                    "153",
+                    ".203",
+                    "5",
+                    "1",
+                    "-",
+                    "1",
+                    "2",
+                    "Sr.",
+                    "OF/P",
+                    "20",
+                    "0",
+                    "2",
+                    "0",
+                    "12",
+                    "-",
+                    "43.1",
+                    "31",
+                    "15",
+                    "11",
+                    "8",
+                    "47",
+                    "9.76",
+                    "2",
+                    "2.28",
+                ),
+                (
+                    "32",
+                    "Michael Fidler",
+                    "2.53",
+                    "1",
+                    "1",
+                    "13",
+                    "0",
+                    "-",
+                    "-",
+                    "4",
+                    "21.1",
+                    "16",
+                    "6",
+                    "6",
+                    "9",
+                    "17",
+                    "4",
+                    "-",
+                    "1",
+                    "72",
+                    ".222",
+                    "5",
+                    "7",
+                    "-",
+                    "2",
+                    "2",
+                    "Sr.",
+                    "P/IF",
+                    "13",
+                    "0",
+                    "1",
+                    "1",
+                    "4",
+                    "-",
+                    "21.1",
+                    "16",
+                    "6",
+                    "6",
+                    "9",
+                    "17",
+                    "7.17",
+                    "1",
+                    "2.53",
+                ),
+            ],
+            columns=raw_cols,
+        )
         expected_cols = [
-            'no', 'name', 'team', 'season', 'yr', 'pos', 'g', 'gs', 'w', 'l', 'sv',
-            'cg', 'sho', 'ip', 'h', 'r', 'er', 'bb', 'so', 'era', 'x2b', 'x3b', 'hr',
-            'ab', 'avg', 'wp', 'hbp', 'bk', 'sf', 'sh', 'so_9'
+            "no",
+            "name",
+            "team",
+            "season",
+            "yr",
+            "pos",
+            "g",
+            "gs",
+            "w",
+            "l",
+            "sv",
+            "cg",
+            "sho",
+            "ip",
+            "h",
+            "r",
+            "er",
+            "bb",
+            "so",
+            "era",
+            "x2b",
+            "x3b",
+            "hr",
+            "ab",
+            "avg",
+            "wp",
+            "hbp",
+            "bk",
+            "sf",
+            "sh",
+            "so_9",
         ]
-        expected = pd.DataFrame([
-            ('31', 'Nicholas Mathey', 'AUR', '2019', 'Sr', 'OF/P', '20', '0', '2',
-                '0', '12', '0', '0', '43.1', '31', '15', '11', '8', '47', '2.28',
-                '2', '0', '2', '153', '.203', '5', '1', '0', '1', '2', '9.76'),
-            ('32', 'Michael Fidler', 'AUR', '2019', 'Sr', 'P/IF', '13', '0', '1',
-                '1', '4', '0', '0', '21.1', '16', '6', '6', '9', '17', '2.53',
-                '4', '0', '1', '72', '.222', '5', '7', '0', '2', '2', '7.17')
-        ], columns=expected_cols)
+        expected = pd.DataFrame(
+            [
+                (
+                    "31",
+                    "Nicholas Mathey",
+                    "AUR",
+                    "2019",
+                    "Sr",
+                    "OF/P",
+                    "20",
+                    "0",
+                    "2",
+                    "0",
+                    "12",
+                    "0",
+                    "0",
+                    "43.1",
+                    "31",
+                    "15",
+                    "11",
+                    "8",
+                    "47",
+                    "2.28",
+                    "2",
+                    "0",
+                    "2",
+                    "153",
+                    ".203",
+                    "5",
+                    "1",
+                    "0",
+                    "1",
+                    "2",
+                    "9.76",
+                ),
+                (
+                    "32",
+                    "Michael Fidler",
+                    "AUR",
+                    "2019",
+                    "Sr",
+                    "P/IF",
+                    "13",
+                    "0",
+                    "1",
+                    "1",
+                    "4",
+                    "0",
+                    "0",
+                    "21.1",
+                    "16",
+                    "6",
+                    "6",
+                    "9",
+                    "17",
+                    "2.53",
+                    "4",
+                    "0",
+                    "1",
+                    "72",
+                    ".222",
+                    "5",
+                    "7",
+                    "0",
+                    "2",
+                    "2",
+                    "7.17",
+                ),
+            ],
+            columns=expected_cols,
+        )
         assert expected.equals(scraper._clean(raw_df, "AUR"))

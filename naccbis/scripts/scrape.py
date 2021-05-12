@@ -3,8 +3,10 @@
 from datetime import date
 import logging
 from typing import List, Dict, Type, Tuple
+
 # Third party imports
 import click
+
 # Local imports
 from naccbis.Scraping import (
     BaseScraper,
@@ -64,9 +66,15 @@ def cli():
     utils.init_logging(config["LOGGING"])
 
 
-def run_scrapers(scraper_nums: List[int], year: str, splits: List[str],
-                 output: str, inseason: bool, verbose: bool) -> None:
-    """ Run selected scrapers for a given year
+def run_scrapers(
+    scraper_nums: List[int],
+    year: str,
+    splits: List[str],
+    output: str,
+    inseason: bool,
+    verbose: bool,
+) -> None:
+    """Run selected scrapers for a given year
 
     :param scraper_nums: List of integers that correspond to the scrapers to be run
     :param year: The integer representation of the year
@@ -81,7 +89,7 @@ def run_scrapers(scraper_nums: List[int], year: str, splits: List[str],
         2: IndividualPitchingScraper,
         3: TeamOffenseScraper,
         4: TeamPitchingScraper,
-        5: TeamFieldingScraper
+        5: TeamFieldingScraper,
     }
 
     for split in splits:
@@ -103,19 +111,35 @@ def run_scrapers(scraper_nums: List[int], year: str, splits: List[str],
 @cli.command(help=FINAL_PARSER_DESCRIPTION)
 @click.argument("year", type=utils.parse_year)
 @click.option(
-    "-S", "--stat", type=click.IntRange(min=1, max=6), multiple=True, default=range(1, 7),
-    help="Select stat scraper(s) to run. Provide list or omit argument for all scrapers"
+    "-S",
+    "--stat",
+    type=click.IntRange(min=1, max=6),
+    multiple=True,
+    default=range(1, 7),
+    help="Select stat scraper(s) to run. Provide list or omit argument for all scrapers",
 )
 @click.option(
-    "-s", "--split", type=click.Choice(["overall", "conference", "all"]),
-    default="all", show_default=True, help="Split choices"
+    "-s",
+    "--split",
+    type=click.Choice(["overall", "conference", "all"]),
+    default="all",
+    show_default=True,
+    help="Split choices",
 )
 @click.option(
-    "-o", "--output", type=click.Choice(["csv", "sql"]), default="csv",
-    show_default=True, help="Output choices"
+    "-o",
+    "--output",
+    type=click.Choice(["csv", "sql"]),
+    default="csv",
+    show_default=True,
+    help="Output choices",
 )
-@click.option('-v', '--verbose', is_flag=True, help='Print extra information to standard out')
-def final(year: List[int], stat: Tuple[int], split: str, output: str, verbose: bool) -> None:
+@click.option(
+    "-v", "--verbose", is_flag=True, help="Print extra information to standard out"
+)
+def final(
+    year: List[int], stat: Tuple[int], split: str, output: str, verbose: bool
+) -> None:
     """Scrape end of the year final stats
 
     :param args: Arguments for the scrapers
@@ -137,20 +161,34 @@ def final(year: List[int], stat: Tuple[int], split: str, output: str, verbose: b
 
 @cli.command(help=INSEASON_PARSER_DESCRIPTION)
 @click.option(
-    "-S", "--stat", type=click.IntRange(min=1, max=6), multiple=True, default=list(range(1, 7)),
-    help="Select stat scraper(s) to run. Provide list or omit argument for all scrapers"
+    "-S",
+    "--stat",
+    type=click.IntRange(min=1, max=6),
+    multiple=True,
+    default=list(range(1, 7)),
+    help="Select stat scraper(s) to run. Provide list or omit argument for all scrapers",
 )
 @click.option(
-    "-s", "--split", type=click.Choice(["overall", "conference", "all"]),
-    default="all", show_default=True, help="Split choices"
+    "-s",
+    "--split",
+    type=click.Choice(["overall", "conference", "all"]),
+    default="all",
+    show_default=True,
+    help="Split choices",
 )
 @click.option(
-    "-o", "--output", type=click.Choice(["csv", "sql"]), default="csv",
-    show_default=True, help="Output choices"
+    "-o",
+    "--output",
+    type=click.Choice(["csv", "sql"]),
+    default="csv",
+    show_default=True,
+    help="Output choices",
 )
-@click.option('-v', '--verbose', is_flag=True, help='Print extra information to standard out')
+@click.option(
+    "-v", "--verbose", is_flag=True, help="Print extra information to standard out"
+)
 def inseason(stat: Tuple[int], split: str, output: str, verbose: bool) -> None:
-    """ Run scrapers for the inseason subcommand
+    """Run scrapers for the inseason subcommand
 
     :param args: Arguments for the scrapers
     """

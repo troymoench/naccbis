@@ -33,7 +33,7 @@ def read_batters(
     team: Optional[str] = None,
     split: str = "overall",
     min_pa: int = 0,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     batters = queries.get_batters(db, season, team, split, min_pa)
     totals = queries.get_league_offense(db, season, split)
@@ -47,7 +47,7 @@ def read_pitchers(
     team: Optional[str] = None,
     split: str = "overall",
     min_ip: int = 0,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     return queries.get_pitchers(db, season, team, split, min_ip)
 
@@ -57,7 +57,7 @@ def read_team_offense(
     season: Optional[int] = None,
     team: Optional[str] = None,
     split: str = "overall",
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     teams = queries.get_team_offense(db, season, team, split)
     totals = queries.get_league_offense(db, season, split)
@@ -70,7 +70,7 @@ def read_team_pitching(
     season: Optional[int] = None,
     team: Optional[str] = None,
     split: str = "overall",
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     df = queries.get_team_pitching(db, season, team, split)
     return [row for row in df.itertuples(index=False)]
@@ -78,9 +78,7 @@ def read_team_pitching(
 
 @app.get("/league_offense", response_model=List[schemas.LeagueOffenseSchema])
 def read_league_offense(
-    season: Optional[int] = None,
-    split: str = "overall",
-    db: Session = Depends(get_db)
+    season: Optional[int] = None, split: str = "overall", db: Session = Depends(get_db)
 ):
     df = queries.get_league_offense(db, season, split)
     return [row for row in df.itertuples(index=False)]
@@ -88,9 +86,7 @@ def read_league_offense(
 
 @app.get("/league_pitching", response_model=List[schemas.LeaguePitchingSchema])
 def read_league_pitching(
-    season: Optional[int] = None,
-    split: str = "overall",
-    db: Session = Depends(get_db)
+    season: Optional[int] = None, split: str = "overall", db: Session = Depends(get_db)
 ):
     df = queries.get_league_pitching(db, season, split)
     return [row for row in df.itertuples(index=False)]
@@ -118,7 +114,7 @@ def read_game_log(
     game_date: Optional[date] = None,
     home: Optional[bool] = None,
     split: str = "overall",
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     df = queries.get_game_log(db, team, season, game_date, home)
     return [row for row in df.itertuples(index=False)]

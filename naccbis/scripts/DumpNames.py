@@ -6,17 +6,21 @@ These inconsistencies include, but are not limited to:
 """
 # Standard library imports
 import os
+
 # Third party imports
 import click
 import pandas as pd
 from Levenshtein import distance
+
 # Local imports
 from naccbis.Cleaning import CleanFunctions
 from naccbis.Common import utils
 
 
-def levenshtein_analysis(data: pd.DataFrame, lev_first: int, lev_last: int) -> pd.DataFrame:
-    """ Perform a Levenshtein analysis on first names and last names.
+def levenshtein_analysis(
+    data: pd.DataFrame, lev_first: int, lev_last: int
+) -> pd.DataFrame:
+    """Perform a Levenshtein analysis on first names and last names.
     This is used for identifying typos.
 
     :param data: A DataFrame
@@ -34,14 +38,18 @@ def levenshtein_analysis(data: pd.DataFrame, lev_first: int, lev_last: int) -> p
     cart_prod.columns = ["lname1", "lname2"]
 
     # Compute the Levenshtein distance between each pair of names
-    cart_prod["levenshtein"] = list(map(distance, cart_prod["lname1"], cart_prod["lname2"]))
+    cart_prod["levenshtein"] = list(
+        map(distance, cart_prod["lname1"], cart_prod["lname2"])
+    )
     cart_prod = cart_prod[cart_prod.levenshtein == lev_last]
 
     output = pd.merge(data, cart_prod, left_on="lname", right_on="lname1")
 
     output = pd.merge(output, data, left_on="lname2", right_on="lname", how="inner")
 
-    output["levenshtein_first"] = list(map(distance, output["fname_x"], output["fname_y"]))
+    output["levenshtein_first"] = list(
+        map(distance, output["fname_x"], output["fname_y"])
+    )
     output = output[output["levenshtein_first"] == lev_first]
 
     output = output.sort_values(by=["levenshtein", "lname1"])
@@ -49,7 +57,7 @@ def levenshtein_analysis(data: pd.DataFrame, lev_first: int, lev_last: int) -> p
 
 
 def nickname_analysis(data: pd.DataFrame, nicknames: pd.DataFrame) -> pd.DataFrame:
-    """ Perform a nickname analysis on first names.
+    """Perform a nickname analysis on first names.
     This is used for identifying inconsistencies due to nicknames.
 
     :param data: A DataFrame
@@ -63,14 +71,16 @@ def nickname_analysis(data: pd.DataFrame, nicknames: pd.DataFrame) -> pd.DataFra
     cart_prod = pd.merge(names, names, on="lname")
     cart_prod = cart_prod[cart_prod["fname_x"] != cart_prod["fname_y"]]
 
-    return pd.merge(cart_prod,
-                    nicknames,
-                    left_on=["fname_x", "fname_y"],
-                    right_on=["name", "nickname"])
+    return pd.merge(
+        cart_prod,
+        nicknames,
+        left_on=["fname_x", "fname_y"],
+        right_on=["name", "nickname"],
+    )
 
 
 def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
-    """ Perform duplicate names analysis.
+    """Perform duplicate names analysis.
 
     :param data: A DataFrame
     :returns: A DataFrame with player-seasons that have the same name but
@@ -82,8 +92,11 @@ def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
 
     temp = names[["name", "team"]].groupby(["name", "team"]).head(1)
     temp = temp.groupby(["name"]).filter(lambda x: len(x) > 1)
-    output = names[names["name"].isin(temp["name"])].\
-        groupby(["name", "team", "season"]).head(1)
+    output = (
+        names[names["name"].isin(temp["name"])]
+        .groupby(["name", "team", "season"])
+        .head(1)
+    )
     output["fname"] = output["name"].apply(CleanFunctions.split_fname)
     output["lname"] = output["name"].apply(CleanFunctions.split_lname)
 
@@ -91,23 +104,37 @@ def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
 
 
 @click.command(help="Identify inconsistencies with player names")
-@click.option("-c", "--corrections", is_flag=True, help="Apply existing name corrections")
 @click.option(
-    "-f", "--fname", type=int, default=0, show_default=True,
-    help="Filter first names by a Levenshtein distance"
+    "-c", "--corrections", is_flag=True, help="Apply existing name corrections"
 )
 @click.option(
-    "-l", "--lname", type=int, default=0, show_default=True,
-    help="Filter last names by a Levenshtein distance"
+    "-f",
+    "--fname",
+    type=int,
+    default=0,
+    show_default=True,
+    help="Filter first names by a Levenshtein distance",
+)
+@click.option(
+    "-l",
+    "--lname",
+    type=int,
+    default=0,
+    show_default=True,
+    help="Filter last names by a Levenshtein distance",
 )
 @click.option("--nicknames", is_flag=True, help="Perform a nickname analysis")
 @click.option("--duplicates", is_flag=True, help="Perform duplicate names analysis")
 @click.option("--dir", type=str, default="", help="Directory to save the output to")
 def cli(
-    corrections: bool, fname: int, lname: int, nicknames: bool,
-    duplicates: bool, dir: str
+    corrections: bool,
+    fname: int,
+    lname: int,
+    nicknames: bool,
+    duplicates: bool,
+    dir: str,
 ) -> None:
-    """ Script entry point """
+    """Script entry point"""
     levenshtein_first = fname
     levenshtein_last = lname
     print(fname, lname)

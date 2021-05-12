@@ -5,7 +5,7 @@ from naccbis.Common import utils
 
 
 def get_all_table_names(conn):
-    """ Fetch all of the table names from the database """
+    """Fetch all of the table names from the database"""
     query = """
     SELECT table_name
     FROM information_schema.tables
@@ -15,7 +15,7 @@ def get_all_table_names(conn):
 
 
 def table_count(conn, table):
-    """ Count the number of records in a given table """
+    """Count the number of records in a given table"""
     query = "SELECT count(*) FROM {}".format(table)
     count = pd.read_sql_query(query, conn)
     count["table"] = table

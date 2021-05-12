@@ -5,15 +5,17 @@ from datetime import date
 import sys
 import logging
 from typing import Dict
+
 # Third party imports
 import pandas as pd
+
 # Local imports
 from naccbis.Common import utils
 
 
 class BaseScraper(metaclass=ABCMeta):
 
-    """ This is the abstract base class for the scrapers.
+    """This is the abstract base class for the scrapers.
 
     It provides only the shared functionality between all scrapers.
     Don't directly create an instance of the base class!
@@ -28,26 +30,32 @@ class BaseScraper(metaclass=ABCMeta):
 
     BASE_URL = "https://naccsports.org/sports/bsb/"
     TEAM_IDS = {
-        'Aurora': 'AUR',
-        'Benedictine': 'BEN',
-        'Concordia Chicago': 'CUC',
-        'Concordia Wisconsin': 'CUW',
-        'Dominican': 'DOM',
-        'Edgewood': 'EDG',
-        'Illinois Tech': 'ILLT',
-        'Lakeland': 'LAK',
-        'MSOE': 'MSOE',
-        'Marian': 'MAR',
-        'Maranatha': 'MARN',
-        'Rockford': 'ROCK',
-        'Wisconsin Lutheran': 'WLC'
+        "Aurora": "AUR",
+        "Benedictine": "BEN",
+        "Concordia Chicago": "CUC",
+        "Concordia Wisconsin": "CUW",
+        "Dominican": "DOM",
+        "Edgewood": "EDG",
+        "Illinois Tech": "ILLT",
+        "Lakeland": "LAK",
+        "MSOE": "MSOE",
+        "Marian": "MAR",
+        "Maranatha": "MARN",
+        "Rockford": "ROCK",
+        "Wisconsin Lutheran": "WLC",
     }
     TABLES: Dict[str, str] = {}
     VALID_OUTPUT = ["csv", "sql"]
 
-    def __init__(self, year: str, split: str, output: str,
-                 inseason: bool = False, verbose: bool = False) -> None:
-        """ Class constructor
+    def __init__(
+        self,
+        year: str,
+        split: str,
+        output: str,
+        inseason: bool = False,
+        verbose: bool = False,
+    ) -> None:
+        """Class constructor
         :param year: The school year. A string.
         :param split: overall or conference stats. A string.
         :param output: Output format. Currently csv and sql.
@@ -72,7 +80,7 @@ class BaseScraper(metaclass=ABCMeta):
         raise NotImplementedError
 
     def info(self) -> None:
-        """ Print the scraper information to standard out
+        """Print the scraper information to standard out
         :returns: None
         """
         print("\n--------------------------")
@@ -85,7 +93,7 @@ class BaseScraper(metaclass=ABCMeta):
         print("--------------------------")
 
     def export(self) -> None:
-        """ Export scraped and cleaned data to csv or database.
+        """Export scraped and cleaned data to csv or database.
         If exporting to database, the table must already exist
         :returns: None
         """
@@ -100,17 +108,19 @@ class BaseScraper(metaclass=ABCMeta):
             self._export_db(tableName)
 
     def _export_csv(self, table_name: str) -> None:
-        """ Helper method to export data to a csv file """
+        """Helper method to export data to a csv file"""
         try:
             if self._inseason:
-                filename = "{}{}{}.csv".format(self._config["csv_path"],
-                                               table_name,
-                                               str(date.today()))
+                filename = "{}{}{}.csv".format(
+                    self._config["csv_path"], table_name, str(date.today())
+                )
                 self._data.to_csv(filename, index=False)
             else:
-                filename = "{}{}{}.csv".format(self._config["csv_path"],
-                                               table_name,
-                                               utils.year_to_season(self._year))
+                filename = "{}{}{}.csv".format(
+                    self._config["csv_path"],
+                    table_name,
+                    utils.year_to_season(self._year),
+                )
                 self._data.to_csv(filename, index=False)
         except Exception as e:
             logging.error("Unable to export to CSV")
@@ -120,13 +130,15 @@ class BaseScraper(metaclass=ABCMeta):
             logging.info("Successfully exported to CSV file")
 
     def _export_db(self, table_name: str) -> None:
-        """ Helper method to export data to a database """
+        """Helper method to export data to a database"""
         conn = utils.connect_db(self._config["DB"])
 
         if self._inseason:
             table_name += "_inseason"
 
-        utils.db_load_data(self._data, table_name, conn, if_exists="append", index=False)
+        utils.db_load_data(
+            self._data, table_name, conn, if_exists="append", index=False
+        )
         conn.close()
 
     def get_data(self) -> pd.DataFrame:

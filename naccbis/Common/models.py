@@ -1,7 +1,14 @@
 """ Database models """
 from typing import Any
 from sqlalchemy import (
-    Column, Integer, String, Numeric, Boolean, Date, DateTime, ForeignKeyConstraint
+    Column,
+    Integer,
+    String,
+    Numeric,
+    Boolean,
+    Date,
+    DateTime,
+    ForeignKeyConstraint,
 )
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
@@ -14,7 +21,7 @@ Base.metadata.naming_convention = {
     "uq": "uq_%(table_name)s_%(column_0_name)s",
     "ck": "ck_%(table_name)s_%(constraint_name)s",
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-    "pk": "pk_%(table_name)s"
+    "pk": "pk_%(table_name)s",
 }
 
 
@@ -74,8 +81,14 @@ class BattersOverall(Base):
     __table_args__ = (
         ForeignKeyConstraint(
             ["fname", "lname", "team", "season"],
-            ["player_id.fname", "player_id.lname", "player_id.team", "player_id.season"],
-            onupdate="CASCADE", ondelete="CASCADE"
+            [
+                "player_id.fname",
+                "player_id.lname",
+                "player_id.team",
+                "player_id.season",
+            ],
+            onupdate="CASCADE",
+            ondelete="CASCADE",
         ),
     )
 
@@ -126,8 +139,14 @@ class BattersConference(Base):
     __table_args__ = (
         ForeignKeyConstraint(
             ["fname", "lname", "team", "season"],
-            ["player_id.fname", "player_id.lname", "player_id.team", "player_id.season"],
-            onupdate="CASCADE", ondelete="CASCADE"
+            [
+                "player_id.fname",
+                "player_id.lname",
+                "player_id.team",
+                "player_id.season",
+            ],
+            onupdate="CASCADE",
+            ondelete="CASCADE",
         ),
     )
 
@@ -185,8 +204,14 @@ class PitchersOverall(Base):
     __table_args__ = (
         ForeignKeyConstraint(
             ["fname", "lname", "team", "season"],
-            ["player_id.fname", "player_id.lname", "player_id.team", "player_id.season"],
-            onupdate="CASCADE", ondelete="CASCADE"
+            [
+                "player_id.fname",
+                "player_id.lname",
+                "player_id.team",
+                "player_id.season",
+            ],
+            onupdate="CASCADE",
+            ondelete="CASCADE",
         ),
     )
 
@@ -224,8 +249,14 @@ class PitchersConference(Base):
     __table_args__ = (
         ForeignKeyConstraint(
             ["fname", "lname", "team", "season"],
-            ["player_id.fname", "player_id.lname", "player_id.team", "player_id.season"],
-            onupdate="CASCADE", ondelete="CASCADE"
+            [
+                "player_id.fname",
+                "player_id.lname",
+                "player_id.team",
+                "player_id.season",
+            ],
+            onupdate="CASCADE",
+            ondelete="CASCADE",
         ),
     )
 

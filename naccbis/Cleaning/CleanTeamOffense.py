@@ -3,19 +3,23 @@
 import argparse
 import logging
 import os
+
 # Third party imports
 import pandas as pd
+
 # Local imports
-from naccbis.Common import (utils, metrics)
+from naccbis.Common import utils, metrics
 
 
 class TeamOffenseETL:
-    """ ETL class for team offense """
+    """ETL class for team offense"""
+
     VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year: int, split: str, load_db: bool, conn: object,
-                 inseason: bool = False) -> None:
+    def __init__(
+        self, year: int, split: str, load_db: bool, conn: object, inseason: bool = False
+    ) -> None:
         self.year = year
         if split not in self.VALID_SPLITS:
             raise ValueError("Invalid split: {}".format(split))
@@ -37,10 +41,42 @@ class TeamOffenseETL:
 
     def transform(self) -> None:
         self.data = metrics.basic_offensive_metrics(self.data)
-        columns = ["name", "season", "g", "pa", "ab", "r", "h", "x2b", "x3b", "hr", "rbi",
-                   "bb", "so", "hbp", "tb", "xbh", "sf", "sh", "gdp", "sb", "cs", "go", "fo",
-                   "go_fo", "hbp_p", "bb_p", "so_p", "iso", "babip", "avg", "obp", "slg",
-                   "ops", "sar"]
+        columns = [
+            "name",
+            "season",
+            "g",
+            "pa",
+            "ab",
+            "r",
+            "h",
+            "x2b",
+            "x3b",
+            "hr",
+            "rbi",
+            "bb",
+            "so",
+            "hbp",
+            "tb",
+            "xbh",
+            "sf",
+            "sh",
+            "gdp",
+            "sb",
+            "cs",
+            "go",
+            "fo",
+            "go_fo",
+            "hbp_p",
+            "bb_p",
+            "so_p",
+            "iso",
+            "babip",
+            "avg",
+            "obp",
+            "slg",
+            "ops",
+            "sar",
+        ]
         if self.inseason:
             columns.insert(2, "date")
         self.data = self.data[columns]
@@ -52,7 +88,9 @@ class TeamOffenseETL:
 
         if self.load_db:
             logging.info("Loading data into database")
-            utils.db_load_data(self.data, table, self.conn, if_exists="append", index=False)
+            utils.db_load_data(
+                self.data, table, self.conn, if_exists="append", index=False
+            )
         else:
             filename = table + ".csv"
             logging.info("Dumping to csv")
@@ -67,11 +105,12 @@ class TeamOffenseETL:
 
 
 if __name__ == "__main__":  # pragma: no cover
-    parser = argparse.ArgumentParser(description="Extract, Transform, Load Team Offense data")
+    parser = argparse.ArgumentParser(
+        description="Extract, Transform, Load Team Offense data"
+    )
     parser.add_argument("--year", type=int, default=None, help="Filter by year")
     parser.add_argument("--split", type=str, default="overall", help="Filter by split")
-    parser.add_argument("--load", action="store_true",
-                        help="Load data into database")
+    parser.add_argument("--load", action="store_true", help="Load data into database")
     args = parser.parse_args()
 
     config = utils.init_config()

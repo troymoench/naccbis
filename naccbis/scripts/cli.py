@@ -1,11 +1,11 @@
 """ NACCBIS Command Line Interface """
 import click
-from . import (scrape, clean, DumpNames, GenerateIds, verify)
+from . import scrape, clean, DumpNames, GenerateIds, verify
 from naccbis import __version__
 
 
 @click.group(help=__doc__)
-@click.version_option(version=__version__, message='naccbis %(version)s')
+@click.version_option(version=__version__, message="naccbis %(version)s")
 def cli():
     pass
 

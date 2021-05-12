@@ -3,20 +3,24 @@
 import argparse
 import logging
 import os
+
 # Third party imports
 import pandas as pd
+
 # Local imports
 from . import CleanFunctions
-from naccbis.Common import (utils, metrics)
+from naccbis.Common import utils, metrics
 
 
 class TeamPitchingETL:
-    """ ETL class for team pitching """
+    """ETL class for team pitching"""
+
     VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year: int, split: str, load_db: bool, conn: object,
-                 inseason: bool = False) -> None:
+    def __init__(
+        self, year: int, split: str, load_db: bool, conn: object, inseason: bool = False
+    ) -> None:
         self.year = year
         if split not in self.VALID_SPLITS:
             raise ValueError("Invalid split: {}".format(split))
@@ -38,7 +42,7 @@ class TeamPitchingETL:
 
     def transform(self) -> None:
         self.data["ip"] = self.data["ip"].apply(CleanFunctions.convert_ip)
-        conference = (self.split == "conference")
+        conference = self.split == "conference"
         self.data = metrics.basic_pitching_metrics(self.data, conference=conference)
 
     def load(self) -> None:
@@ -47,7 +51,9 @@ class TeamPitchingETL:
             table += "_inseason"
         if self.load_db:
             logging.info("Loading data into database")
-            utils.db_load_data(self.data, table, self.conn, if_exists="append", index=False)
+            utils.db_load_data(
+                self.data, table, self.conn, if_exists="append", index=False
+            )
         else:
             filename = table + ".csv"
             logging.info("Dumping to csv")
@@ -62,16 +68,19 @@ class TeamPitchingETL:
 
 
 if __name__ == "__main__":  # pragma: no cover
-    parser = argparse.ArgumentParser(description="Extract, Transform, Load Team Pitching data")
+    parser = argparse.ArgumentParser(
+        description="Extract, Transform, Load Team Pitching data"
+    )
     parser.add_argument("--year", type=int, default=None, help="Filter by year")
     parser.add_argument("--split", type=str, default="overall", help="Filter by split")
-    parser.add_argument("--load", action="store_true",
-                        help="Load data into database")
+    parser.add_argument("--load", action="store_true", help="Load data into database")
     args = parser.parse_args()
 
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
     conn = utils.connect_db(config["DB"])
-    team_pitching = TeamPitchingETL(args.year, args.split, args.load, conn, inseason=True)
+    team_pitching = TeamPitchingETL(
+        args.year, args.split, args.load, conn, inseason=True
+    )
     team_pitching.run()
     conn.close()

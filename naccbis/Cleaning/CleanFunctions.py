@@ -1,8 +1,10 @@
 """ This module provides functions used in the data cleaning process. """
 # Standard library imports
 import logging
+
 # Third party imports
 import pandas as pd
+
 # Local imports
 
 
@@ -18,7 +20,7 @@ def split_lname(name: str) -> str:
 
 
 def normalize_names(data: pd.DataFrame) -> pd.DataFrame:
-    """ Normalize names by splitting into first name and last name.
+    """Normalize names by splitting into first name and last name.
 
     :param data: A DataFrame
     :returns: A DataFrame
@@ -33,7 +35,7 @@ def normalize_names(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def apply_corrections(data: pd.DataFrame, corrections: pd.DataFrame) -> pd.DataFrame:
-    """ Apply name corrections
+    """Apply name corrections
 
     :param data: A DataFrame of the data to be updated
     :param corrections: A DataFrame of the name corrections
@@ -43,20 +45,21 @@ def apply_corrections(data: pd.DataFrame, corrections: pd.DataFrame) -> pd.DataF
     data = data.copy()
     corrections = corrections.copy()
     # select only the columns we care about
-    corrections = corrections[[
-        "uc_fname",
-        "uc_lname",
-        "uc_team",
-        "uc_season",
-        "c_fname",
-        "c_lname"]]
-    corrections.rename(columns={
-        "uc_fname": "fname",
-        "uc_lname": "lname",
-        "uc_team": "team",
-        "uc_season": "season"
-    }, inplace=True)
-    data = pd.merge(data, corrections, how="left", on=["fname", "lname", "team", "season"])
+    corrections = corrections[
+        ["uc_fname", "uc_lname", "uc_team", "uc_season", "c_fname", "c_lname"]
+    ]
+    corrections.rename(
+        columns={
+            "uc_fname": "fname",
+            "uc_lname": "lname",
+            "uc_team": "team",
+            "uc_season": "season",
+        },
+        inplace=True,
+    )
+    data = pd.merge(
+        data, corrections, how="left", on=["fname", "lname", "team", "season"]
+    )
 
     need_fname_update = ~data["c_fname"].isnull()
     need_lname_update = ~data["c_lname"].isnull()
@@ -78,6 +81,7 @@ def apply_corrections(data: pd.DataFrame, corrections: pd.DataFrame) -> pd.DataF
 # ****** Assign Player ID's *****
 # *******************************
 
+
 def create_id(fname: str, lname: str) -> str:
     """Create a player ID from a first name and last name.
     String format: <first 5 characters of last name><first 2 characters of first name><01>
@@ -88,7 +92,7 @@ def create_id(fname: str, lname: str) -> str:
     """
     fname = fname.lower()
     # remove spaces, periods, and apostrophes
-    lname = lname.lower().replace(' ', '').replace('.', '').replace('\'', '')
+    lname = lname.lower().replace(" ", "").replace(".", "").replace("'", "")
 
     if len(lname) > 5:
         lname = lname[0:5]
@@ -104,7 +108,8 @@ def add_n(player_id: str, n: int) -> str:
     """
     temp = int(player_id[-2:]) + int(n)
     num = str(temp).zfill(2)
-    return "{}{}".format(player_id[0:len(player_id) - 2], num)
+    return "{}{}".format(player_id[0 : len(player_id) - 2], num)
+
 
 # ****************************
 # ****** Misc. Functions *****
@@ -112,7 +117,7 @@ def add_n(player_id: str, n: int) -> str:
 
 
 def convert_ip(ip_str: str) -> float:
-    """ Convert innings pitched from the string representation to the float
+    """Convert innings pitched from the string representation to the float
 
     :param ip_str: String representation of innings pitched
     :returns: Float representation of innings pitched

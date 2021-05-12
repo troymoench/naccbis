@@ -7,14 +7,17 @@ and load into database
 import argparse
 import logging
 import os
+
 # Third party imports
 import pandas as pd
+
 # Local imports
-from naccbis.Common import (utils, metrics)
+from naccbis.Common import utils, metrics
 
 
 class LeagueOffenseETL:
-    """ ETL class for league offense """
+    """ETL class for league offense"""
+
     VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
@@ -29,7 +32,9 @@ class LeagueOffenseETL:
         self.batters: pd.DataFrame
 
     def extract(self) -> None:
-        self.team_data = pd.read_sql_table("team_offense_{}".format(self.split), self.conn)
+        self.team_data = pd.read_sql_table(
+            "team_offense_{}".format(self.split), self.conn
+        )
         if self.year:
             self.team_data = self.team_data[self.team_data["season"] == self.year]
         self.batters = pd.read_sql_table("batters_{}".format(self.split), self.conn)
@@ -37,8 +42,30 @@ class LeagueOffenseETL:
             self.batters = self.batters[self.batters["season"] == self.year]
 
     def transform(self) -> None:
-        cols = ['season', 'g', 'pa', 'ab', 'r', 'h', 'x2b', 'x3b', 'hr', 'rbi', 'bb',
-                'so', 'sb', 'cs', 'hbp', 'sf', 'sh', 'tb', 'xbh', 'gdp', 'go', 'fo']
+        cols = [
+            "season",
+            "g",
+            "pa",
+            "ab",
+            "r",
+            "h",
+            "x2b",
+            "x3b",
+            "hr",
+            "rbi",
+            "bb",
+            "so",
+            "sb",
+            "cs",
+            "hbp",
+            "sf",
+            "sh",
+            "tb",
+            "xbh",
+            "gdp",
+            "go",
+            "fo",
+        ]
 
         totals = self.team_data[cols].groupby("season").sum()
         totals = metrics.basic_offensive_metrics(totals)
@@ -56,7 +83,9 @@ class LeagueOffenseETL:
         totals["wsb"] = metrics.wsb(totals, totals["lg_wsb"])
         totals["wraa"] = metrics.wraa(totals, totals["woba"], totals["woba_scale"])
         totals["off"] = metrics.off(totals)
-        totals["wrc"] = metrics.wrc(totals, totals["woba"], totals["woba_scale"], totals["lg_r_pa"])
+        totals["wrc"] = metrics.wrc(
+            totals, totals["woba"], totals["woba_scale"], totals["lg_r_pa"]
+        )
         totals["wrc_p"] = metrics.wrc_p(totals, totals["lg_r_pa"])
         totals["off_p"] = metrics.off_p(totals, totals["lg_r_pa"])
 
@@ -71,8 +100,13 @@ class LeagueOffenseETL:
         repl_table_name = "replacement_level_{}".format(self.split)
         if self.load_db:
             logging.info("Loading data into database")
-            utils.db_load_data(self.replacement_totals, repl_table_name, self.conn,
-                               if_exists="append", index=True)
+            utils.db_load_data(
+                self.replacement_totals,
+                repl_table_name,
+                self.conn,
+                if_exists="append",
+                index=True,
+            )
         else:
             logging.info("Dumping to csv")
             fname = os.path.join(self.CSV_DIR, "{}.csv".format(repl_table_name))
@@ -81,7 +115,9 @@ class LeagueOffenseETL:
         table_name = "league_offense_{}".format(self.split)
         if self.load_db:
             logging.info("Loading data into database")
-            utils.db_load_data(self.totals, table_name, self.conn, if_exists="append", index=True)
+            utils.db_load_data(
+                self.totals, table_name, self.conn, if_exists="append", index=True
+            )
         else:
             logging.info("Dumping to csv")
             fname = os.path.join(self.CSV_DIR, "{}.csv".format(table_name))
@@ -96,7 +132,7 @@ class LeagueOffenseETL:
 
     @staticmethod
     def select_bench_players(data: pd.DataFrame) -> pd.DataFrame:
-        """ Select bench players. Used for determining replacement level
+        """Select bench players. Used for determining replacement level
 
         :param data: A DataFrame of a team's player stats
         :returns: A DataFrame of players that weren't in the top 9 in PA
@@ -105,7 +141,7 @@ class LeagueOffenseETL:
         return data[9:]
 
     def calc_replacement_level(self, totals: pd.DataFrame) -> pd.DataFrame:
-        """ Calculate Replacement Level metrics
+        """Calculate Replacement Level metrics
         Replacement Level is defined as the average bench player
 
         :param totals: A DataFrame of league totals
@@ -124,7 +160,8 @@ class LeagueOffenseETL:
 
 
 class LeaguePitchingETL:
-    """ ETL class for league pitching """
+    """ETL class for league pitching"""
+
     VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
@@ -138,14 +175,39 @@ class LeaguePitchingETL:
         self.team_data: pd.DataFrame
 
     def extract(self) -> None:
-        self.team_data = pd.read_sql_table("team_pitching_{}".format(self.split), self.conn)
+        self.team_data = pd.read_sql_table(
+            "team_pitching_{}".format(self.split), self.conn
+        )
         if self.year:
             self.team_data = self.team_data[self.team_data["season"] == self.year]
 
     def transform(self) -> None:
         if self.split == "overall":
-            cols = ['season', 'g', 'w', 'l', 'sv', 'cg', 'sho', 'ip', 'h', 'r', 'er',
-                    'bb', 'so', 'x2b', 'x3b', 'hr', 'ab', 'wp', 'hbp', 'bk', 'sf', 'sh', 'pa']
+            cols = [
+                "season",
+                "g",
+                "w",
+                "l",
+                "sv",
+                "cg",
+                "sho",
+                "ip",
+                "h",
+                "r",
+                "er",
+                "bb",
+                "so",
+                "x2b",
+                "x3b",
+                "hr",
+                "ab",
+                "wp",
+                "hbp",
+                "bk",
+                "sf",
+                "sh",
+                "pa",
+            ]
             totals = self.team_data[cols].groupby("season").sum()
             totals = metrics.basic_pitching_metrics(totals)
             totals["lg_r_pa"] = totals["r"] / totals["pa"]
@@ -164,7 +226,7 @@ class LeaguePitchingETL:
             totals["bsr_minus"] = metrics.bsr_minus(totals, totals["bsr_9"])
 
         if self.split == "conference":
-            cols = ['season', 'g', 'ip', 'h', 'r', 'er', 'bb', 'so', 'hr']
+            cols = ["season", "g", "ip", "h", "r", "er", "bb", "so", "hr"]
             totals = self.team_data[cols].groupby("season").sum()
             conference = self.split == "conference"
             totals = metrics.basic_pitching_metrics(totals, conference)
@@ -183,10 +245,14 @@ class LeaguePitchingETL:
         table_name = "league_pitching_{}".format(self.split)
         if self.load_db:
             logging.info("Loading data into database")
-            utils.db_load_data(self.totals, table_name, self.conn, if_exists="append", index=True)
+            utils.db_load_data(
+                self.totals, table_name, self.conn, if_exists="append", index=True
+            )
         else:
             logging.info("Dumping to csv")
-            self.totals.to_csv(os.path.join(self.CSV_DIR, "{}.csv".format(table_name)), index=True)
+            self.totals.to_csv(
+                os.path.join(self.CSV_DIR, "{}.csv".format(table_name)), index=True
+            )
 
     def run(self) -> None:
         logging.info("Running %s", type(self).__name__)
@@ -197,12 +263,12 @@ class LeaguePitchingETL:
 
 
 if __name__ == "__main__":  # pragma: no cover
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description=__doc__)
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter, description=__doc__
+    )
     parser.add_argument("--year", type=int, default=None, help="Filter by year")
     parser.add_argument("--split", type=str, default="overall", help="Filter by split")
-    parser.add_argument("--load", action="store_true",
-                        help="Load data into database")
+    parser.add_argument("--load", action="store_true", help="Load data into database")
     args = parser.parse_args()
 
     config = utils.init_config()

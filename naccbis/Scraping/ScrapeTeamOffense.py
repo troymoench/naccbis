@@ -2,10 +2,12 @@
 # Standard library imports
 from datetime import date
 import logging
+
 # Third party imports
 from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
+
 # Local imports
 from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
@@ -14,18 +16,24 @@ from naccbis.Common import utils
 
 class TeamOffenseScraper(BaseScraper):
 
-    """ This scraper is responsible for scraping team offensive stats. """
+    """This scraper is responsible for scraping team offensive stats."""
 
-    HITTING_COLS = ['name', 'gp', 'ab', 'r', 'h', '2b', 'hr', 'avg', 'obp', 'slg']
-    EXTENDED_HITTING_COLS = ['name', 'gp', 'hbp', 'sf', 'sh', 'pa']
+    HITTING_COLS = ["name", "gp", "ab", "r", "h", "2b", "hr", "avg", "obp", "slg"]
+    EXTENDED_HITTING_COLS = ["name", "gp", "hbp", "sf", "sh", "pa"]
     TABLES = {
         "overall": "raw_team_offense_overall",
-        "conference": "raw_team_offense_conference"
+        "conference": "raw_team_offense_conference",
     }
 
-    def __init__(self, year: str, split: str, output: str,
-                 inseason: bool = False, verbose: bool = False) -> None:
-        """ Class constructor
+    def __init__(
+        self,
+        year: str,
+        split: str,
+        output: str,
+        inseason: bool = False,
+        verbose: bool = False,
+    ) -> None:
+        """Class constructor
         :param year: The school year. A string.
         :param split: overall or conference stats. A string.
         :param output: Output format. Currently csv and sql.
@@ -38,7 +46,7 @@ class TeamOffenseScraper(BaseScraper):
         self._runnable = True
 
     def run(self) -> None:
-        """ Run the scraper """
+        """Run the scraper"""
         logging.info("%s", self._name)
         logging.info("Fetching teams")
         url = "{}{}/teams".format(self.BASE_URL, self._year)
@@ -50,7 +58,7 @@ class TeamOffenseScraper(BaseScraper):
         self._runnable = False
 
     def _scrape(self, soup: BeautifulSoup) -> pd.DataFrame:
-        """ Scrape both the hitting table and extended hitting table and merge """
+        """Scrape both the hitting table and extended hitting table and merge"""
 
         if self._split == "overall":
             index = 0
@@ -68,28 +76,125 @@ class TeamOffenseScraper(BaseScraper):
         return pd.merge(hitting, extendedHitting, on=["Rk", "Name", "gp"])
 
     def _clean(self, data: pd.DataFrame) -> pd.DataFrame:
-        unnecessaryCols = ['Rk']
-        intCols = ["gp", "ab", "r", "h", "2b", "3b", "hr", "rbi", "bb", "k",
-                   "sb", "cs", "hbp", "sf", "sh", "tb", "xbh", "hdp", "go", "fo", "pa"]
+        unnecessaryCols = ["Rk"]
+        intCols = [
+            "gp",
+            "ab",
+            "r",
+            "h",
+            "2b",
+            "3b",
+            "hr",
+            "rbi",
+            "bb",
+            "k",
+            "sb",
+            "cs",
+            "hbp",
+            "sf",
+            "sh",
+            "tb",
+            "xbh",
+            "hdp",
+            "go",
+            "fo",
+            "pa",
+        ]
         floatCols = ["avg", "obp", "slg", "go/fo"]
-        newColNames = ["Name", "G", "AB", "R", "H", "x2B", "x3B", "HR", "RBI",
-                       "BB", "SO", "SB", "CS", "AVG", "OBP", "SLG", "HBP", "SF",
-                       "SH", "TB", "XBH", "GDP", "GO", "FO", "GO_FO", "PA"]
+        newColNames = [
+            "Name",
+            "G",
+            "AB",
+            "R",
+            "H",
+            "x2B",
+            "x3B",
+            "HR",
+            "RBI",
+            "BB",
+            "SO",
+            "SB",
+            "CS",
+            "AVG",
+            "OBP",
+            "SLG",
+            "HBP",
+            "SF",
+            "SH",
+            "TB",
+            "XBH",
+            "GDP",
+            "GO",
+            "FO",
+            "GO_FO",
+            "PA",
+        ]
 
-        finalColNames = ["Name", "Season", "G", "PA", "AB", "R", "H", "x2B",
-                         "x3B", "HR", "RBI", "BB", "SO", "SB", "CS", "AVG",
-                         "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH", "GDP",
-                         "GO", "FO", "GO_FO"]
+        finalColNames = [
+            "Name",
+            "Season",
+            "G",
+            "PA",
+            "AB",
+            "R",
+            "H",
+            "x2B",
+            "x3B",
+            "HR",
+            "RBI",
+            "BB",
+            "SO",
+            "SB",
+            "CS",
+            "AVG",
+            "OBP",
+            "SLG",
+            "HBP",
+            "SF",
+            "SH",
+            "TB",
+            "XBH",
+            "GDP",
+            "GO",
+            "FO",
+            "GO_FO",
+        ]
         if self._inseason:
-            finalColNames = ["Name", "Season", "Date", "G", "PA", "AB", "R", "H",
-                             "x2B", "x3B", "HR", "RBI", "BB", "SO", "SB", "CS",
-                             "AVG", "OBP", "SLG", "HBP", "SF", "SH", "TB", "XBH",
-                             "GDP", "GO", "FO", "GO_FO"]
+            finalColNames = [
+                "Name",
+                "Season",
+                "Date",
+                "G",
+                "PA",
+                "AB",
+                "R",
+                "H",
+                "x2B",
+                "x3B",
+                "HR",
+                "RBI",
+                "BB",
+                "SO",
+                "SB",
+                "CS",
+                "AVG",
+                "OBP",
+                "SLG",
+                "HBP",
+                "SF",
+                "SH",
+                "TB",
+                "XBH",
+                "GDP",
+                "GO",
+                "FO",
+                "GO_FO",
+            ]
 
         data.drop(columns=unnecessaryCols, inplace=True)
 
-        data[intCols] = data[intCols].replace('-', '0')
-        data[floatCols] = data[floatCols].replace('-', np.nan)
+        data[intCols] = data[intCols].replace("-", "0")
+        data[floatCols] = data[floatCols].replace("-", np.nan)
 
         # convert column names to a friendlier format
         data.columns = newColNames

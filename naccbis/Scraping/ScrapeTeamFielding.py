@@ -2,10 +2,12 @@
 # Standard library imports
 from datetime import date
 import logging
+
 # Third party imports
 from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
+
 # Local imports
 from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
@@ -14,17 +16,23 @@ from naccbis.Common import utils
 
 class TeamFieldingScraper(BaseScraper):
 
-    """ This scraper is responsible for scraping team fielding stats. """
+    """This scraper is responsible for scraping team fielding stats."""
 
-    FIELDING_COLS = ['name', 'gp', 'tc', 'po', 'a', 'e', 'fpct', 'dp']
+    FIELDING_COLS = ["name", "gp", "tc", "po", "a", "e", "fpct", "dp"]
     TABLES = {
         "overall": "raw_team_fielding_overall",
-        "conference": "raw_team_fielding_conference"
+        "conference": "raw_team_fielding_conference",
     }
 
-    def __init__(self, year: str, split: str, output: str,
-                 inseason: bool = False, verbose: bool = False) -> None:
-        """ Class constructor
+    def __init__(
+        self,
+        year: str,
+        split: str,
+        output: str,
+        inseason: bool = False,
+        verbose: bool = False,
+    ) -> None:
+        """Class constructor
         :param year: The school year. A string.
         :param split: overall or conference stats. A string.
         :param output: Output format. Currently csv and sql.
@@ -37,7 +45,7 @@ class TeamFieldingScraper(BaseScraper):
         self._runnable = True
 
     def run(self) -> None:
-        """ Run the scraper """
+        """Run the scraper"""
         logging.info("%s", self._name)
         logging.info("Fetching teams")
         url = "{}{}/teams".format(self.BASE_URL, self._year)
@@ -63,22 +71,51 @@ class TeamFieldingScraper(BaseScraper):
         return fielding
 
     def _clean(self, data: pd.DataFrame) -> pd.DataFrame:
-        unnecessaryCols = ['Rk']
-        renameCols = {'gp': 'g', 'rcs': 'cs', 'rcs%': 'cspct'}
-        intCols = ['g', 'tc', 'po', 'a', 'e', 'dp', 'sba', 'cs', 'pb', 'ci']
-        floatCols = ['fpct', 'cspct']
-        finalColNames = ['Name', 'Season', 'g', 'tc', 'po', 'a', 'e', 'fpct',
-                         'dp', 'sba', 'cs', 'cspct', 'pb', 'ci']
+        unnecessaryCols = ["Rk"]
+        renameCols = {"gp": "g", "rcs": "cs", "rcs%": "cspct"}
+        intCols = ["g", "tc", "po", "a", "e", "dp", "sba", "cs", "pb", "ci"]
+        floatCols = ["fpct", "cspct"]
+        finalColNames = [
+            "Name",
+            "Season",
+            "g",
+            "tc",
+            "po",
+            "a",
+            "e",
+            "fpct",
+            "dp",
+            "sba",
+            "cs",
+            "cspct",
+            "pb",
+            "ci",
+        ]
         if self._inseason:
-            finalColNames = ['Name', 'Season', 'Date', 'g', 'tc', 'po', 'a',
-                             'e', 'fpct', 'dp', 'sba', 'cs', 'cspct', 'pb', 'ci']
+            finalColNames = [
+                "Name",
+                "Season",
+                "Date",
+                "g",
+                "tc",
+                "po",
+                "a",
+                "e",
+                "fpct",
+                "dp",
+                "sba",
+                "cs",
+                "cspct",
+                "pb",
+                "ci",
+            ]
 
         data.drop(columns=unnecessaryCols, inplace=True)
         data.rename(columns=renameCols, inplace=True)
 
-        data[intCols] = data[intCols].replace('-', '0')
-        data[floatCols] = data[floatCols].replace('-', np.nan)
-        data[floatCols] = data[floatCols].replace('INF', np.nan)
+        data[intCols] = data[intCols].replace("-", "0")
+        data[floatCols] = data[floatCols].replace("-", np.nan)
+        data[floatCols] = data[floatCols].replace("INF", np.nan)
 
         data["Season"] = str(utils.year_to_season(self._year))
         if self._inseason:

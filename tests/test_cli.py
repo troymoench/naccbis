@@ -1,6 +1,6 @@
 from click.testing import CliRunner
 import pytest
-from naccbis.scripts import (cli, clean, DumpNames, GenerateIds, scrape, verify)
+from naccbis.scripts import cli, clean, DumpNames, GenerateIds, scrape, verify
 
 
 @pytest.fixture
@@ -8,9 +8,9 @@ def cli_runner():
     return CliRunner()
 
 
-class TestGenerateIds():
+class TestGenerateIds:
     def test_cli_help(self, cli_runner):
-        result = cli_runner.invoke(GenerateIds.cli, ['--help'])
+        result = cli_runner.invoke(GenerateIds.cli, ["--help"])
         assert result.exit_code == 0
         assert "generate player ids" in result.output
         assert "--load" in result.output
@@ -19,10 +19,9 @@ class TestGenerateIds():
         assert "--dir" in result.output
 
 
-class TestDumpNames():
-
+class TestDumpNames:
     def test_cli_help(self, cli_runner):
-        result = cli_runner.invoke(DumpNames.cli, ['--help'])
+        result = cli_runner.invoke(DumpNames.cli, ["--help"])
         assert result.exit_code == 0
         assert "Identify inconsistencies with player names" in result.output
         assert "-c, --corrections" in result.output
@@ -33,15 +32,14 @@ class TestDumpNames():
         assert "--dir" in result.output
 
 
-class TestClean():
-
+class TestClean:
     def test_cli_help(self, cli_runner):
-        result = cli_runner.invoke(clean.cli, ['--help'])
+        result = cli_runner.invoke(clean.cli, ["--help"])
         assert result.exit_code == 0
         assert "cleaning controller" in result.output
 
     def test_cli_final_help(self, cli_runner):
-        result = cli_runner.invoke(clean.cli, ['final', '--help'])
+        result = cli_runner.invoke(clean.cli, ["final", "--help"])
         assert result.exit_code == 0
         assert "final [OPTIONS] YEAR" in result.output
         assert "-S, --stat" in result.output
@@ -50,14 +48,14 @@ class TestClean():
         assert "-v, --verbose" in result.output
 
 
-class TestScrape():
+class TestScrape:
     def test_cli_help(self, cli_runner):
-        result = cli_runner.invoke(scrape.cli, ['--help'])
+        result = cli_runner.invoke(scrape.cli, ["--help"])
         assert result.exit_code == 0
         assert "scraping controller" in result.output
 
     def test_cli_final_help(self, cli_runner):
-        result = cli_runner.invoke(scrape.cli, ['final', '--help'])
+        result = cli_runner.invoke(scrape.cli, ["final", "--help"])
         assert result.exit_code == 0
         assert "final [OPTIONS] YEAR" in result.output
         assert "-S, --stat" in result.output
@@ -66,7 +64,7 @@ class TestScrape():
         assert "-v, --verbose" in result.output
 
     def test_cli_inseason_help(self, cli_runner):
-        result = cli_runner.invoke(scrape.cli, ['inseason', '--help'])
+        result = cli_runner.invoke(scrape.cli, ["inseason", "--help"])
         assert result.exit_code == 0
         assert "inseason [OPTIONS]" in result.output
         assert "-S, --stat" in result.output
@@ -75,16 +73,16 @@ class TestScrape():
         assert "-v, --verbose" in result.output
 
 
-class TestVerify():
+class TestVerify:
     def test_cli_help(self, cli_runner):
-        result = cli_runner.invoke(verify.cli, ['--help'])
+        result = cli_runner.invoke(verify.cli, ["--help"])
         assert result.exit_code == 0
         assert "verify" in result.output
 
 
-class TestCli():
+class TestCli:
     def test_cli_help(self, cli_runner):
-        result = cli_runner.invoke(cli.cli, ['--help'])
+        result = cli_runner.invoke(cli.cli, ["--help"])
         assert result.exit_code == 0
         assert "NACCBIS Command Line Interface" in result.output
         assert "Commands:" in result.output
@@ -95,6 +93,6 @@ class TestCli():
         assert "verify" in result.output
 
     def test_cli_version(self, cli_runner):
-        result = cli_runner.invoke(cli.cli, ['--version'])
+        result = cli_runner.invoke(cli.cli, ["--version"])
         assert result.exit_code == 0
         assert "naccbis" in result.output

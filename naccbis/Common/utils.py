@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 from typing import List, Dict
+
 # Third party imports
 import pandas as pd
 from sqlalchemy import create_engine
@@ -11,6 +12,7 @@ from sqlalchemy import event
 from sqlalchemy.engine import Engine, Connection
 from sqlalchemy.engine.url import URL
 from sqlalchemy.exc import SQLAlchemyError
+
 # Local imports
 import conf
 
@@ -20,7 +22,7 @@ import conf
 #     print("New DBAPI connection:", dbapi_con.dsn)
 
 
-@event.listens_for(Engine, 'engine_connect')
+@event.listens_for(Engine, "engine_connect")
 def receive_engine_connect(conn, branch):
     logging.info("Successfully connected to database")
     logging.debug("DSN: %s", conn.connection.dsn)
@@ -56,7 +58,7 @@ def receive_engine_connect(conn, branch):
 
 
 def create_db_engine(config: Dict[str, str]) -> Engine:
-    """ Create database engine
+    """Create database engine
 
     :param config: Dictionary with connection parameters
     :returns: Database engine object
@@ -71,7 +73,7 @@ def create_db_engine(config: Dict[str, str]) -> Engine:
 
 
 def connect_db(config: Dict[str, str]) -> Connection:
-    """ Create database connection
+    """Create database connection
 
     :param config: Dictionary with connection parameters
     :returns: Database connection object
@@ -86,9 +88,10 @@ def connect_db(config: Dict[str, str]) -> Connection:
     return conn
 
 
-def db_load_data(data: pd.DataFrame, table: str, conn: Connection,
-                 exit: bool = False, **kwargs) -> None:
-    """ Load DataFrame into database table """
+def db_load_data(
+    data: pd.DataFrame, table: str, conn: Connection, exit: bool = False, **kwargs
+) -> None:
+    """Load DataFrame into database table"""
     try:
         data.to_sql(table, conn, **kwargs)
     except Exception as e:
@@ -102,37 +105,37 @@ def db_load_data(data: pd.DataFrame, table: str, conn: Connection,
 
 
 def init_config():
-    """ Initialize configuration """
+    """Initialize configuration"""
     config = {
         "DB": getattr(conf, "DB", None),
-        "LOGGING": os.environ.get("LOG_LEVEL", "INFO")
+        "LOGGING": os.environ.get("LOG_LEVEL", "INFO"),
     }
     return config
 
 
 def init_logging(level: str) -> None:
-    """ Initialize logging """
+    """Initialize logging"""
     logging.basicConfig(
         level=level,
         format="%(asctime)s %(levelname)s %(message)s <%(name)s>",
-        datefmt="%H:%M:%S"
+        datefmt="%H:%M:%S",
     )
     # TODO: Dynamically configure additional loggers
-    logging.getLogger('sqlalchemy.engine').setLevel("WARNING")
-    logging.getLogger('sqlalchemy.pool').setLevel("INFO")
+    logging.getLogger("sqlalchemy.engine").setLevel("WARNING")
+    logging.getLogger("sqlalchemy.pool").setLevel("INFO")
 
 
 def parse_year(year: str) -> List[int]:
-    """ Parse a string of year(s), e.g. 2017, 2015:2017
+    """Parse a string of year(s), e.g. 2017, 2015:2017
 
     :param year: The string representation of a year or range of years
     :returns: List of years (integers)
     """
     # if no colon exists, single year
-    if ':' not in year:
+    if ":" not in year:
         return [int(year)]
     else:
-        temp = [int(yr) for yr in year.split(':')]
+        temp = [int(yr) for yr in year.split(":")]
         temp.sort()  # ascending
         rng = list(range(temp[0], temp[1] + 1))
         # rng.sort(reverse=True)  # descending
@@ -140,7 +143,7 @@ def parse_year(year: str) -> List[int]:
 
 
 def year_to_season(yr: str) -> int:
-    """ Converts a school year into a season
+    """Converts a school year into a season
     e.g. year_to_season("2016-17") returns 2017
 
     :param yr: String
@@ -150,10 +153,10 @@ def year_to_season(yr: str) -> int:
 
 
 def season_to_year(season: int) -> str:
-    """ Converts a season into a school year
+    """Converts a season into a school year
     e.g. season_to_year(2017) returns "2016-17"
 
     :param season: Int
     :returns: String
     """
-    return str(season - 1) + '-' + str(season - 2000)
+    return str(season - 1) + "-" + str(season - 2000)

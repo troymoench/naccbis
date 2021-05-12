@@ -9,9 +9,11 @@
 # Standard library imports
 import os
 from typing import List, Optional
+
 # Third party imports
 import click
 import pandas as pd
+
 # Local imports
 from naccbis.Cleaning import CleanFunctions
 from naccbis.Common import utils
@@ -22,7 +24,7 @@ def make_full_name(fname: str, lname: str) -> str:
 
 
 def update_id_conflicts(data: pd.DataFrame) -> pd.DataFrame:
-    """ Update player id conflicts by incrementing the numeric part of the id
+    """Update player id conflicts by incrementing the numeric part of the id
 
     :param data: A DataFrame
     :returns: DataFrame with updated player ids
@@ -41,7 +43,9 @@ def update_id_conflicts(data: pd.DataFrame) -> pd.DataFrame:
             # print(df_list)
             for i, item in enumerate(df_list):
                 new_col_idx.extend(item.index.values.tolist())
-                new_col.extend(map(CleanFunctions.add_n, item["player_id"], [i] * len(item)))
+                new_col.extend(
+                    map(CleanFunctions.add_n, item["player_id"], [i] * len(item))
+                )
 
     if len(new_col) != len(new_col_idx):
         print("Oops! Length of column doesn't match length of index")
@@ -53,7 +57,7 @@ def update_id_conflicts(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_duplicates(conn: object) -> pd.DataFrame:
-    """ Retrieve duplicate names from the database
+    """Retrieve duplicate names from the database
 
     :param conn: Database connection object
     :returns: A DataFrame of duplicate names
@@ -75,14 +79,16 @@ def get_duplicates(conn: object) -> pd.DataFrame:
 
 
 def update_duplicates(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFrame:
-    """ Update the player id of duplicate names by incrementing the numeric part
+    """Update the player id of duplicate names by incrementing the numeric part
     of the player id.
 
     :param data: A DataFrame
     :param duplicates: A DataFrame of duplicate names
     :returns:
     """
-    temp = pd.merge(data, duplicates, on=["fname", "lname", "team", "season"], how="outer")
+    temp = pd.merge(
+        data, duplicates, on=["fname", "lname", "team", "season"], how="outer"
+    )
     # merge is converting the id column from int to float
     temp["id"] = temp["id"].fillna(0).astype(int)
     temp["player_id"] = list(map(CleanFunctions.add_n, temp["player_id"], temp["id"]))
@@ -91,8 +97,10 @@ def update_duplicates(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFr
     return temp
 
 
-def verify_unique_ids(unique_before: int, unique_after: int, duplicates: pd.DataFrame) -> bool:
-    """ unique_after == unique_before + dupes
+def verify_unique_ids(
+    unique_before: int, unique_after: int, duplicates: pd.DataFrame
+) -> bool:
+    """unique_after == unique_before + dupes
 
     :param unique_before: Number of unique ids before name deduplication
     :param unique_after: Number of unique ids after name deduplication
@@ -105,14 +113,16 @@ def verify_unique_ids(unique_before: int, unique_after: int, duplicates: pd.Data
 
 
 def generate_ids(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFrame:
-    """ Generate player ids
+    """Generate player ids
 
     :param data: A DataFrame
     :param duplicates: A DataFrame of duplicate names
     :returns: A DataFrame with player ids
     """
     print("Generating player ids")
-    data["player_id"] = list(map(CleanFunctions.create_id, data["fname"], data["lname"]))
+    data["player_id"] = list(
+        map(CleanFunctions.create_id, data["fname"], data["lname"])
+    )
     print("Unique ID's:", data["player_id"].nunique())
 
     data["full_name"] = list(map(make_full_name, data["fname"], data["lname"]))
@@ -143,7 +153,7 @@ def generate_ids(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFrame:
 @click.option("--season", type=int, help="Filter output by season")
 @click.option("--dir", type=str, default="", help="Directory to save the output to")
 def cli(load: bool, clear: bool, season: Optional[int], dir: str) -> None:
-    """ Script entry point """
+    """Script entry point"""
 
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
@@ -162,7 +172,9 @@ def cli(load: bool, clear: bool, season: Optional[int], dir: str) -> None:
 
     # All batters and pitchers
     # (remove duplicates where a player batted and pitched in the same season)
-    data = pd.merge(batters, pitchers, on=["fname", "lname", "team", "season"], how="outer")
+    data = pd.merge(
+        batters, pitchers, on=["fname", "lname", "team", "season"], how="outer"
+    )
     data = data.sort_values(by=["lname", "fname", "team", "season"])
 
     data = CleanFunctions.apply_corrections(data, corrections)

@@ -2,8 +2,10 @@
 # Standard library imports
 import logging
 from typing import List, Tuple
+
 # Third party imports
 import click
+
 # Local imports
 from naccbis.Cleaning import (
     GameLogETL,
@@ -59,7 +61,7 @@ def cli():
 def run_etls(
     etl_nums: List[int], year: int, splits: List[str], load_db: bool, conn: object
 ) -> None:
-    """ Run ETL's for a given year
+    """Run ETL's for a given year
 
     :param
     :returns:
@@ -70,7 +72,7 @@ def run_etls(
         3: TeamOffenseETL,
         4: TeamPitchingETL,
         6: LeagueOffenseETL,
-        7: LeaguePitchingETL
+        7: LeaguePitchingETL,
     }
 
     for split in splits:
@@ -88,17 +90,29 @@ def run_etls(
 @cli.command(help=FINAL_PARSER_DESCRIPTION)
 @click.argument("year", type=utils.parse_year)
 @click.option(
-    "-S", "--stat", type=click.IntRange(min=1, max=7), multiple=True, default=range(1, 8),
-    help="Select ETL(s) to run. Provide list or omit argument for all ETLs"
+    "-S",
+    "--stat",
+    type=click.IntRange(min=1, max=7),
+    multiple=True,
+    default=range(1, 8),
+    help="Select ETL(s) to run. Provide list or omit argument for all ETLs",
 )
 @click.option(
-    "-s", "--split", type=click.Choice(["overall", "conference", "all"]),
-    default="all", show_default=True, help="Split choices"
+    "-s",
+    "--split",
+    type=click.Choice(["overall", "conference", "all"]),
+    default="all",
+    show_default=True,
+    help="Split choices",
 )
 @click.option("--load", is_flag=True, help="Load data into database")
-@click.option('-v', '--verbose', is_flag=True, help='Print extra information to standard out')
-def final(year: List[int], stat: Tuple[int], split: str, load: bool, verbose: bool) -> None:
-    """ Run ETLs for the final subcommand
+@click.option(
+    "-v", "--verbose", is_flag=True, help="Print extra information to standard out"
+)
+def final(
+    year: List[int], stat: Tuple[int], split: str, load: bool, verbose: bool
+) -> None:
+    """Run ETLs for the final subcommand
 
     :param args: Arguments for the ETLs
     :param conn: Database connection object

@@ -11,7 +11,7 @@ script:
   # lint
   - mypy naccbis/
   - flake8 naccbis tests --statistics
-  - black naccbis tests --check || true # don't fail the build for now
+  - black naccbis tests --check
   # test
   - pytest -m "not integration" --cov --cov-report term
 after_success: codecov --required

@@ -2,10 +2,12 @@
 from datetime import date
 import logging
 from urllib.parse import urljoin
+
 # Third party imports
 from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
+
 # Local imports
 from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
@@ -14,21 +16,39 @@ from naccbis.Common import utils
 
 class GameLogScraper(BaseScraper):
 
-    """ This scraper is responsible for scraping game log stats. """
+    """This scraper is responsible for scraping game log stats."""
 
-    HITTING_COLS = ['date', 'opponent', 'score', 'ab', 'r', 'h', '2b', '3b', 'hr', 'bb', 'k']
-    EXTENDED_HITTING_COLS = ['date', 'opponent', 'score', 'hbp', 'sf', 'sh', 'tb', 'pa']
-    PITCHING_COLS = ['date', 'opponent', 'score', 'w', 'l', 'ip', 'h', 'r', 'er', 'era']
-    FIELDING_COLS = ['date', 'opponent', 'score', 'tc', 'po', 'a', 'e', 'fpct']
+    HITTING_COLS = [
+        "date",
+        "opponent",
+        "score",
+        "ab",
+        "r",
+        "h",
+        "2b",
+        "3b",
+        "hr",
+        "bb",
+        "k",
+    ]
+    EXTENDED_HITTING_COLS = ["date", "opponent", "score", "hbp", "sf", "sh", "tb", "pa"]
+    PITCHING_COLS = ["date", "opponent", "score", "w", "l", "ip", "h", "r", "er", "era"]
+    FIELDING_COLS = ["date", "opponent", "score", "tc", "po", "a", "e", "fpct"]
     TABLES = {
         "hitting": "raw_game_log_hitting",
         "pitching": "raw_game_log_pitching",
-        "fielding": "raw_game_log_fielding"
+        "fielding": "raw_game_log_fielding",
     }
 
-    def __init__(self, year: str, split: str, output: str,
-                 inseason: bool = False, verbose: bool = False) -> None:
-        """ Class constructor
+    def __init__(
+        self,
+        year: str,
+        split: str,
+        output: str,
+        inseason: bool = False,
+        verbose: bool = False,
+    ) -> None:
+        """Class constructor
         :param year: The school year. A string.
         :param split: hitting, pitching, or fielding stats. A string.
         :param output: Output format. Currently csv and sql.
@@ -41,34 +61,36 @@ class GameLogScraper(BaseScraper):
         self._runnable = True
 
     def run(self) -> None:
-        """ Run the scraper """
+        """Run the scraper"""
         logging.info("%s", self._name)
 
-        teamList = ScrapeFunctions.get_team_list(self.BASE_URL, self._year, self.TEAM_IDS)
+        teamList = ScrapeFunctions.get_team_list(
+            self.BASE_URL, self._year, self.TEAM_IDS
+        )
         logging.info("Found %d teams to scrape", len(teamList))
 
         # iterate over the teams
         for team in teamList:
-            logging.info("Fetching %s", team['team'])
+            logging.info("Fetching %s", team["team"])
 
-            url = "{}{}/{}".format(self.BASE_URL, self._year, team['url'])
+            url = "{}{}/{}".format(self.BASE_URL, self._year, team["url"])
             teamSoup = ScrapeFunctions.get_soup(url)
             logging.info("Looking for game log table")
             df = self._scrape(teamSoup)
             logging.info("Cleaning scraped data")
-            df = self._clean(df, team['team'])
+            df = self._clean(df, team["team"])
 
             self._data = pd.concat([self._data, df], ignore_index=True)
         self._runnable = False
 
     def _scrape(self, team_soup: BeautifulSoup) -> pd.DataFrame:
-        """ Scrape game logs for hitting, pitching, fielding """
+        """Scrape game logs for hitting, pitching, fielding"""
 
-        tags = team_soup.find_all('a', string="Game Log")
+        tags = team_soup.find_all("a", string="Game Log")
         if len(tags) != 1:
             logging.error("Can't find Game Log")
             raise RuntimeError("Can't find Game Log")
-        url = tags[0].get('href')
+        url = tags[0].get("href")
         url = urljoin(self.BASE_URL, url)
 
         game_soup = ScrapeFunctions.get_soup(url)
@@ -79,7 +101,9 @@ class GameLogScraper(BaseScraper):
                 game_soup, tableNum1 + 1, first_row=2, skip_rows=0
             )
 
-            tableNum2 = ScrapeFunctions.find_table(game_soup, self.EXTENDED_HITTING_COLS)[0]
+            tableNum2 = ScrapeFunctions.find_table(
+                game_soup, self.EXTENDED_HITTING_COLS
+            )[0]
             extendedHitting = ScrapeFunctions.scrape_table(
                 game_soup, tableNum2 + 1, first_row=2, skip_rows=0
             )
@@ -104,38 +128,57 @@ class GameLogScraper(BaseScraper):
 
     def _clean(self, data: pd.DataFrame, team: str) -> pd.DataFrame:
         if self._split == "hitting":
-            intCols = ['ab', 'r', 'h', 'x2b', 'x3b', 'hr', 'rbi', 'bb', 'so',
-                       'sb', 'cs', 'hbp', 'sf', 'sh', 'tb', 'xbh', 'gdp',
-                       'go', 'fo', 'pa']
-            floatCols = ['go_fo']
+            intCols = [
+                "ab",
+                "r",
+                "h",
+                "x2b",
+                "x3b",
+                "hr",
+                "rbi",
+                "bb",
+                "so",
+                "sb",
+                "cs",
+                "hbp",
+                "sf",
+                "sh",
+                "tb",
+                "xbh",
+                "gdp",
+                "go",
+                "fo",
+                "pa",
+            ]
+            floatCols = ["go_fo"]
             renameCols = {
-                '2b': 'x2b',
-                '3b': 'x3b',
-                'k': 'so',
-                'hdp': 'gdp',
-                'go/fo': 'go_fo'
+                "2b": "x2b",
+                "3b": "x3b",
+                "k": "so",
+                "hdp": "gdp",
+                "go/fo": "go_fo",
             }
 
         elif self._split == "pitching":
-            intCols = ['w', 'l', 'sv', 'h', 'r', 'er', 'bb', 'so', 'hr']
-            floatCols = ['era']
-            renameCols = {'k': 'so'}
+            intCols = ["w", "l", "sv", "h", "r", "er", "bb", "so", "hr"]
+            floatCols = ["era"]
+            renameCols = {"k": "so"}
 
         elif self._split == "fielding":
-            intCols = ['tc', 'po', 'a', 'e', 'dp', 'sba', 'cs', 'pb', 'ci']
-            floatCols = ['fpct', 'cspct']
-            renameCols = {'rcs': 'cs', 'rcs%': 'cspct'}
+            intCols = ["tc", "po", "a", "e", "dp", "sba", "cs", "pb", "ci"]
+            floatCols = ["fpct", "cspct"]
+            renameCols = {"rcs": "cs", "rcs%": "cspct"}
 
         data.rename(columns=renameCols, inplace=True)
 
-        data[intCols] = data[intCols].replace('-', '0')
-        data[floatCols] = data[floatCols].replace('-', np.nan)
-        data[floatCols] = data[floatCols].replace('INF', np.nan)
+        data[intCols] = data[intCols].replace("-", "0")
+        data[floatCols] = data[floatCols].replace("-", np.nan)
+        data[floatCols] = data[floatCols].replace("INF", np.nan)
 
         # replace tabs
-        data["Opponent"] = [x.replace('\t', '') for x in data["Opponent"]]
+        data["Opponent"] = [x.replace("\t", "") for x in data["Opponent"]]
         # strip excessive whitespace
-        data["Opponent"] = [' '.join(x.split()) for x in data["Opponent"]]
+        data["Opponent"] = [" ".join(x.split()) for x in data["Opponent"]]
 
         # replace strange # in Date column (Maranatha 2012)
         data["Date"] = [x.replace("#", "").strip() for x in data["Date"]]
@@ -146,7 +189,7 @@ class GameLogScraper(BaseScraper):
             data["scrape_date"] = str(date.today())
 
         # filter out cancelled games that don't have a result
-        data = data[data["Score"] != '']
+        data = data[data["Score"] != ""]
         data["game_num"] = list(range(1, len(data) + 1))
         data["game_num"] = data["game_num"].apply(str)
 
