@@ -9,7 +9,7 @@ install:
   - pipenv install --dev
 script:
   # lint
-  - ./script/lint.sh
+  - ./scripts/lint.sh
   # test
   - pytest -m "not integration" --cov --cov-report term
 after_success: codecov --required
