@@ -64,7 +64,7 @@ def create_db_engine(config: Dict[str, str]) -> Engine:
     :returns: Database engine object
     """
     try:
-        conn_url = URL(**config)
+        conn_url = URL.create(**config)
     except TypeError:
         logging.error("Database connection parameter error")
         raise
