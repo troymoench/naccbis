@@ -2,7 +2,6 @@
 # Standard library imports
 import logging
 import os
-import sys
 from typing import List, Dict
 
 # Third party imports
@@ -88,18 +87,13 @@ def connect_db(config: Dict[str, str]) -> Connection:
     return conn
 
 
-def db_load_data(
-    data: pd.DataFrame, table: str, conn: Connection, exit: bool = False, **kwargs
-) -> None:
+def db_load_data(data: pd.DataFrame, table: str, conn: Connection, **kwargs) -> None:
     """Load DataFrame into database table"""
     try:
         data.to_sql(table, conn, **kwargs)
     except Exception as e:
         logging.error("Unable to load data into %s table", table)
         logging.error(e)
-        if exit:
-            conn.close()
-            sys.exit(1)
     else:
         logging.info("Successfully loaded %s records into %s table", len(data), table)
 
