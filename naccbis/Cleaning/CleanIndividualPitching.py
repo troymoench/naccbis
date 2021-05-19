@@ -3,7 +3,6 @@
 This script is used to clean individual pitching data and load into database
 """
 # Standard library imports
-import argparse
 import logging
 import os
 
@@ -161,22 +160,3 @@ class IndividualPitchingETL:
         self.extract()
         self.transform()
         self.load()
-
-
-if __name__ == "__main__":  # pragma: no cover
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawDescriptionHelpFormatter, description=__doc__
-    )
-    parser.add_argument("--year", type=int, default=None, help="Filter by year")
-    parser.add_argument("--split", type=str, default="overall", help="Filter by split")
-    parser.add_argument("--load", action="store_true", help="Load data into database")
-    args = parser.parse_args()
-
-    config = utils.init_config()
-    utils.init_logging(config["LOGGING"])
-    conn = utils.connect_db(config["DB"])
-    individual_pitching = IndividualPitchingETL(
-        args.year, args.split, args.load, conn, inseason=True
-    )
-    individual_pitching.run()
-    conn.close()

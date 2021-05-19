@@ -1,6 +1,5 @@
 """ This script is used to clean game log data and load into the database """
 # Standard library imports
-import argparse
 import datetime
 import logging
 import os
@@ -186,19 +185,3 @@ class GameLogETL:
     def extract_date(date_str: str, season: str) -> datetime.datetime:
         date_str = "{} {}".format(date_str, season)
         return datetime.datetime.strptime(date_str, "%b %d %Y")
-
-
-if __name__ == "__main__":  # pragma: no cover
-    parser = argparse.ArgumentParser(
-        description="Extract, Transform, Load Game Log data"
-    )
-    parser.add_argument("--year", type=int, default=None, help="Filter by year")
-    parser.add_argument("--load", action="store_true", help="Load data into database")
-    args = parser.parse_args()
-
-    config = utils.init_config()
-    utils.init_logging(config["LOGGING"])
-    conn = utils.connect_db(config["DB"])
-    game_log = GameLogETL(args.year, args.load, conn, inseason=True)
-    game_log.run()
-    conn.close()

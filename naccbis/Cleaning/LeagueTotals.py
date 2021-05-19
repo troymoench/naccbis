@@ -4,7 +4,6 @@ This script is used to calculate league totals for offense and pitching
 and load into database
 """
 # Standard library imports
-import argparse
 import logging
 import os
 
@@ -255,22 +254,3 @@ class LeaguePitchingETL:
         self.extract()
         self.transform()
         self.load()
-
-
-if __name__ == "__main__":  # pragma: no cover
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawDescriptionHelpFormatter, description=__doc__
-    )
-    parser.add_argument("--year", type=int, default=None, help="Filter by year")
-    parser.add_argument("--split", type=str, default="overall", help="Filter by split")
-    parser.add_argument("--load", action="store_true", help="Load data into database")
-    args = parser.parse_args()
-
-    config = utils.init_config()
-    utils.init_logging(config["LOGGING"])
-    conn = utils.connect_db(config["DB"])
-    league_offense = LeagueOffenseETL(args.year, args.split, args.load, conn)
-    league_offense.run()
-    league_pitching = LeaguePitchingETL(args.year, args.split, args.load, conn)
-    league_pitching.run()
-    conn.close()
