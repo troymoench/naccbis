@@ -13,18 +13,16 @@ import pandas as pd
 
 # Local imports
 from naccbis.Common import utils, metrics
+from naccbis.Common.splits import Split
 
 
 class LeagueOffenseETL:
     """ETL class for league offense"""
 
-    VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year: int, split: str, load_db: bool, conn: object) -> None:
+    def __init__(self, year: int, split: Split, load_db: bool, conn: object) -> None:
         self.year = year
-        if split not in self.VALID_SPLITS:
-            raise ValueError("Invalid split: {}".format(split))
         self.split = split
         self.load_db = load_db
         self.conn = conn
@@ -162,13 +160,10 @@ class LeagueOffenseETL:
 class LeaguePitchingETL:
     """ETL class for league pitching"""
 
-    VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
-    def __init__(self, year: int, split: str, load_db: bool, conn: object) -> None:
+    def __init__(self, year: int, split: Split, load_db: bool, conn: object) -> None:
         self.year = year
-        if split not in self.VALID_SPLITS:
-            raise ValueError("Invalid split: {}".format(split))
         self.split = split
         self.load_db = load_db
         self.conn = conn
@@ -225,10 +220,10 @@ class LeaguePitchingETL:
             totals["fip_minus"] = metrics.fip_minus(totals, totals["fip"])
             totals["bsr_minus"] = metrics.bsr_minus(totals, totals["bsr_9"])
 
-        if self.split == "conference":
+        if self.split == Split.CONFERENCE:
             cols = ["season", "g", "ip", "h", "r", "er", "bb", "so", "hr"]
             totals = self.team_data[cols].groupby("season").sum()
-            conference = self.split == "conference"
+            conference = self.split == Split.CONFERENCE
             totals = metrics.basic_pitching_metrics(totals, conference)
             # totals["fip_constant"] = metrics.fip_constant(totals)
             # totals["fip"] = metrics.fip(totals, totals["fip_constant"])

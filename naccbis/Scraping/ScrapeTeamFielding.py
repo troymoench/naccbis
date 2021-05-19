@@ -12,6 +12,7 @@ import pandas as pd
 from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
 from naccbis.Common import utils
+from naccbis.Common.splits import Split
 
 
 class TeamFieldingScraper(BaseScraper):
@@ -27,7 +28,7 @@ class TeamFieldingScraper(BaseScraper):
     def __init__(
         self,
         year: str,
-        split: str,
+        split: Split,
         output: str,
         inseason: bool = False,
         verbose: bool = False,
@@ -58,9 +59,9 @@ class TeamFieldingScraper(BaseScraper):
         self._runnable = False
 
     def _scrape(self, soup: BeautifulSoup) -> pd.DataFrame:
-        if self._split == "overall":
+        if self._split == Split.OVERALL:
             index = 0
-        elif self._split == "conference":
+        elif self._split == Split.CONFERENCE:
             index = 1
 
         # find index of fielding table

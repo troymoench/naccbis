@@ -17,6 +17,7 @@ from naccbis.Scraping import (
     TeamOffenseScraper,
     TeamPitchingScraper,
 )
+from naccbis.Common.splits import Split, GameLogSplit
 
 
 @pytest.fixture
@@ -197,17 +198,17 @@ class TestScrapeFunctions:
 
 def test_cant_instantiate_base_scraper():
     with pytest.raises(TypeError):
-        BaseScraper("2018", "overall", "csv")
+        BaseScraper("2018", Split("overall"), "csv")
 
 
 def test_init_scrapers():
     scrapers = [
-        GameLogScraper("2018", "overall", "csv"),
-        IndividualOffenseScraper("2018", "overall", "csv"),
-        IndividualPitchingScraper("2018", "overall", "csv"),
-        TeamFieldingScraper("2018", "overall", "csv"),
-        TeamOffenseScraper("2018", "overall", "csv"),
-        TeamPitchingScraper("2018", "overall", "csv"),
+        GameLogScraper("2018", GameLogSplit("hitting"), "csv"),
+        IndividualOffenseScraper("2018", Split("overall"), "csv"),
+        IndividualPitchingScraper("2018", Split("overall"), "csv"),
+        TeamFieldingScraper("2018", Split("overall"), "csv"),
+        TeamOffenseScraper("2018", Split("overall"), "csv"),
+        TeamPitchingScraper("2018", Split("overall"), "csv"),
     ]
     for scraper in scrapers:
         assert isinstance(scraper, BaseScraper)
@@ -215,11 +216,11 @@ def test_init_scrapers():
 
 class TestIndividualOffenseScraper:
     def test_info(self):
-        scraper = IndividualOffenseScraper("2018-19", "overall", "csv")
+        scraper = IndividualOffenseScraper("2018-19", Split("overall"), "csv")
         scraper.info()
 
     def test_clean(self):
-        scraper = IndividualOffenseScraper("2018-19", "overall", "csv")
+        scraper = IndividualOffenseScraper("2018-19", Split("overall"), "csv")
         raw_cols = [
             "No.",
             "Name",
@@ -427,11 +428,11 @@ class TestIndividualOffenseScraper:
 
 class TestIndividualPitchingScraper:
     def test_info(self):
-        scraper = IndividualPitchingScraper("2018-19", "overall", "csv")
+        scraper = IndividualPitchingScraper("2018-19", Split("overall"), "csv")
         scraper.info()
 
     def test_clean_overall(self):
-        scraper = IndividualPitchingScraper("2018-19", "overall", "csv")
+        scraper = IndividualPitchingScraper("2018-19", Split("overall"), "csv")
         raw_cols = [
             "No.",
             "Name",

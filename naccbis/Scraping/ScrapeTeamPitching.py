@@ -13,6 +13,7 @@ import pandas as pd
 from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
 from naccbis.Common import utils
+from naccbis.Common.splits import Split
 
 
 class TeamPitchingScraper(BaseScraper):
@@ -60,7 +61,7 @@ class TeamPitchingScraper(BaseScraper):
     def __init__(
         self,
         year: str,
-        split: str,
+        split: Split,
         output: str,
         inseason: bool = False,
         verbose: bool = False,
@@ -81,7 +82,7 @@ class TeamPitchingScraper(BaseScraper):
         """Run the scraper"""
         logging.info("%s", self._name)
 
-        if self._split == "overall":
+        if self._split == Split.OVERALL:
             teamList = ScrapeFunctions.get_team_list(
                 self.BASE_URL, self._year, self.TEAM_IDS
             )
@@ -97,7 +98,7 @@ class TeamPitchingScraper(BaseScraper):
                 df = self._clean(df, team["team"])
                 self._data = pd.concat([self._data, df], ignore_index=True)
 
-        elif self._split == "conference":
+        elif self._split == Split.CONFERENCE:
             logging.info("Fetching teams")
             url = "{}{}/teams".format(self.BASE_URL, self._year)
             soup = ScrapeFunctions.get_soup(url)
@@ -163,9 +164,9 @@ class TeamPitchingScraper(BaseScraper):
         # more stats are available on coach's view
         # but coach's view doesn't provide conference stats
 
-        if self._split == "overall":
+        if self._split == Split.OVERALL:
             return self._scrape_overall(team_soup)
-        elif self._split == "conference":
+        elif self._split == Split.CONFERENCE:
             return self._scrape_conference(team_soup)
 
     def _clean_overall(self, data: pd.DataFrame, team: str) -> pd.DataFrame:
@@ -349,7 +350,7 @@ class TeamPitchingScraper(BaseScraper):
         return data
 
     def _clean(self, data: pd.DataFrame, team: str) -> pd.DataFrame:
-        if self._split == "overall":
+        if self._split == Split.OVERALL:
             return self._clean_overall(data, team)
-        elif self._split == "conference":
+        elif self._split == Split.CONFERENCE:
             return self._clean_conference(data, team)

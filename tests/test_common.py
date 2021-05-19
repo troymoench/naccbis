@@ -4,7 +4,7 @@
 import pytest
 
 # Local imports
-from naccbis.Common import utils, models  # noqa
+from naccbis.Common import utils, models, splits  # noqa
 
 
 @pytest.fixture
@@ -66,3 +66,19 @@ class TestDB:
             assert len(result) == 1
             print(result)
         assert conn.closed
+
+
+class TestSplits:
+    def test_split_overall(self):
+        # split = splits.Split.OVERALL
+        split = splits.Split("overall")
+        assert split.name == "OVERALL"
+        assert split.value == "overall"
+
+    def test_invalid_split(self):
+        with pytest.raises(ValueError):
+            splits.Split("fake")
+
+    def test_split_to_str(self):
+        split = splits.Split("conference")
+        assert str(split) == "conference"

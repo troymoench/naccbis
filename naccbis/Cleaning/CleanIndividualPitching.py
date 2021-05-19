@@ -14,20 +14,23 @@ import pandas as pd
 # Local imports
 from . import CleanFunctions
 from naccbis.Common import utils, metrics
+from naccbis.Common.splits import Split
 
 
 class IndividualPitchingETL:
     """ETL class for individual pitching"""
 
-    VALID_SPLITS = ["overall", "conference"]
     CSV_DIR = "csv/"
 
     def __init__(
-        self, year: int, split: str, load_db: bool, conn: object, inseason: bool = False
+        self,
+        year: int,
+        split: Split,
+        load_db: bool,
+        conn: object,
+        inseason: bool = False,
     ) -> None:
         self.year = year
-        if split not in self.VALID_SPLITS:
-            raise ValueError("Invalid split: {}".format(split))
         self.split = split
         self.load_db = load_db
         self.conn = conn
@@ -52,7 +55,7 @@ class IndividualPitchingETL:
         self.data.drop(columns=["name"], inplace=True)
 
         self.data["ip"] = self.data["ip"].apply(CleanFunctions.convert_ip)
-        conference = self.split == "conference"
+        conference = self.split == Split.CONFERENCE
         self.data = metrics.basic_pitching_metrics(self.data, conference=conference)
         self.data.replace(pd.np.inf, np.nan, inplace=True)
         if self.split == "overall":

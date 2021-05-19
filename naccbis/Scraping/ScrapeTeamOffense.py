@@ -12,6 +12,7 @@ import pandas as pd
 from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
 from naccbis.Common import utils
+from naccbis.Common.splits import Split
 
 
 class TeamOffenseScraper(BaseScraper):
@@ -28,7 +29,7 @@ class TeamOffenseScraper(BaseScraper):
     def __init__(
         self,
         year: str,
-        split: str,
+        split: Split,
         output: str,
         inseason: bool = False,
         verbose: bool = False,
@@ -60,9 +61,9 @@ class TeamOffenseScraper(BaseScraper):
     def _scrape(self, soup: BeautifulSoup) -> pd.DataFrame:
         """Scrape both the hitting table and extended hitting table and merge"""
 
-        if self._split == "overall":
+        if self._split == Split.OVERALL:
             index = 0
-        elif self._split == "conference":
+        elif self._split == Split.CONFERENCE:
             index = 1
 
         # find index of hitting table

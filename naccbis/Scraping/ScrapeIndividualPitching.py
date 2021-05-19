@@ -13,6 +13,7 @@ import pandas as pd
 from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
 from naccbis.Common import utils
+from naccbis.Common.splits import Split
 
 
 class IndividualPitchingScraper(BaseScraper):
@@ -59,14 +60,14 @@ class IndividualPitchingScraper(BaseScraper):
     def __init__(
         self,
         year: str,
-        split: str,
+        split: Split,
         output: str,
         inseason: bool = False,
         verbose: bool = False,
     ) -> None:
         """Class constructor
         :param year: The school year. A string.
-        :param split: overall or conference stats. A string.
+        :param split: overall or conference stats.
         :param output: Output format. Currently csv and sql.
         :param inseason: Is this scraping taking place in season?
         :param verbose: Print extra information to standard out?
@@ -137,9 +138,9 @@ class IndividualPitchingScraper(BaseScraper):
         # more stats are available on coach's view
         # but coach's view doesn't provide conference stats
 
-        if self._split == "overall":
+        if self._split == Split.OVERALL:
             return self._scrape_overall(team_soup)
-        elif self._split == "conference":
+        elif self._split == Split.CONFERENCE:
             return self._scrape_conference(team_soup)
 
     def _clean_overall(self, data: pd.DataFrame, team_id: str) -> pd.DataFrame:
@@ -391,7 +392,7 @@ class IndividualPitchingScraper(BaseScraper):
 
     def _clean(self, data: pd.DataFrame, team_id: str) -> pd.DataFrame:
         data = data.copy()
-        if self._split == "overall":
+        if self._split == Split.OVERALL:
             return self._clean_overall(data, team_id)
-        elif self._split == "conference":
+        elif self._split == Split.CONFERENCE:
             return self._clean_conference(data, team_id)

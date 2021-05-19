@@ -17,6 +17,7 @@ from naccbis.Cleaning import (
     LeaguePitchingETL,
 )
 from naccbis.Common import utils
+from naccbis.Common.splits import Split
 
 
 FINAL_PARSER_DESCRIPTION = """
@@ -59,7 +60,7 @@ def cli():
 
 
 def run_etls(
-    etl_nums: List[int], year: int, splits: List[str], load_db: bool, conn: object
+    etl_nums: List[int], year: int, splits: List[Split], load_db: bool, conn: object
 ) -> None:
     """Run ETL's for a given year
 
@@ -123,9 +124,9 @@ def final(
     conn = utils.connect_db(config["DB"])
 
     if split == "all":
-        splits = ["overall", "conference"]
+        splits = list(Split)
     else:
-        splits = [split]
+        splits = [Split(split)]
 
     for year_ in year:
         logging.info("Running ETLs for %s", year_)

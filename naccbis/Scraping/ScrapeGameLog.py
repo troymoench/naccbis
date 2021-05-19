@@ -12,6 +12,7 @@ import pandas as pd
 from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
 from naccbis.Common import utils
+from naccbis.Common.splits import GameLogSplit
 
 
 class GameLogScraper(BaseScraper):
@@ -43,7 +44,7 @@ class GameLogScraper(BaseScraper):
     def __init__(
         self,
         year: str,
-        split: str,
+        split: GameLogSplit,
         output: str,
         inseason: bool = False,
         verbose: bool = False,
@@ -95,7 +96,7 @@ class GameLogScraper(BaseScraper):
 
         game_soup = ScrapeFunctions.get_soup(url)
 
-        if self._split == "hitting":
+        if self._split == GameLogSplit.HITTING:
             tableNum1 = ScrapeFunctions.find_table(game_soup, self.HITTING_COLS)[0]
             hitting = ScrapeFunctions.scrape_table(
                 game_soup, tableNum1 + 1, first_row=2, skip_rows=0
@@ -111,14 +112,14 @@ class GameLogScraper(BaseScraper):
             # may want to normalize the column names before merging, eg, lower()
             return pd.merge(hitting, extendedHitting, on=["Date", "Opponent", "Score"])
 
-        elif self._split == "pitching":
+        elif self._split == GameLogSplit.PITCHING:
             tableNum1 = ScrapeFunctions.find_table(game_soup, self.PITCHING_COLS)[0]
             pitching = ScrapeFunctions.scrape_table(
                 game_soup, tableNum1 + 1, first_row=2, skip_rows=0
             )
 
             return pitching
-        elif self._split == "fielding":
+        elif self._split == GameLogSplit.FIELDING:
             tableNum1 = ScrapeFunctions.find_table(game_soup, self.FIELDING_COLS)[0]
             fielding = ScrapeFunctions.scrape_table(
                 game_soup, tableNum1 + 1, first_row=2, skip_rows=0
@@ -127,7 +128,7 @@ class GameLogScraper(BaseScraper):
             return fielding
 
     def _clean(self, data: pd.DataFrame, team: str) -> pd.DataFrame:
-        if self._split == "hitting":
+        if self._split == GameLogSplit.HITTING:
             intCols = [
                 "ab",
                 "r",
@@ -159,12 +160,12 @@ class GameLogScraper(BaseScraper):
                 "go/fo": "go_fo",
             }
 
-        elif self._split == "pitching":
+        elif self._split == GameLogSplit.PITCHING:
             intCols = ["w", "l", "sv", "h", "r", "er", "bb", "so", "hr"]
             floatCols = ["era"]
             renameCols = {"k": "so"}
 
-        elif self._split == "fielding":
+        elif self._split == GameLogSplit.FIELDING:
             intCols = ["tc", "po", "a", "e", "dp", "sba", "cs", "pb", "ci"]
             floatCols = ["fpct", "cspct"]
             renameCols = {"rcs": "cs", "rcs%": "cspct"}

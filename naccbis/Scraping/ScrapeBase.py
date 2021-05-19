@@ -4,13 +4,14 @@ from abc import ABCMeta, abstractmethod
 from datetime import date
 import sys
 import logging
-from typing import Dict
+from typing import Dict, Union
 
 # Third party imports
 import pandas as pd
 
 # Local imports
 from naccbis.Common import utils
+from naccbis.Common.splits import Split, GameLogSplit
 
 
 class BaseScraper(metaclass=ABCMeta):
@@ -50,7 +51,7 @@ class BaseScraper(metaclass=ABCMeta):
     def __init__(
         self,
         year: str,
-        split: str,
+        split: Union[Split, GameLogSplit],
         output: str,
         inseason: bool = False,
         verbose: bool = False,
@@ -101,7 +102,7 @@ class BaseScraper(metaclass=ABCMeta):
         if self._runnable:
             print("Cannot export. Scraper has not been run yet. Use run() to do so.")
             sys.exit(1)
-        tableName = self.TABLES[self._split]
+        tableName = self.TABLES[str(self._split)]
         if self._output == "csv":
             self._export_csv(tableName)
         elif self._output == "sql":

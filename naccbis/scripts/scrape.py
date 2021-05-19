@@ -2,7 +2,7 @@
 # Standard library imports
 from datetime import date
 import logging
-from typing import List, Dict, Type, Tuple
+from typing import List, Dict, Sequence, Type, Tuple, Union
 
 # Third party imports
 import click
@@ -18,6 +18,7 @@ from naccbis.Scraping import (
     TeamPitchingScraper,
 )
 from naccbis.Common import utils
+from naccbis.Common.splits import GameLogSplit, Split
 
 
 PARSER_EPILOG = """\b
@@ -69,7 +70,7 @@ def cli():
 def run_scrapers(
     scraper_nums: List[int],
     year: str,
-    splits: List[str],
+    splits: Sequence[Union[Split, GameLogSplit]],
     output: str,
     inseason: bool,
     verbose: bool,
@@ -100,8 +101,9 @@ def run_scrapers(
                 runScraper.run()
                 runScraper.export()
 
+    # Game logs have special splits
     if 6 in scraper_nums:
-        for split in ["hitting", "pitching", "fielding"]:
+        for split in list(GameLogSplit):
             gameLogScraper = GameLogScraper(year, split, output, inseason, verbose)
             gameLogScraper.info()
             gameLogScraper.run()
@@ -148,9 +150,9 @@ def final(
     years = [utils.season_to_year(x) for x in year]
 
     if split == "all":
-        splits = ["overall", "conference"]
+        splits = list(Split)
     else:
-        splits = [split]
+        splits = [Split(split)]
 
     for year_ in years:
         print("\nScraping:", year_, "\n")
@@ -197,9 +199,9 @@ def inseason(stat: Tuple[int], split: str, output: str, verbose: bool) -> None:
     year = utils.season_to_year(season)
 
     if split == "all":
-        splits = ["overall", "conference"]
+        splits = list(Split)
     else:
-        splits = [split]
+        splits = [Split(split)]
 
     run_scrapers(list(stat), year, splits, output, inseason=True, verbose=verbose)
     logging.info("Scraping completed")
