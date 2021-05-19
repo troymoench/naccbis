@@ -7,8 +7,18 @@ import pandas as pd
 import pytest
 
 # Local imports
-from naccbis.Cleaning import CleanFunctions, GameLogETL, LeagueOffenseETL
+from naccbis.Cleaning import (
+    CleanFunctions,
+    GameLogETL,
+    IndividualOffenseETL,
+    IndividualPitchingETL,
+    TeamOffenseETL,
+    TeamPitchingETL,
+    LeagueOffenseETL,
+    LeaguePitchingETL,
+)
 from naccbis.scripts import clean, DumpNames, GenerateIds  # noqa
+from naccbis.Common.splits import Split
 
 
 class TestCleanFunctions:
@@ -401,3 +411,17 @@ class TestLeagueTotals:
         expected.reset_index(drop=True, inplace=True)
 
         assert temp.equals(expected)
+
+
+def test_init_etls():
+    etls = [
+        GameLogETL(2018, True, None),
+        IndividualOffenseETL(2018, Split("overall"), True, None),
+        IndividualPitchingETL(2018, Split("overall"), True, None),
+        TeamOffenseETL(2018, Split("overall"), True, None),
+        TeamPitchingETL(2018, Split("overall"), True, None),
+        LeagueOffenseETL(2018, Split("overall"), True, None),
+        LeaguePitchingETL(2018, Split("overall"), True, None),
+    ]
+    for etl in etls:
+        assert etl
