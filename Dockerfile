@@ -1,10 +1,9 @@
-FROM python:3.7-buster
+FROM python:3.8-bullseye
 
 WORKDIR /app
 
-RUN pip install pipenv
-COPY Pipfile* ./
-RUN pipenv lock -r > requirements.txt
+COPY requirements.txt .
+
 RUN pip install -r requirements.txt
 COPY setup.py /app
 COPY conf.py /app

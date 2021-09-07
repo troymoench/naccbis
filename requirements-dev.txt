@@ -1,0 +1,9 @@
+-e .
+pytest
+pytest-cov
+codecov
+flake8
+sphinx
+mypy
+black
+wheel

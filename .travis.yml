@@ -1,12 +1,12 @@
 language: python
 python:
   # - "3.6"
-  - "3.7"
-  # - "3.8"
+  # - "3.7"
+  - "3.8"
 install:
   - touch conf.py
-  - pip install pipenv
-  - pipenv install --dev
+  - pip install -r requirements-dev.txt
+  - pip install -r requirements.txt
 script:
   # lint
   - bash scripts/lint.sh
