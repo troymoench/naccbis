@@ -7,3 +7,4 @@ sphinx
 mypy
 black
 wheel
+types-requests
