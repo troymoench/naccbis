@@ -10,49 +10,55 @@ import os
 # Third party imports
 import click
 import pandas as pd
-from Levenshtein import distance
+from sqlalchemy import text
 
 # Local imports
 from naccbis.Cleaning import CleanFunctions
 from naccbis.Common import utils
 
 
-def levenshtein_analysis(
-    data: pd.DataFrame, lev_first: int, lev_last: int
-) -> pd.DataFrame:
+def load_temp_table(conn, data: pd.DataFrame) -> None:
+    sql = """
+    CREATE TEMP TABLE dump_names_temp (
+        lname text, fname text, team text, season integer, pos text
+    )
+    """
+    conn.execute(sql)
+    utils.db_load_data(data, "dump_names_temp", conn, if_exists="append", index=False)
+
+
+def levenshtein_analysis(conn, lev_first: int, lev_last: int) -> pd.DataFrame:
     """Perform a Levenshtein analysis on first names and last names.
     This is used for identifying typos.
 
-    :param data: A DataFrame
     :param lev_first: Levenshtein distance between first names
     :param lev_last: Levenshtein distance between last names
     :returns: A DataFrame with player-season pairs that meet the filter parameters
     """
-    # Get unique last names
-    names = pd.DataFrame(data["lname"].unique())
-    names["key"] = 0
 
-    # Compute the cartesian product
-    cart_prod = pd.merge(names, names, on="key")
-    cart_prod.drop(columns=["key"], inplace=True)
-    cart_prod.columns = ["lname1", "lname2"]
+    if lev_last > 0:
+        lname_condition = "levenshtein(t1.lname, t2.lname) = :lev_last"
+    else:
+        lname_condition = "t1.lname = t2.lname"
 
-    # Compute the Levenshtein distance between each pair of names
-    cart_prod["levenshtein"] = list(
-        map(distance, cart_prod["lname1"], cart_prod["lname2"])
-    )
-    cart_prod = cart_prod[cart_prod.levenshtein == lev_last]
+    if lev_first > 0:
+        fname_condition = "levenshtein(t1.fname, t2.fname) = :lev_first"
+    else:
+        fname_condition = "t1.fname = t2.fname"
 
-    output = pd.merge(data, cart_prod, left_on="lname", right_on="lname1")
+    sql = f"""
+    select
+        t1.lname as lname1, t1.fname as fname1, t1.team as team1, t1.season as season1, t1.pos as pos1,
+        t2.lname as lname2, t2.fname as fname2, t2.team as team2, t2.season as season2, t2.pos as pos2
+    from dump_names_temp t1
+    join dump_names_temp t2
+    on {lname_condition}
+    and {fname_condition}
+    order by t1.lname, t1.fname;
+    """
+    params = {"lev_last": lev_last, "lev_first": lev_first}
 
-    output = pd.merge(output, data, left_on="lname2", right_on="lname", how="inner")
-
-    output["levenshtein_first"] = list(
-        map(distance, output["fname_x"], output["fname_y"])
-    )
-    output = output[output["levenshtein_first"] == lev_first]
-
-    output = output.sort_values(by=["levenshtein", "lname1"])
+    output = pd.read_sql_query(text(sql), conn, params=params)
     return output
 
 
@@ -137,7 +143,7 @@ def cli(
     """Script entry point"""
     levenshtein_first = fname
     levenshtein_last = lname
-    print(fname, lname)
+
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
     conn = utils.connect_db(config["DB"])
@@ -148,8 +154,6 @@ def cli(
         corrections_df = pd.read_sql_table("name_corrections", conn)
     if nicknames:
         nicknames_df = pd.read_sql_table("nicknames", conn)
-
-    conn.close()
 
     batters = CleanFunctions.normalize_names(batters)
     pitchers = CleanFunctions.normalize_names(pitchers)
@@ -164,9 +168,11 @@ def cli(
         data = CleanFunctions.apply_corrections(data, corrections_df)
         data = data.sort_values(by=["lname", "fname", "team", "season"])
 
+    load_temp_table(conn, data)
+
     if levenshtein_last or levenshtein_first:
         print("Performing levenshtein analysis")
-        output = levenshtein_analysis(data, levenshtein_first, levenshtein_last)
+        output = levenshtein_analysis(conn, levenshtein_first, levenshtein_last)
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
@@ -194,6 +200,7 @@ def cli(
     print("Dumping all names to csv")
     filename = os.path.join(dir, "all_names.csv")
     data.to_csv(filename, index=False)
+    conn.close()
 
 
 if __name__ == "__main__":
