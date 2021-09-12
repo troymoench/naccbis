@@ -11,13 +11,14 @@ import os
 import click
 import pandas as pd
 from sqlalchemy import text
+from sqlalchemy.engine import Connection
 
 # Local imports
 from naccbis.Cleaning import CleanFunctions
 from naccbis.Common import utils
 
 
-def load_temp_table(conn, data: pd.DataFrame) -> None:
+def load_temp_table(conn: Connection, data: pd.DataFrame) -> None:
     sql = """
     CREATE TEMP TABLE dump_names_temp (
         lname text, fname text, team text, season integer, pos text
@@ -27,10 +28,13 @@ def load_temp_table(conn, data: pd.DataFrame) -> None:
     utils.db_load_data(data, "dump_names_temp", conn, if_exists="append", index=False)
 
 
-def levenshtein_analysis(conn, lev_first: int, lev_last: int) -> pd.DataFrame:
+def levenshtein_analysis(
+    conn: Connection, lev_first: int, lev_last: int
+) -> pd.DataFrame:
     """Perform a Levenshtein analysis on first names and last names.
     This is used for identifying typos.
 
+    :param conn: Database connection
     :param lev_first: Levenshtein distance between first names
     :param lev_last: Levenshtein distance between last names
     :returns: A DataFrame with player-season pairs that meet the filter parameters
@@ -58,31 +62,33 @@ def levenshtein_analysis(conn, lev_first: int, lev_last: int) -> pd.DataFrame:
     """
     params = {"lev_last": lev_last, "lev_first": lev_first}
 
-    output = pd.read_sql_query(text(sql), conn, params=params)
-    return output
+    return pd.read_sql_query(text(sql), conn, params=params)
 
 
-def nickname_analysis(data: pd.DataFrame, nicknames: pd.DataFrame) -> pd.DataFrame:
+def nickname_analysis(conn: Connection) -> pd.DataFrame:
     """Perform a nickname analysis on first names.
     This is used for identifying inconsistencies due to nicknames.
 
-    :param data: A DataFrame
-    :param nicknames: Nickname lookup table. A DataFrame.
+    :param conn: Database connection
     :returns: A DataFrame with player-season pairs with a matching name and
               nickname in the lookup table.
     """
-    names = pd.DataFrame(data[["lname", "fname", "team", "season"]])
 
-    # Compute the cartesian product
-    cart_prod = pd.merge(names, names, on="lname")
-    cart_prod = cart_prod[cart_prod["fname_x"] != cart_prod["fname_y"]]
-
-    return pd.merge(
-        cart_prod,
-        nicknames,
-        left_on=["fname_x", "fname_y"],
-        right_on=["name", "nickname"],
-    )
+    sql = """
+    select
+        t1.lname as lname,
+        t1.fname as fname1, t1.team as team1, t1.season as season1,
+        t2.fname as fname2, t2.team as team2, t2.season as season2
+    from dump_names_temp t1
+    join dump_names_temp t2
+    on t1.lname = t2.lname
+    and t1.fname != t2.fname
+    join nicknames n
+    on t1.fname = n.name
+    and t2.fname = n.nickname
+    order by lname, fname1;
+    """
+    return pd.read_sql_query(text(sql), conn)
 
 
 def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
@@ -152,8 +158,6 @@ def cli(
     pitchers = pd.read_sql_table("raw_pitchers_overall", conn)
     if corrections:
         corrections_df = pd.read_sql_table("name_corrections", conn)
-    if nicknames:
-        nicknames_df = pd.read_sql_table("nicknames", conn)
 
     batters = CleanFunctions.normalize_names(batters)
     pitchers = CleanFunctions.normalize_names(pitchers)
@@ -181,7 +185,7 @@ def cli(
 
     if nicknames:
         print("Performing nickname analysis")
-        output = nickname_analysis(data, nicknames_df)
+        output = nickname_analysis(conn)
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
