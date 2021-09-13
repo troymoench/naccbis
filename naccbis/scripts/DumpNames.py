@@ -122,6 +122,7 @@ def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
 @click.option(
     "-f",
     "--fname",
+    "levenshtein_first",
     type=int,
     default=0,
     show_default=True,
@@ -130,6 +131,7 @@ def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
 @click.option(
     "-l",
     "--lname",
+    "levenshtein_last",
     type=int,
     default=0,
     show_default=True,
@@ -140,15 +142,13 @@ def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
 @click.option("--dir", type=str, default="", help="Directory to save the output to")
 def cli(
     corrections: bool,
-    fname: int,
-    lname: int,
+    levenshtein_first: int,
+    levenshtein_last: int,
     nicknames: bool,
     duplicates: bool,
     dir: str,
 ) -> None:
     """Script entry point"""
-    levenshtein_first = fname
-    levenshtein_last = lname
 
     config = utils.init_config()
     utils.init_logging(config["LOGGING"])
