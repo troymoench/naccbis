@@ -2,11 +2,13 @@
 # Standard library imports
 from datetime import date
 import logging
+from typing import Optional
 
 # Third party imports
 from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
+from sqlalchemy.engine import Connection
 
 # Local imports
 from . import ScrapeFunctions
@@ -33,6 +35,7 @@ class TeamOffenseScraper(BaseScraper):
         output: str,
         inseason: bool = False,
         verbose: bool = False,
+        conn: Optional[Connection] = None,
     ) -> None:
         """Class constructor
         :param year: The school year. A string.
@@ -41,7 +44,7 @@ class TeamOffenseScraper(BaseScraper):
         :param inseason: Is this scraping taking place in season?
         :param verbose: Print extra information to standard out?
         """
-        super().__init__(year, split, output, inseason, verbose)
+        super().__init__(year, split, output, inseason, verbose, conn)
         self._name = "Team Offense Scraper"
         self._data = pd.DataFrame()
         self._runnable = True

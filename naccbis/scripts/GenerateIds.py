@@ -17,6 +17,7 @@ import pandas as pd
 # Local imports
 from naccbis.Cleaning import CleanFunctions
 from naccbis.Common import utils
+from naccbis.Common.settings import Settings
 
 
 def make_full_name(fname: str, lname: str) -> str:
@@ -155,9 +156,9 @@ def generate_ids(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFrame:
 def cli(load: bool, clear: bool, season: Optional[int], dir: str) -> None:
     """Script entry point"""
 
-    config = utils.init_config()
-    utils.init_logging(config["LOGGING"])
-    conn = utils.connect_db(config["DB"])
+    config = Settings(app_name="generate-ids")
+    utils.init_logging(config.log_level)
+    conn = utils.connect_db(config.get_db_url())
 
     batters = pd.read_sql_table("raw_batters_overall", conn)
     pitchers = pd.read_sql_table("raw_pitchers_overall", conn)

@@ -6,6 +6,7 @@ from typing import List, Dict, Sequence, Type, Tuple, Union
 
 # Third party imports
 import click
+from sqlalchemy.engine.base import Connection
 
 # Local imports
 from naccbis.Scraping import (
@@ -19,6 +20,7 @@ from naccbis.Scraping import (
 )
 from naccbis.Common import utils
 from naccbis.Common.splits import GameLogSplit, Split
+from naccbis.Common.settings import Settings
 
 
 PARSER_EPILOG = """\b
@@ -63,8 +65,7 @@ A column is added for the scrape date.
 
 @click.group(help=__doc__, epilog=PARSER_EPILOG)
 def cli():
-    config = utils.init_config()
-    utils.init_logging(config["LOGGING"])
+    pass
 
 
 def run_scrapers(
@@ -74,6 +75,7 @@ def run_scrapers(
     output: str,
     inseason: bool,
     verbose: bool,
+    conn: Connection,
 ) -> None:
     """Run selected scrapers for a given year
 
@@ -96,7 +98,9 @@ def run_scrapers(
     for split in splits:
         for num in scraper_nums:
             if num in scrapers.keys():
-                runScraper = scrapers[num](year, split, output, inseason, verbose)
+                runScraper = scrapers[num](
+                    year, split, output, inseason, verbose, conn=conn
+                )
                 runScraper.info()
                 runScraper.run()
                 runScraper.export()
@@ -104,7 +108,9 @@ def run_scrapers(
     # Game logs have special splits
     if 6 in scraper_nums:
         for split in list(GameLogSplit):
-            gameLogScraper = GameLogScraper(year, split, output, inseason, verbose)
+            gameLogScraper = GameLogScraper(
+                year, split, output, inseason, verbose, conn=conn
+            )
             gameLogScraper.info()
             gameLogScraper.run()
             gameLogScraper.export()
@@ -146,6 +152,10 @@ def final(
 
     :param args: Arguments for the scrapers
     """
+    config = Settings(app_name="scrape")
+    utils.init_logging(config.log_level)
+    conn = utils.connect_db(config.get_db_url())
+
     logging.info("Initializing scraping controller script")
     years = [utils.season_to_year(x) for x in year]
 
@@ -157,7 +167,16 @@ def final(
     for year_ in years:
         print("\nScraping:", year_, "\n")
 
-        run_scrapers(list(stat), year_, splits, output, inseason=False, verbose=verbose)
+        run_scrapers(
+            list(stat),
+            year_,
+            splits,
+            output,
+            inseason=False,
+            verbose=verbose,
+            conn=conn,
+        )
+    conn.close()
     logging.info("Scraping completed")
 
 
@@ -194,6 +213,10 @@ def inseason(stat: Tuple[int], split: str, output: str, verbose: bool) -> None:
 
     :param args: Arguments for the scrapers
     """
+    config = Settings(app_name="scrape")
+    utils.init_logging(config.log_level)
+    conn = utils.connect_db(config.get_db_url())
+
     logging.info("Initializing scraping controller script")
     season = date.today().year
     year = utils.season_to_year(season)
@@ -203,7 +226,10 @@ def inseason(stat: Tuple[int], split: str, output: str, verbose: bool) -> None:
     else:
         splits = [Split(split)]
 
-    run_scrapers(list(stat), year, splits, output, inseason=True, verbose=verbose)
+    run_scrapers(
+        list(stat), year, splits, output, inseason=True, verbose=verbose, conn=conn
+    )
+    conn.close()
     logging.info("Scraping completed")
 
 

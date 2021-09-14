@@ -18,6 +18,7 @@ from naccbis.Cleaning import (
 )
 from naccbis.Common import utils
 from naccbis.Common.splits import Split
+from naccbis.Common.settings import Settings
 
 
 FINAL_PARSER_DESCRIPTION = """
@@ -118,10 +119,10 @@ def final(
     :param args: Arguments for the ETLs
     :param conn: Database connection object
     """
-    config = utils.init_config()
-    utils.init_logging(config["LOGGING"])
+    config = Settings(app_name="clean")
+    utils.init_logging(config.log_level)
     logging.info("Initializing cleaning controller script")
-    conn = utils.connect_db(config["DB"])
+    conn = utils.connect_db(config.get_db_url())
 
     if split == "all":
         splits = list(Split)

@@ -2,6 +2,7 @@
 import click
 import pandas as pd
 from naccbis.Common import utils
+from naccbis.Common.settings import Settings
 
 
 def get_all_table_names(conn):
@@ -24,9 +25,8 @@ def table_count(conn, table):
 
 @click.command(help=__doc__)
 def cli():
-    config = utils.init_config()
-    # utils.init_logging(config["LOGGING"])
-    conn = utils.connect_db(config["DB"])
+    config = Settings(app_name="verify")
+    conn = utils.connect_db(config.get_db_url())
 
     tables = get_all_table_names(conn)
     data = pd.concat([table_count(conn, table) for table in tables])

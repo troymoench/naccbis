@@ -16,6 +16,7 @@ from sqlalchemy.engine import Connection
 # Local imports
 from naccbis.Cleaning import CleanFunctions
 from naccbis.Common import utils
+from naccbis.Common.settings import Settings
 
 
 def load_temp_table(conn: Connection, data: pd.DataFrame) -> None:
@@ -150,9 +151,9 @@ def cli(
 ) -> None:
     """Script entry point"""
 
-    config = utils.init_config()
-    utils.init_logging(config["LOGGING"])
-    conn = utils.connect_db(config["DB"])
+    config = Settings(app_name="dump-names")
+    utils.init_logging(config.log_level)
+    conn = utils.connect_db(config.get_db_url())
 
     batters = pd.read_sql_table("raw_batters_overall", conn)
     pitchers = pd.read_sql_table("raw_pitchers_overall", conn)

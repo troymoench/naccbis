@@ -1,8 +1,7 @@
 """ This module provides utility functions """
 # Standard library imports
 import logging
-import os
-from typing import List, Dict
+from typing import List, Union
 
 # Third party imports
 import pandas as pd
@@ -12,14 +11,6 @@ from sqlalchemy.engine import Engine, Connection
 from sqlalchemy.engine.url import URL
 from sqlalchemy.exc import SQLAlchemyError
 
-# Local imports
-import conf
-
-
-# @event.listens_for(Engine, "connect")
-# def my_on_connect(dbapi_con, connection_record):
-#     print("New DBAPI connection:", dbapi_con.dsn)
-
 
 @event.listens_for(Engine, "engine_connect")
 def receive_engine_connect(conn, branch):
@@ -27,62 +18,18 @@ def receive_engine_connect(conn, branch):
     logging.debug("DSN: %s", conn.connection.dsn)
 
 
-# @event.listens_for(Engine, 'close')
-# def receive_close(dbapi_connection, connection_record):
-#     print("Closed connection")
-
-
-# @event.listens_for(Engine, 'checkout')
-# def receive_checkout(dbapi_connection, connection_record, connection_proxy):
-#     print("Retrieving a connection from pool")
-
-
-# @event.listens_for(Engine, 'checkin')
-# def receive_checkin(dbapi_connection, connection_record):
-#     print("Returning connection to pool")
-
-
-# @event.listens_for(Engine, 'before_cursor_execute')
-# def receive_before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
-#     logging.debug("SQL statement: %s", statement)
-#     logging.debug("SQL params: %s", parameters)
-
-
-# @event.listens_for(Engine, 'handle_error')
-# def receive_handle_error(exception_context):
-#     print("error handler")
-#     print(type(exception_context.sqlalchemy_exception))
-#     print(exception_context.engine)
-#     print(exception_context.connection)
-
-
-def create_db_engine(config: Dict[str, str]) -> Engine:
-    """Create database engine
-
-    :param config: Dictionary with connection parameters
-    :returns: Database engine object
-    """
-    try:
-        conn_url = URL.create(**config)
-    except TypeError:
-        logging.error("Database connection parameter error")
-        raise
-
-    return create_engine(conn_url)
-
-
-def connect_db(config: Dict[str, str]) -> Connection:
+def connect_db(db_url: Union[str, URL]) -> Connection:
     """Create database connection
 
-    :param config: Dictionary with connection parameters
+    :param db_url: URL with connection parameters
     :returns: Database connection object
     """
     logging.info("Connecting to database")
-    engine = create_db_engine(config)
+    engine = create_engine(db_url)
     try:
         conn = engine.connect()
     except SQLAlchemyError:
-        logging.error("Failed to connect to database %s", config.get("database"))
+        logging.error("Failed to connect to database")
         raise
     return conn
 
@@ -96,15 +43,6 @@ def db_load_data(data: pd.DataFrame, table: str, conn: Connection, **kwargs) -> 
         logging.error(e)
     else:
         logging.info("Successfully loaded %s records into %s table", len(data), table)
-
-
-def init_config():
-    """Initialize configuration"""
-    config = {
-        "DB": getattr(conf, "DB", None),
-        "LOGGING": os.environ.get("LOG_LEVEL", "INFO"),
-    }
-    return config
 
 
 def init_logging(level: str) -> None:
