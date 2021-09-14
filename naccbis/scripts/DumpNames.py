@@ -5,7 +5,7 @@ These inconsistencies include, but are not limited to:
 3. Nicknames
 """
 # Standard library imports
-import os
+from pathlib import Path
 
 # Third party imports
 import click
@@ -140,14 +140,20 @@ def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
 )
 @click.option("--nicknames", is_flag=True, help="Perform a nickname analysis")
 @click.option("--duplicates", is_flag=True, help="Perform duplicate names analysis")
-@click.option("--dir", type=str, default="", help="Directory to save the output to")
+@click.option(
+    "--dir",
+    type=click.Path(exists=True, path_type=Path),
+    default=".",
+    show_default=True,
+    help="Directory to save the output to",
+)
 def cli(
     corrections: bool,
     levenshtein_first: int,
     levenshtein_last: int,
     nicknames: bool,
     duplicates: bool,
-    dir: str,
+    dir: Path,
 ) -> None:
     """Script entry point"""
 
@@ -181,7 +187,7 @@ def cli(
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
-            filename = os.path.join(dir, "levenshtein_analysis.csv")
+            filename = dir / "levenshtein_analysis.csv"
             output.to_csv(filename, index=False)
 
     if nicknames:
@@ -190,7 +196,7 @@ def cli(
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
-            filename = os.path.join(dir, "nickname_analysis.csv")
+            filename = dir / "nickname_analysis.csv"
             output.to_csv(filename, index=False)
 
     if duplicates:
@@ -199,11 +205,11 @@ def cli(
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
-            filename = os.path.join(dir, "duplicate_names_analysis.csv")
+            filename = dir / "duplicate_names_analysis.csv"
             output.to_csv(filename, index=False)
 
     print("Dumping all names to csv")
-    filename = os.path.join(dir, "all_names.csv")
+    filename = dir / "all_names.csv"
     data.to_csv(filename, index=False)
     conn.close()
 

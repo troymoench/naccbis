@@ -5,7 +5,7 @@ and load into database
 """
 # Standard library imports
 import logging
-import os
+from pathlib import Path
 
 # Third party imports
 import pandas as pd
@@ -18,7 +18,7 @@ from naccbis.Common.splits import Split
 class LeagueOffenseETL:
     """ETL class for league offense"""
 
-    CSV_DIR = "csv/"
+    CSV_DIR = Path("csv/")
 
     def __init__(self, year: int, split: Split, load_db: bool, conn: object) -> None:
         self.year = year
@@ -29,12 +29,10 @@ class LeagueOffenseETL:
         self.batters: pd.DataFrame
 
     def extract(self) -> None:
-        self.team_data = pd.read_sql_table(
-            "team_offense_{}".format(self.split), self.conn
-        )
+        self.team_data = pd.read_sql_table(f"team_offense_{self.split}", self.conn)
         if self.year:
             self.team_data = self.team_data[self.team_data["season"] == self.year]
-        self.batters = pd.read_sql_table("batters_{}".format(self.split), self.conn)
+        self.batters = pd.read_sql_table(f"batters_{self.split}", self.conn)
         if self.year:
             self.batters = self.batters[self.batters["season"] == self.year]
 
@@ -94,7 +92,7 @@ class LeagueOffenseETL:
         self.totals = totals
 
     def load(self) -> None:
-        repl_table_name = "replacement_level_{}".format(self.split)
+        repl_table_name = f"replacement_level_{self.split}"
         if self.load_db:
             logging.info("Loading data into database")
             utils.db_load_data(
@@ -106,10 +104,10 @@ class LeagueOffenseETL:
             )
         else:
             logging.info("Dumping to csv")
-            fname = os.path.join(self.CSV_DIR, "{}.csv".format(repl_table_name))
+            fname = self.CSV_DIR / f"{repl_table_name}.csv"
             self.replacement_totals.to_csv(fname, index=True)
 
-        table_name = "league_offense_{}".format(self.split)
+        table_name = f"league_offense_{self.split}"
         if self.load_db:
             logging.info("Loading data into database")
             utils.db_load_data(
@@ -117,7 +115,7 @@ class LeagueOffenseETL:
             )
         else:
             logging.info("Dumping to csv")
-            fname = os.path.join(self.CSV_DIR, "{}.csv".format(table_name))
+            fname = self.CSV_DIR / f"{table_name}.csv"
             self.totals.to_csv(fname, index=True)
 
     def run(self) -> None:
@@ -159,7 +157,7 @@ class LeagueOffenseETL:
 class LeaguePitchingETL:
     """ETL class for league pitching"""
 
-    CSV_DIR = "csv/"
+    CSV_DIR = Path("csv/")
 
     def __init__(self, year: int, split: Split, load_db: bool, conn: object) -> None:
         self.year = year
@@ -169,9 +167,7 @@ class LeaguePitchingETL:
         self.team_data: pd.DataFrame
 
     def extract(self) -> None:
-        self.team_data = pd.read_sql_table(
-            "team_pitching_{}".format(self.split), self.conn
-        )
+        self.team_data = pd.read_sql_table(f"team_pitching_{self.split}", self.conn)
         if self.year:
             self.team_data = self.team_data[self.team_data["season"] == self.year]
 
@@ -236,7 +232,7 @@ class LeaguePitchingETL:
         self.totals = totals
 
     def load(self) -> None:
-        table_name = "league_pitching_{}".format(self.split)
+        table_name = f"league_pitching_{self.split}"
         if self.load_db:
             logging.info("Loading data into database")
             utils.db_load_data(
@@ -244,9 +240,7 @@ class LeaguePitchingETL:
             )
         else:
             logging.info("Dumping to csv")
-            self.totals.to_csv(
-                os.path.join(self.CSV_DIR, "{}.csv".format(table_name)), index=True
-            )
+            self.totals.to_csv(self.CSV_DIR / f"{table_name}.csv", index=True)
 
     def run(self) -> None:
         logging.info("Running %s", type(self).__name__)

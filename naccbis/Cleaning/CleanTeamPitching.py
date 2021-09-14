@@ -1,7 +1,7 @@
 """ This script is used to clean team pitching data and load into database """
 # Standard library imports
 import logging
-import os
+from pathlib import Path
 
 # Third party imports
 import pandas as pd
@@ -15,7 +15,7 @@ from naccbis.Common.splits import Split
 class TeamPitchingETL:
     """ETL class for team pitching"""
 
-    CSV_DIR = "csv/"
+    CSV_DIR = Path("csv/")
 
     def __init__(
         self,
@@ -48,7 +48,7 @@ class TeamPitchingETL:
         self.data = metrics.basic_pitching_metrics(self.data, conference=conference)
 
     def load(self) -> None:
-        table = "team_pitching_{}".format(self.split)
+        table = f"team_pitching_{self.split}"
         if self.inseason:
             table += "_inseason"
         if self.load_db:
@@ -57,9 +57,9 @@ class TeamPitchingETL:
                 self.data, table, self.conn, if_exists="append", index=False
             )
         else:
-            filename = table + ".csv"
+            filename = f"{table}.csv"
             logging.info("Dumping to csv")
-            self.data.to_csv(os.path.join(self.CSV_DIR, filename), index=False)
+            self.data.to_csv(self.CSV_DIR / filename, index=False)
 
     def run(self) -> None:
         logging.info("Running %s", type(self).__name__)

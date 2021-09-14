@@ -2,7 +2,7 @@
 # Standard library imports
 import datetime
 import logging
-import os
+from pathlib import Path
 import re
 from typing import List
 
@@ -30,7 +30,7 @@ class GameLogETL:
         "Rockford",
         "Wisconsin Lutheran",
     ]
-    CSV_DIR = "csv/"
+    CSV_DIR = Path("csv/")
 
     def __init__(
         self, year: int, load_db: bool, conn: object, inseason: bool = False
@@ -103,9 +103,9 @@ class GameLogETL:
                 self.data, table, self.conn, if_exists="append", index=False
             )
         else:
-            filename = table + ".csv"
+            filename = f"{table}.csv"
             logging.info("Dumping to csv")
-            self.data.to_csv(os.path.join(self.CSV_DIR, filename), index=False)
+            self.data.to_csv(self.CSV_DIR / filename, index=False)
 
     def run(self) -> None:
         logging.info("Running %s", type(self).__name__)

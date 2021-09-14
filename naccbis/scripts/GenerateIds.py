@@ -7,7 +7,7 @@
 4. load transformed data into database
 """
 # Standard library imports
-import os
+from pathlib import Path
 from typing import List, Optional
 
 # Third party imports
@@ -152,8 +152,14 @@ def generate_ids(data: pd.DataFrame, duplicates: pd.DataFrame) -> pd.DataFrame:
 @click.option("--load", is_flag=True, help="Load data into database")
 @click.option("--clear", is_flag=True, help="Clear the database table before loading")
 @click.option("--season", type=int, help="Filter output by season")
-@click.option("--dir", type=str, default="", help="Directory to save the output to")
-def cli(load: bool, clear: bool, season: Optional[int], dir: str) -> None:
+@click.option(
+    "--dir",
+    type=click.Path(exists=True, path_type=Path),
+    default=".",
+    show_default=True,
+    help="Directory to save the output to",
+)
+def cli(load: bool, clear: bool, season: Optional[int], dir: Path) -> None:
     """Script entry point"""
 
     config = Settings(app_name="generate-ids")
@@ -191,10 +197,9 @@ def cli(load: bool, clear: bool, season: Optional[int], dir: str) -> None:
 
         print("Loading data into database")
         utils.db_load_data(data, "player_id", conn, if_exists="append", index=False)
-
     else:
         print("Dumping to csv")
-        data.to_csv(os.path.join(dir, "player_id.csv"), index=False)
+        data.to_csv(dir / "player_id.csv", index=False)
     conn.close()
 
 

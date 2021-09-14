@@ -2,8 +2,9 @@
 # Standard library imports
 from abc import ABCMeta, abstractmethod
 from datetime import date
-import sys
 import logging
+from pathlib import Path
+import sys
 from typing import Dict, Union, Optional
 
 # Third party imports
@@ -76,7 +77,7 @@ class BaseScraper(metaclass=ABCMeta):
         self._data = pd.DataFrame()
         self._runnable = True
         self._conn = conn
-        self._csv_path = ""
+        self._csv_path = Path("csv/")
 
     @abstractmethod
     def run(self) -> None:
@@ -114,17 +115,11 @@ class BaseScraper(metaclass=ABCMeta):
         """Helper method to export data to a csv file"""
         try:
             if self._inseason:
-                filename = "{}{}{}.csv".format(
-                    self._csv_path, table_name, str(date.today())
-                )
-                self._data.to_csv(filename, index=False)
+                filename = f"{table_name}{str(date.today())}.csv"
+                self._data.to_csv(self._csv_path / filename, index=False)
             else:
-                filename = "{}{}{}.csv".format(
-                    self._csv_path,
-                    table_name,
-                    utils.year_to_season(self._year),
-                )
-                self._data.to_csv(filename, index=False)
+                filename = f"{table_name}{utils.year_to_season(self._year)}.csv"
+                self._data.to_csv(self._csv_path / filename, index=False)
         except Exception as e:
             logging.error("Unable to export to CSV")
             logging.error(e)

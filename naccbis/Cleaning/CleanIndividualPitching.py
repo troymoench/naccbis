@@ -4,7 +4,7 @@ This script is used to clean individual pitching data and load into database
 """
 # Standard library imports
 import logging
-import os
+from pathlib import Path
 
 # Third party imports
 import numpy as np
@@ -19,7 +19,7 @@ from naccbis.Common.splits import Split
 class IndividualPitchingETL:
     """ETL class for individual pitching"""
 
-    CSV_DIR = "csv/"
+    CSV_DIR = Path("csv/")
 
     def __init__(
         self,
@@ -141,7 +141,7 @@ class IndividualPitchingETL:
         self.data = self.data[columns]
 
     def load(self) -> None:
-        table = "pitchers_{}".format(self.split)
+        table = f"pitchers_{self.split}"
         if self.inseason:
             table += "_inseason"
         if self.load_db:
@@ -150,9 +150,9 @@ class IndividualPitchingETL:
                 self.data, table, self.conn, if_exists="append", index=False
             )
         else:
-            filename = table + ".csv"
+            filename = f"{table}.csv"
             logging.info("Dumping to csv")
-            self.data.to_csv(os.path.join(self.CSV_DIR, filename), index=False)
+            self.data.to_csv(self.CSV_DIR / filename, index=False)
 
     def run(self) -> None:
         logging.info("Running %s", type(self).__name__)
