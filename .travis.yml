@@ -6,12 +6,12 @@ python:
   - "3.8"
 services:
   - postgresql
-before_script:
-  - psql -c 'create database travis_ci_test;' -U postgres
-  - psql -U postgres travis_ci_test -c "select version()"
 install:
   - pip install -r requirements-dev.txt
   - pip install -r requirements.txt
+before_script:
+  - psql -U travis -p 5433 -c "create database travis_ci_test;"
+  - psql -U travis travis_ci_test -c "select version()"
 script:
   # lint
   - bash scripts/lint.sh
