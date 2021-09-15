@@ -26,5 +26,5 @@ script:
   # lint
   - bash scripts/lint.sh
   # test
-  - pytest -m "not integration" --cov --cov-report term
+  - pytest --cov --cov-report term
 after_success: codecov --required

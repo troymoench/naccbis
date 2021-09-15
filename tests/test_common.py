@@ -5,7 +5,6 @@ import pytest
 
 # Local imports
 from naccbis.Common import utils, models, splits  # noqa
-from naccbis.Common.settings import Settings
 
 
 @pytest.fixture
@@ -51,23 +50,6 @@ class TestUtils:
     )
     def test_season_to_year(self, season, expected):
         assert utils.season_to_year(season) == expected
-
-
-@pytest.fixture()
-def db_url():
-    config = Settings(app_name="naccbis-tests")
-    return config.get_db_url()
-
-
-class TestDB:
-    @pytest.mark.integration
-    def test_connect_db(self, db_url):
-        with utils.connect_db(db_url) as conn:
-            assert not conn.closed
-            result = conn.execute("select version()").fetchone()
-            assert len(result) == 1
-            print(result)
-        assert conn.closed
 
 
 class TestSplits:
