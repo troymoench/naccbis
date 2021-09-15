@@ -24,6 +24,7 @@ services:
     image: postgres:12
     container_name: naccbisdb
     restart: always
+    command: -c "shared_preload_libraries=pg_stat_statements"
     environment:
       - "POSTGRES_PASSWORD=mypassword"
     volumes:
