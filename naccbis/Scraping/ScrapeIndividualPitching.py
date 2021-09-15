@@ -295,7 +295,7 @@ class IndividualPitchingScraper(BaseScraper):
         data.columns = newColNames
 
         data[intCols] = data[intCols].replace("-", "0")
-        data[floatCols] = data[floatCols].replace("-", "")
+        data[floatCols] = data[floatCols].replace("-", "0.0")
         data[floatCols] = data[floatCols].replace("INF", np.nan)
 
         data["Team"] = team_id
