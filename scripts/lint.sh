@@ -3,6 +3,6 @@
 set -e
 set -x
 
-mypy naccbis
+mypy naccbis tests
 flake8 naccbis tests --statistics
 black naccbis tests --check
