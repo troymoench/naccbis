@@ -42,20 +42,26 @@ def create_db(db_url: str) -> None:
         query=url.query,
     )
     print(postgres_url)
-    engine = create_engine(postgres_url, isolation_level="AUTOCOMMIT")
-    with engine.connect() as conn:
+    pg_engine = create_engine(postgres_url, isolation_level="AUTOCOMMIT")
+    print("Creating database")
+    with pg_engine.connect() as conn:
         conn.execute(f"DROP DATABASE IF EXISTS {TEST_DBNAME};")
         conn.execute(f"CREATE DATABASE {TEST_DBNAME};")
 
+    pg_engine.dispose()
 
-@pytest.fixture(scope="session")
-def db_conn(db_url: str) -> Connection:
     engine = create_engine(db_url)
     conn = engine.connect()
     print("Creating tables")
     with conn.begin():
         with open(SCHEMA_FILE) as f:
             conn.execute(text(f.read()))
+    conn.close()
 
+
+@pytest.fixture(scope="session")
+def db_conn(db_url: str, create_db) -> Connection:
+    engine = create_engine(db_url)
+    conn = engine.connect()
     yield conn
     conn.close()
