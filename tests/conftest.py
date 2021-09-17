@@ -1,10 +1,11 @@
 import pytest
 from naccbis.Common.settings import Settings
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL, make_url, Connection
 
 TEST_DBNAME = "naccbisdb_test"
+SCHEMA_FILE = "db/schema_dump_2021_09_14.sql"
 
 
 @pytest.fixture(scope="session")
@@ -51,5 +52,10 @@ def create_db(db_url: str) -> None:
 def db_conn(db_url: str) -> Connection:
     engine = create_engine(db_url)
     conn = engine.connect()
+    print("Creating tables")
+    with conn.begin():
+        with open(SCHEMA_FILE) as f:
+            conn.execute(text(f.read()))
+
     yield conn
     conn.close()
