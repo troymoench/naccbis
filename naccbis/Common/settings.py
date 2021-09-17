@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     db_url: str = "postgresql://localhost/naccbisdb"
     log_level: str = "INFO"
 
-    def get_db_url(self):
+    def get_db_url(self) -> str:
         return f"{self.db_url}?application_name={self.app_name}"
 
     class Config:
