@@ -113,7 +113,8 @@ def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
     output["fname"] = output["name"].apply(CleanFunctions.split_fname)
     output["lname"] = output["name"].apply(CleanFunctions.split_lname)
 
-    return output[["fname", "lname", "team", "season"]]
+    output = output.sort_values(by=["lname", "fname", "team", "season"])
+    return output[["fname", "lname", "team", "season"]].reset_index(drop=True)
 
 
 @click.command(help="Identify inconsistencies with player names")
