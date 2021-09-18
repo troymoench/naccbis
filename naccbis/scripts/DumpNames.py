@@ -59,7 +59,7 @@ def levenshtein_analysis(
     join dump_names_temp t2
     on {lname_condition}
     and {fname_condition}
-    order by t1.lname, t1.fname;
+    order by t1.lname, t1.fname, t1.season, t2.lname, t2.fname, t2.season;
     """
     params = {"lev_last": lev_last, "lev_first": lev_first}
 
