@@ -4,6 +4,7 @@
 from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
+from pandas.testing import assert_frame_equal
 import pytest
 
 # Local imports
@@ -144,7 +145,7 @@ class TestScrapeFunctions:
             }
         )
         soup = BeautifulSoup(html_table, "html.parser")
-        assert df.equals(ScrapeFunctions.scrape_table(soup, 1))
+        assert_frame_equal(df, ScrapeFunctions.scrape_table(soup, 1))
         with pytest.raises(IndexError):
             ScrapeFunctions.scrape_table(soup, 2)
 
@@ -423,7 +424,7 @@ class TestIndividualOffenseScraper:
             ],
             columns=expected_cols,
         )
-        assert expected.equals(scraper._clean(raw_df, "BEN"))
+        assert_frame_equal(expected, scraper._clean(raw_df, "BEN"))
 
 
 class TestIndividualPitchingScraper:
@@ -755,4 +756,4 @@ class TestIndividualPitchingScraper:
             ],
             columns=expected_cols,
         )
-        assert expected.equals(scraper._clean(raw_df, "AUR"))
+        assert_frame_equal(expected, scraper._clean(raw_df, "AUR"))

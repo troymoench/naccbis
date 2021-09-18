@@ -78,7 +78,7 @@ class TestCleanFunctions:
         df2 = pd.DataFrame(df1)
         df2["fname"] = ["Jeffrey", "DJ", "Quinlan"]
         df2["lname"] = ["Mayes", "Dillon", "Milne Rojek"]
-        assert CleanFunctions.normalize_names(df1).equals(df2)
+        assert_frame_equal(CleanFunctions.normalize_names(df1), df2)
 
     def test_apply_corrections(self):
         corrections = pd.DataFrame(
@@ -124,7 +124,9 @@ class TestCleanFunctions:
         # make sure apply_corrections doesn't remove any columns
         self.data["pos"] = "INF"
         expected["pos"] = "INF"
-        assert CleanFunctions.apply_corrections(self.data, corrections).equals(expected)
+        assert_frame_equal(
+            CleanFunctions.apply_corrections(self.data, corrections), expected
+        )
 
     def test_apply_corrections_no_change(self):
         corrections = pd.DataFrame(
@@ -141,7 +143,9 @@ class TestCleanFunctions:
         )
         self.data["pos"] = "INF"
         expected = self.data
-        assert CleanFunctions.apply_corrections(self.data, corrections).equals(expected)
+        assert_frame_equal(
+            CleanFunctions.apply_corrections(self.data, corrections), expected
+        )
 
     @pytest.mark.parametrize(
         "raw, expected",
@@ -236,14 +240,15 @@ class TestGenerateIds:
     )
 
     def test_update_id_conflicts(self):
-        assert GenerateIds.update_id_conflicts(self.conflicts_raw).equals(
-            self.conflicts_expected
+        assert_frame_equal(
+            GenerateIds.update_id_conflicts(self.conflicts_raw), self.conflicts_expected
         )
 
     def test_update_duplicates(self):
         # print([row for row in foo.itertuples(False, None)])
-        assert GenerateIds.update_duplicates(self.dupes_raw, self.duplicates).equals(
-            self.dupes_expected
+        assert_frame_equal(
+            GenerateIds.update_duplicates(self.dupes_raw, self.duplicates),
+            self.dupes_expected,
         )
 
     def test_verify_unique_ids(self):
@@ -260,7 +265,7 @@ class TestGenerateIds:
             [self.conflicts_expected, self.dupes_expected], ignore_index=True
         )
         expected.drop(columns=["full_name"], inplace=True)
-        assert GenerateIds.generate_ids(raw, self.duplicates).equals(expected)
+        assert_frame_equal(GenerateIds.generate_ids(raw, self.duplicates), expected)
 
 
 class TestDumpNames:
@@ -443,7 +448,7 @@ class TestLeagueTotals:
         expected.sort_values(by=["pa", "lname"], ascending=False, inplace=True)
         expected.reset_index(drop=True, inplace=True)
 
-        assert temp.equals(expected)
+        assert_frame_equal(temp, expected)
 
 
 def test_init_etls():

@@ -1,4 +1,5 @@
 import pandas as pd
+from pandas.testing import assert_frame_equal
 import pytest
 from naccbis.scripts import DumpNames
 
@@ -37,7 +38,7 @@ def test_nickname_analysis(db_conn, create_temp_table):
         ],
         columns=["lname", "fname1", "team1", "season1", "fname2", "team2", "season2"],
     )
-    assert expected.equals(DumpNames.nickname_analysis(db_conn))
+    assert_frame_equal(expected, DumpNames.nickname_analysis(db_conn))
 
 
 def test_levenshtein_analysis_last_name_1_first_name_0(db_conn, create_temp_table):
@@ -139,8 +140,8 @@ def test_levenshtein_analysis_last_name_1_first_name_0(db_conn, create_temp_tabl
         ],
     )
 
-    assert expected.equals(
-        DumpNames.levenshtein_analysis(db_conn, lev_first=0, lev_last=1)
+    assert_frame_equal(
+        expected, DumpNames.levenshtein_analysis(db_conn, lev_first=0, lev_last=1)
     )
 
 
@@ -196,6 +197,6 @@ def test_levenshtein_analysis_last_name_0_first_name_1(db_conn, create_temp_tabl
         ],
     )
 
-    assert expected.equals(
-        DumpNames.levenshtein_analysis(db_conn, lev_first=1, lev_last=0)
+    assert_frame_equal(
+        expected, DumpNames.levenshtein_analysis(db_conn, lev_first=1, lev_last=0)
     )
