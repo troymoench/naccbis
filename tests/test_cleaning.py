@@ -268,38 +268,6 @@ class TestGenerateIds:
         assert_frame_equal(GenerateIds.generate_ids(raw, self.duplicates), expected)
 
 
-class TestDumpNames:
-    def test_duplicate_names_analysis(self):
-        names = pd.DataFrame(
-            [
-                ("Matt", "Schroeder", "MAR", 2010),
-                ("Matt", "Schroeder", "MAR", 2011),
-                ("Matt", "Schroeder", "MAR", 2012),
-                ("Matt", "Schroeder", "CUW", 2012),
-                ("Carlos", "Olavarria", "AUR", 2012),
-                ("Carlos", "Olavarria", "AUR", 2013),
-                ("Carlos", "Olavarria", "CUC", 2014),
-                ("Carlos", "Olavarria", "CUC", 2015),
-            ],
-            columns=["fname", "lname", "team", "season"],
-        )
-        expected = pd.DataFrame(
-            [
-                ("Carlos", "Olavarria", "AUR", 2012),
-                ("Carlos", "Olavarria", "AUR", 2013),
-                ("Carlos", "Olavarria", "CUC", 2014),
-                ("Carlos", "Olavarria", "CUC", 2015),
-                ("Matt", "Schroeder", "CUW", 2012),
-                ("Matt", "Schroeder", "MAR", 2010),
-                ("Matt", "Schroeder", "MAR", 2011),
-                ("Matt", "Schroeder", "MAR", 2012),
-            ],
-            columns=["fname", "lname", "team", "season"],
-        )
-
-        assert_frame_equal(expected, DumpNames.duplicate_names_analysis(names))
-
-
 class TestCleanGameLogs:
     @pytest.mark.parametrize(
         "score, expected",

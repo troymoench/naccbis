@@ -200,3 +200,33 @@ def test_levenshtein_analysis_last_name_0_first_name_1(db_conn, create_temp_tabl
     assert_frame_equal(
         expected, DumpNames.levenshtein_analysis(db_conn, lev_first=1, lev_last=0)
     )
+
+
+def test_duplicate_names_analysis(db_conn, create_temp_table):
+    db_conn.execute(
+        "INSERT INTO dump_names_temp (fname, lname, team, season, pos) VALUES "
+        "('Matt', 'Schroeder', 'MAR', 2010 , ''),"
+        "('Matt', 'Schroeder', 'MAR', 2011, ''),"
+        "('Matt', 'Schroeder', 'MAR', 2012, 'INF'),"
+        "('Matt', 'Schroeder', 'CUW', 2012, 'UT'),"
+        "('Carlos', 'Olavarria', 'AUR', 2012, '2B'),"
+        "('Carlos', 'Olavarria', 'AUR', 2013, 'IF'),"
+        "('Carlos', 'Olavarria', 'CUC', 2014, 'SS'),"
+        "('Carlos', 'Olavarria', 'CUC', 2015, 'OF');"
+    )
+
+    expected = pd.DataFrame(
+        [
+            ("Carlos", "Olavarria", "AUR", 2012),
+            ("Carlos", "Olavarria", "AUR", 2013),
+            ("Carlos", "Olavarria", "CUC", 2014),
+            ("Carlos", "Olavarria", "CUC", 2015),
+            ("Matt", "Schroeder", "CUW", 2012),
+            ("Matt", "Schroeder", "MAR", 2010),
+            ("Matt", "Schroeder", "MAR", 2011),
+            ("Matt", "Schroeder", "MAR", 2012),
+        ],
+        columns=["fname", "lname", "team", "season"],
+    )
+
+    assert_frame_equal(expected, DumpNames.duplicate_names_analysis(db_conn))

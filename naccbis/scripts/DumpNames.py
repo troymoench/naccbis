@@ -92,29 +92,26 @@ def nickname_analysis(conn: Connection) -> pd.DataFrame:
     return pd.read_sql_query(text(sql), conn)
 
 
-def duplicate_names_analysis(data: pd.DataFrame) -> pd.DataFrame:
-    """Perform duplicate names analysis.
+def duplicate_names_analysis(conn: Connection) -> pd.DataFrame:
+    """Perform duplicate names analysis. Used for identifying transfers.
 
-    :param data: A DataFrame
+    :param conn: Database connection
     :returns: A DataFrame with player-seasons that have the same name but
               different teams.
     """
-    names = pd.DataFrame(data[["fname", "lname", "team", "season"]])
-    names["name"] = [" ".join(x) for x in zip(names["fname"], names["lname"])]
-    names = names[["name", "team", "season"]]
 
-    temp = names[["name", "team"]].groupby(["name", "team"]).head(1)
-    temp = temp.groupby(["name"]).filter(lambda x: len(x) > 1)
-    output = (
-        names[names["name"].isin(temp["name"])]
-        .groupby(["name", "team", "season"])
-        .head(1)
-    )
-    output["fname"] = output["name"].apply(CleanFunctions.split_fname)
-    output["lname"] = output["name"].apply(CleanFunctions.split_lname)
+    sql = """
+    select distinct
+        t1.fname, t1.lname, t1.team, t1.season
+    from dump_names_temp t1
+    join dump_names_temp t2
+    on t1.fname = t2.fname
+    and t1.lname = t2.lname
+    and t1.team != t2.team
+    order by t1.lname, t1.fname, t1.team, t1.season;
 
-    output = output.sort_values(by=["lname", "fname", "team", "season"])
-    return output[["fname", "lname", "team", "season"]].reset_index(drop=True)
+    """
+    return pd.read_sql_query(text(sql), conn)
 
 
 @click.command(help="Identify inconsistencies with player names")
@@ -202,7 +199,7 @@ def cli(
 
     if duplicates:
         print("Performing duplicate names analysis")
-        output = duplicate_names_analysis(data)
+        output = duplicate_names_analysis(conn)
         print("Found", len(output), "candidates")
         if len(output) > 0:
             print("Dumping to csv")
