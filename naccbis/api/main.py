@@ -1,4 +1,5 @@
 from datetime import date
+from functools import lru_cache
 from typing import List, Optional
 
 from fastapi import Depends, FastAPI
@@ -8,9 +9,15 @@ from . import queries, schemas
 from .database import SessionLocal
 from naccbis import __version__
 from naccbis.Common import metrics
+from naccbis.Common.settings import Settings
 
 
 app = FastAPI(version=__version__)
+
+
+@lru_cache()
+def get_settings():
+    return Settings(app_name="api")
 
 
 # Dependency
