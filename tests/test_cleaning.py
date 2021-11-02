@@ -19,7 +19,7 @@ from naccbis.cleaning import (
     LeaguePitchingETL,
 )
 from naccbis.scripts import clean, DumpNames, GenerateIds  # noqa
-from naccbis.Common.splits import Split
+from naccbis.common.splits import Split
 
 
 class TestCleanFunctions:

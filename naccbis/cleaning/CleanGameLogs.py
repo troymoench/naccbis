@@ -10,7 +10,7 @@ from typing import List
 import pandas as pd
 
 # Local imports
-from naccbis.Common import utils
+from naccbis.common import utils
 
 
 class GameLogETL:

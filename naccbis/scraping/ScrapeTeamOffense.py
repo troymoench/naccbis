@@ -13,8 +13,8 @@ from sqlalchemy.engine import Connection
 # Local imports
 from . import ScrapeFunctions
 from .ScrapeBase import BaseScraper
-from naccbis.Common import utils
-from naccbis.Common.splits import Split
+from naccbis.common import utils
+from naccbis.common.splits import Split
 
 
 class TeamOffenseScraper(BaseScraper):

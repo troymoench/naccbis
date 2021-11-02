@@ -8,8 +8,8 @@ from sqlalchemy.orm import Session
 from . import queries, schemas
 from .database import SessionLocal
 from naccbis import __version__
-from naccbis.Common import metrics
-from naccbis.Common.settings import Settings
+from naccbis.common import metrics
+from naccbis.common.settings import Settings
 
 
 app = FastAPI(version=__version__)

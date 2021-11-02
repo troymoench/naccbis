@@ -16,8 +16,8 @@ import pandas as pd
 
 # Local imports
 from naccbis.cleaning import CleanFunctions
-from naccbis.Common import utils
-from naccbis.Common.settings import Settings
+from naccbis.common import utils
+from naccbis.common.settings import Settings
 
 
 def make_full_name(fname: str, lname: str) -> str:

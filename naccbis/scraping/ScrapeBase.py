@@ -12,8 +12,8 @@ import pandas as pd
 from sqlalchemy.engine import Connection
 
 # Local imports
-from naccbis.Common import utils
-from naccbis.Common.splits import Split, GameLogSplit
+from naccbis.common import utils
+from naccbis.common.splits import Split, GameLogSplit
 
 
 class BaseScraper(metaclass=ABCMeta):

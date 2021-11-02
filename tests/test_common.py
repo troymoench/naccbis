@@ -4,7 +4,7 @@
 import pytest
 
 # Local imports
-from naccbis.Common import utils, models, splits  # noqa
+from naccbis.common import utils, models, splits  # noqa
 
 
 @pytest.fixture

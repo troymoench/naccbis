@@ -1,5 +1,5 @@
 import pytest
-from naccbis.Common.settings import Settings
+from naccbis.common.settings import Settings
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL, make_url, Connection

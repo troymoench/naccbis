@@ -16,9 +16,9 @@ from naccbis.cleaning import (
     LeagueOffenseETL,
     LeaguePitchingETL,
 )
-from naccbis.Common import utils
-from naccbis.Common.splits import Split
-from naccbis.Common.settings import Settings
+from naccbis.common import utils
+from naccbis.common.splits import Split
+from naccbis.common.settings import Settings
 
 
 FINAL_PARSER_DESCRIPTION = """

@@ -9,22 +9,22 @@ from naccbisapp.models import (
     # LeagueOffenseConference,
 )
 from naccbisapp.forms import BattersInputs, TeamOffenseInputs
-import naccbis.Common.metrics as metrics
+import naccbis.common.metrics as metrics
 
 
 RENAME_COLS_OFFENSE = {
-        "GO_FO": "GO/FO",
-        "HBP_P": "HBP%",
-        "BB_P": "BB%",
-        "SO_P": "SO%",
-        "X2B": "2B",
-        "X3B": "3B",
-        "WOBA": "wOBA",
-        "WSB": "wSB",
-        "WRAA": "wRAA",
-        "WRC": "wRC",
-        "WRC_P": "wRC+",
-        "OFF_P": "OFF+",
+    "GO_FO": "GO/FO",
+    "HBP_P": "HBP%",
+    "BB_P": "BB%",
+    "SO_P": "SO%",
+    "X2B": "2B",
+    "X3B": "3B",
+    "WOBA": "wOBA",
+    "WSB": "wSB",
+    "WRAA": "wRAA",
+    "WRC": "wRC",
+    "WRC_P": "wRC+",
+    "OFF_P": "OFF+",
 }
 
 ROUND_COLS_OFFENSE = {
@@ -47,16 +47,70 @@ ROUND_COLS_OFFENSE = {
     "wrc": 1,
     "wrc_p": 1,
     "off_p": 1,
-    "rar": 1
+    "rar": 1,
 }
 
 
 class LeaderboardView(View):
-    dashboard = ["name", "team", "season", "yr", "g", "pa", "bb_p", "so_p", "iso",
-                 "babip", "avg", "obp", "slg", "woba", "wsb", "wrc_p", "off_p", "rar"]
-    standard = ["name", "team", "season", "yr", "g", "pa", "ab", "x2b", "x3b", "hr",
-                "r", "rbi", "bb", "so", "hbp", "sf", "sh", "gdp", "sb", "cs", "avg"]
-    advanced = ["name", "team", "season", "yr", "g", "pa", "woba", "sbr", "wsb", "wraa", "off", "wrc_p", "off_p", "rar"]
+    dashboard = [
+        "name",
+        "team",
+        "season",
+        "yr",
+        "g",
+        "pa",
+        "bb_p",
+        "so_p",
+        "iso",
+        "babip",
+        "avg",
+        "obp",
+        "slg",
+        "woba",
+        "wsb",
+        "wrc_p",
+        "off_p",
+        "rar",
+    ]
+    standard = [
+        "name",
+        "team",
+        "season",
+        "yr",
+        "g",
+        "pa",
+        "ab",
+        "x2b",
+        "x3b",
+        "hr",
+        "r",
+        "rbi",
+        "bb",
+        "so",
+        "hbp",
+        "sf",
+        "sh",
+        "gdp",
+        "sb",
+        "cs",
+        "avg",
+    ]
+    advanced = [
+        "name",
+        "team",
+        "season",
+        "yr",
+        "g",
+        "pa",
+        "woba",
+        "sbr",
+        "wsb",
+        "wraa",
+        "off",
+        "wrc_p",
+        "off_p",
+        "rar",
+    ]
 
     def get(self, request):
         # request parameters
@@ -91,7 +145,9 @@ class LeaderboardView(View):
         totals_df = totals.as_dataframe()
 
         # transform data
-        df["name"] = list(map(lambda x, y: "{} {}".format(x, y), df["fname"], df["lname"]))
+        df["name"] = list(
+            map(lambda x, y: "{} {}".format(x, y), df["fname"], df["lname"])
+        )
         df = metrics.multi_season(df, totals_df, metrics.season_offensive_metrics_rar)
 
         # select columns based on stat view
@@ -117,20 +173,71 @@ class LeaderboardView(View):
         df.rename(columns=RENAME_COLS_OFFENSE, inplace=True)
 
         context = {
-            'data': df.to_html(table_id="example",
-                               classes="table table-bordered table-hover",
-                               index=True, na_rep=""),
-            'form': form,
+            "data": df.to_html(
+                table_id="example",
+                classes="table table-bordered table-hover",
+                index=True,
+                na_rep="",
+            ),
+            "form": form,
         }
-        return render(request, 'naccbis/index.html', context)
+        return render(request, "naccbis/index.html", context)
 
 
 class TeamOffenseView(View):
-    dashboard = ["name", "season", "g", "pa", "bb_p", "so_p", "iso",
-                 "babip", "avg", "obp", "slg", "woba", "wsb", "wrc_p", "off_p", "rar"]
-    standard = ["name", "season", "g", "pa", "ab", "x2b", "x3b", "hr",
-                "r", "rbi", "bb", "so", "hbp", "sf", "sh", "gdp", "sb", "cs", "avg"]
-    advanced = ["name", "season", "g", "pa", "woba", "sbr", "wsb", "wraa", "off", "wrc_p", "off_p", "rar"]
+    dashboard = [
+        "name",
+        "season",
+        "g",
+        "pa",
+        "bb_p",
+        "so_p",
+        "iso",
+        "babip",
+        "avg",
+        "obp",
+        "slg",
+        "woba",
+        "wsb",
+        "wrc_p",
+        "off_p",
+        "rar",
+    ]
+    standard = [
+        "name",
+        "season",
+        "g",
+        "pa",
+        "ab",
+        "x2b",
+        "x3b",
+        "hr",
+        "r",
+        "rbi",
+        "bb",
+        "so",
+        "hbp",
+        "sf",
+        "sh",
+        "gdp",
+        "sb",
+        "cs",
+        "avg",
+    ]
+    advanced = [
+        "name",
+        "season",
+        "g",
+        "pa",
+        "woba",
+        "sbr",
+        "wsb",
+        "wraa",
+        "off",
+        "wrc_p",
+        "off_p",
+        "rar",
+    ]
 
     def get(self, request):
         # request parameters
@@ -183,9 +290,12 @@ class TeamOffenseView(View):
         df.columns = [col.upper() for col in df.columns.tolist()]
         df.rename(columns=RENAME_COLS_OFFENSE, inplace=True)
         context = {
-            'data': df.to_html(table_id="example",
-                               classes="table table-bordered table-hover",
-                               index=True, na_rep=""),
-            'form': form,
+            "data": df.to_html(
+                table_id="example",
+                classes="table table-bordered table-hover",
+                index=True,
+                na_rep="",
+            ),
+            "form": form,
         }
-        return render(request, 'naccbis/index.html', context)
+        return render(request, "naccbis/index.html", context)

@@ -1,8 +1,8 @@
 """ This script is used to verify data integrity in the database """
 import click
 import pandas as pd
-from naccbis.Common import utils
-from naccbis.Common.settings import Settings
+from naccbis.common import utils
+from naccbis.common.settings import Settings
 
 
 def get_all_table_names(conn):

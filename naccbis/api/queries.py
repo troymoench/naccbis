@@ -4,7 +4,7 @@ import pandas as pd
 from sqlalchemy import func
 from sqlalchemy.orm import Session, aliased
 
-from naccbis.Common.models import (
+from naccbis.common.models import (
     BattersOverall,
     BattersConference,
     PitchersOverall,
@@ -20,7 +20,7 @@ from naccbis.Common.models import (
     LeaguePitchingConference,
     GameLog,
 )
-from naccbis.Common import metrics
+from naccbis.common import metrics
 
 
 def get_batters(

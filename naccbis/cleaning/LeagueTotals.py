@@ -11,8 +11,8 @@ from pathlib import Path
 import pandas as pd
 
 # Local imports
-from naccbis.Common import utils, metrics
-from naccbis.Common.splits import Split
+from naccbis.common import utils, metrics
+from naccbis.common.splits import Split
 
 
 class LeagueOffenseETL:

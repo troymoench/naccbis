@@ -18,7 +18,7 @@ from naccbis.scraping import (
     TeamOffenseScraper,
     TeamPitchingScraper,
 )
-from naccbis.Common.splits import Split, GameLogSplit
+from naccbis.common.splits import Split, GameLogSplit
 
 
 @pytest.fixture

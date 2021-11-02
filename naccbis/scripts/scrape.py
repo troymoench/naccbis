@@ -18,9 +18,9 @@ from naccbis.scraping import (
     TeamOffenseScraper,
     TeamPitchingScraper,
 )
-from naccbis.Common import utils
-from naccbis.Common.splits import GameLogSplit, Split
-from naccbis.Common.settings import Settings
+from naccbis.common import utils
+from naccbis.common.splits import GameLogSplit, Split
+from naccbis.common.settings import Settings
 
 
 PARSER_EPILOG = """\b
