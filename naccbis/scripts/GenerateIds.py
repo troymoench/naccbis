@@ -15,7 +15,7 @@ import click
 import pandas as pd
 
 # Local imports
-from naccbis.Cleaning import CleanFunctions
+from naccbis.cleaning import CleanFunctions
 from naccbis.Common import utils
 from naccbis.Common.settings import Settings
 

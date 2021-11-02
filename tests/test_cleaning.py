@@ -8,7 +8,7 @@ from pandas.testing import assert_frame_equal
 import pytest
 
 # Local imports
-from naccbis.Cleaning import (
+from naccbis.cleaning import (
     CleanFunctions,
     GameLogETL,
     IndividualOffenseETL,

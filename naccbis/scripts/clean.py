@@ -7,7 +7,7 @@ from typing import List, Tuple
 import click
 
 # Local imports
-from naccbis.Cleaning import (
+from naccbis.cleaning import (
     GameLogETL,
     IndividualOffenseETL,
     IndividualPitchingETL,

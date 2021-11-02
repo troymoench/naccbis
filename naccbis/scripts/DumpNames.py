@@ -14,7 +14,7 @@ from sqlalchemy import text
 from sqlalchemy.engine import Connection
 
 # Local imports
-from naccbis.Cleaning import CleanFunctions
+from naccbis.cleaning import CleanFunctions
 from naccbis.Common import utils
 from naccbis.Common.settings import Settings
 
