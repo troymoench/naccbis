@@ -9,7 +9,7 @@ import click
 from sqlalchemy.engine.base import Connection
 
 # Local imports
-from naccbis.Scraping import (
+from naccbis.scraping import (
     BaseScraper,
     GameLogScraper,
     IndividualOffenseScraper,

@@ -8,7 +8,7 @@ from pandas.testing import assert_frame_equal
 import pytest
 
 # Local imports
-from naccbis.Scraping import (
+from naccbis.scraping import (
     ScrapeFunctions,
     BaseScraper,
     GameLogScraper,
