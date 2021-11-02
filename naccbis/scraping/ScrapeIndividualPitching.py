@@ -163,156 +163,146 @@ class IndividualPitchingScraper(BaseScraper):
             "hr",
             "era",
         ]
+        data.drop(columns=unnecessaryCols, inplace=True)
+        data.columns = data.columns.to_series().str.lower()
+        renameCols = {
+            "no.": "no",
+            "app": "g",
+            "k": "so",
+            "k/9": "so_9",
+            "2b": "x2b",
+            "3b": "x3b",
+            "sfa": "sf",
+            "sha": "sh",
+            "b/avg": "avg",
+        }
+        data.rename(columns=renameCols, inplace=True)
+
         intCols = [
-            "No",
-            "Yr",
-            "G",
-            "GS",
-            "W",
-            "L",
-            "SV",
-            "CG",
-            "SHO",
-            "IP",
-            "H",
-            "R",
-            "ER",
-            "BB",
-            "SO",
-            "x2B",
-            "x3B",
-            "HR",
-            "AB",
-            "WP",
-            "HBP",
-            "BK",
-            "SF",
-            "SH",
+            "no",
+            "yr",
+            "g",
+            "gs",
+            "w",
+            "l",
+            "sv",
+            "cg",
+            "sho",
+            "ip",
+            "h",
+            "r",
+            "er",
+            "bb",
+            "so",
+            "x2b",
+            "x3b",
+            "hr",
+            "ab",
+            "wp",
+            "hbp",
+            "bk",
+            "sf",
+            "sh",
         ]
-        floatCols = ["ERA", "AVG", "SO_9"]
-        newColNames = [
-            "No",
-            "Name",
-            "ERA",
-            "W",
-            "L",
-            "G",
-            "GS",
-            "CG",
-            "SHO",
-            "SV",
-            "IP",
-            "H",
-            "R",
-            "ER",
-            "BB",
-            "SO",
-            "x2B",
-            "x3B",
-            "HR",
-            "AB",
-            "AVG",
-            "WP",
-            "HBP",
-            "BK",
-            "SF",
-            "SH",
-            "Yr",
-            "Pos",
-            "SO_9",
-        ]
+        floatCols = ["era", "avg", "so_9"]
         finalColNames = [
-            "No",
-            "Name",
-            "Team",
-            "Season",
-            "Yr",
-            "Pos",
-            "G",
-            "GS",
-            "W",
-            "L",
-            "SV",
-            "CG",
-            "SHO",
-            "IP",
-            "H",
-            "R",
-            "ER",
-            "BB",
-            "SO",
-            "ERA",
-            "x2B",
-            "x3B",
-            "HR",
-            "AB",
-            "AVG",
-            "WP",
-            "HBP",
-            "BK",
-            "SF",
-            "SH",
-            "SO_9",
+            "no",
+            "name",
+            "team",
+            "season",
+            "yr",
+            "pos",
+            "g",
+            "gs",
+            "w",
+            "l",
+            "sv",
+            "cg",
+            "sho",
+            "ip",
+            "h",
+            "r",
+            "er",
+            "bb",
+            "so",
+            "era",
+            "x2b",
+            "x3b",
+            "hr",
+            "ab",
+            "avg",
+            "wp",
+            "hbp",
+            "bk",
+            "sf",
+            "sh",
+            "so_9",
         ]
+
         if self._inseason:
             finalColNames = [
-                "No",
-                "Name",
-                "Team",
-                "Season",
-                "Date",
-                "Yr",
-                "Pos",
-                "G",
-                "GS",
-                "W",
-                "L",
-                "SV",
-                "CG",
-                "SHO",
-                "IP",
-                "H",
-                "R",
-                "ER",
-                "BB",
-                "SO",
-                "ERA",
-                "x2B",
-                "x3B",
-                "HR",
-                "AB",
-                "AVG",
-                "WP",
-                "HBP",
-                "BK",
-                "SF",
-                "SH",
-                "SO_9",
+                "no",
+                "name",
+                "team",
+                "season",
+                "date",
+                "yr",
+                "pos",
+                "g",
+                "gs",
+                "w",
+                "l",
+                "sv",
+                "cg",
+                "sho",
+                "ip",
+                "h",
+                "r",
+                "er",
+                "bb",
+                "so",
+                "era",
+                "x2b",
+                "x3b",
+                "hr",
+                "ab",
+                "avg",
+                "wp",
+                "hbp",
+                "bk",
+                "sf",
+                "sh",
+                "so_9",
             ]
-
-        data.drop(columns=unnecessaryCols, inplace=True)
-
-        data.columns = newColNames
 
         data[intCols] = data[intCols].replace("-", "0")
         data[floatCols] = data[floatCols].replace("-", "0.0")
         data[floatCols] = data[floatCols].replace("INF", np.nan)
 
-        data["Team"] = team_id
-        data["Season"] = str(utils.year_to_season(self._year))
+        data["team"] = team_id
+        data["season"] = str(utils.year_to_season(self._year))
         if self._inseason:
-            data["Date"] = str(date.today())
-        data["Yr"] = data["Yr"].str.rstrip(".")
-        data["Pos"] = data["Pos"].replace("", np.nan)
-
-        data = data[finalColNames]
-        data.columns = data.columns.to_series().str.lower()
-        return data
+            data["date"] = str(date.today())
+        data["yr"] = data["yr"].str.rstrip(".")
+        data["pos"] = data["pos"].replace("", np.nan)
+        return data[finalColNames]
 
     def _clean_conference(self, data: pd.DataFrame, team_id: str) -> pd.DataFrame:
-        renameCols = {"No.": "No", "app": "g", "k": "so", "k/9": "so_9"}
+        data.columns = data.columns.to_series().str.lower()
+        renameCols = {
+            "no.": "no",
+            "app": "g",
+            "k": "so",
+            "k/9": "so_9",
+            "2b": "x2b",
+            "3b": "x3b",
+            "sfa": "sf",
+            "sha": "sh",
+            "b/avg": "avg",
+        }
+        data.rename(columns=renameCols, inplace=True)
         intCols = [
-            "No",
+            "no",
             "g",
             "gs",
             "w",
@@ -328,12 +318,12 @@ class IndividualPitchingScraper(BaseScraper):
         ]
         floatCols = ["so_9", "era"]
         finalColNames = [
-            "No",
-            "Name",
-            "Team",
-            "Season",
-            "Yr",
-            "Pos",
+            "no",
+            "name",
+            "team",
+            "season",
+            "yr",
+            "pos",
             "g",
             "gs",
             "w",
@@ -353,13 +343,13 @@ class IndividualPitchingScraper(BaseScraper):
 
         if self._inseason:
             finalColNames = [
-                "No",
-                "Name",
-                "Team",
-                "Season",
-                "Date",
-                "Yr",
-                "Pos",
+                "no",
+                "name",
+                "team",
+                "season",
+                "date",
+                "yr",
+                "pos",
                 "g",
                 "gs",
                 "w",
@@ -382,16 +372,13 @@ class IndividualPitchingScraper(BaseScraper):
         data[floatCols] = data[floatCols].replace("-", np.nan)
         data[floatCols] = data[floatCols].replace("INF", np.nan)
 
-        data["Team"] = team_id
-        data["Season"] = str(utils.year_to_season(self._year))
+        data["team"] = team_id
+        data["season"] = str(utils.year_to_season(self._year))
         if self._inseason:
-            data["Date"] = str(date.today())
-        data["Yr"] = data["Yr"].str.rstrip(".")
-        data["Pos"] = data["Pos"].replace("", np.nan)
-
-        data = data[finalColNames]
-        data.columns = data.columns.to_series().str.lower()
-        return data
+            data["date"] = str(date.today())
+        data["yr"] = data["yr"].str.rstrip(".")
+        data["pos"] = data["pos"].replace("", np.nan)
+        return data[finalColNames]
 
     def _clean(self, data: pd.DataFrame, team_id: str) -> pd.DataFrame:
         data = data.copy()

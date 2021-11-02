@@ -80,18 +80,31 @@ class TeamOffenseScraper(BaseScraper):
         return pd.merge(hitting, extendedHitting, on=["Rk", "Name", "gp"])
 
     def _clean(self, data: pd.DataFrame) -> pd.DataFrame:
-        unnecessaryCols = ["Rk"]
+        data.columns = data.columns.to_series().str.lower()
+        unnecessaryCols = ["rk"]
+        data.drop(columns=unnecessaryCols, inplace=True)
+        renameCols = {
+            "no.": "no",
+            "k": "so",
+            "go/fo": "go_fo",
+            "2b": "x2b",
+            "3b": "x3b",
+            "hdp": "gdp",
+            "gp": "g",
+        }
+        data.rename(columns=renameCols, inplace=True)
+
         intCols = [
-            "gp",
+            "g",
             "ab",
             "r",
             "h",
-            "2b",
-            "3b",
+            "x2b",
+            "x3b",
             "hr",
             "rbi",
             "bb",
-            "k",
+            "so",
             "sb",
             "cs",
             "hbp",
@@ -99,114 +112,77 @@ class TeamOffenseScraper(BaseScraper):
             "sh",
             "tb",
             "xbh",
-            "hdp",
+            "gdp",
             "go",
             "fo",
             "pa",
         ]
-        floatCols = ["avg", "obp", "slg", "go/fo"]
-        newColNames = [
-            "Name",
-            "G",
-            "AB",
-            "R",
-            "H",
-            "x2B",
-            "x3B",
-            "HR",
-            "RBI",
-            "BB",
-            "SO",
-            "SB",
-            "CS",
-            "AVG",
-            "OBP",
-            "SLG",
-            "HBP",
-            "SF",
-            "SH",
-            "TB",
-            "XBH",
-            "GDP",
-            "GO",
-            "FO",
-            "GO_FO",
-            "PA",
-        ]
-
+        floatCols = ["avg", "obp", "slg", "go_fo"]
         finalColNames = [
-            "Name",
-            "Season",
-            "G",
-            "PA",
-            "AB",
-            "R",
-            "H",
-            "x2B",
-            "x3B",
-            "HR",
-            "RBI",
-            "BB",
-            "SO",
-            "SB",
-            "CS",
-            "AVG",
-            "OBP",
-            "SLG",
-            "HBP",
-            "SF",
-            "SH",
-            "TB",
-            "XBH",
-            "GDP",
-            "GO",
-            "FO",
-            "GO_FO",
+            "name",
+            "season",
+            "g",
+            "pa",
+            "ab",
+            "r",
+            "h",
+            "x2b",
+            "x3b",
+            "hr",
+            "rbi",
+            "bb",
+            "so",
+            "sb",
+            "cs",
+            "avg",
+            "obp",
+            "slg",
+            "hbp",
+            "sf",
+            "sh",
+            "tb",
+            "xbh",
+            "gdp",
+            "go",
+            "fo",
+            "go_fo",
         ]
         if self._inseason:
             finalColNames = [
-                "Name",
-                "Season",
-                "Date",
-                "G",
-                "PA",
-                "AB",
-                "R",
-                "H",
-                "x2B",
-                "x3B",
-                "HR",
-                "RBI",
-                "BB",
-                "SO",
-                "SB",
-                "CS",
-                "AVG",
-                "OBP",
-                "SLG",
-                "HBP",
-                "SF",
-                "SH",
-                "TB",
-                "XBH",
-                "GDP",
-                "GO",
-                "FO",
-                "GO_FO",
+                "name",
+                "season",
+                "date",
+                "g",
+                "pa",
+                "ab",
+                "r",
+                "h",
+                "x2b",
+                "x3b",
+                "hr",
+                "rbi",
+                "bb",
+                "so",
+                "sb",
+                "cs",
+                "avg",
+                "obp",
+                "slg",
+                "hbp",
+                "sf",
+                "sh",
+                "tb",
+                "xbh",
+                "gdp",
+                "go",
+                "fo",
+                "go_fo",
             ]
-
-        data.drop(columns=unnecessaryCols, inplace=True)
 
         data[intCols] = data[intCols].replace("-", "0")
         data[floatCols] = data[floatCols].replace("-", np.nan)
 
-        # convert column names to a friendlier format
-        data.columns = newColNames
-
-        data["Season"] = str(utils.year_to_season(self._year))
+        data["season"] = str(utils.year_to_season(self._year))
         if self._inseason:
-            data["Date"] = str(date.today())
-
-        data = data[finalColNames]
-        data.columns = data.columns.to_series().str.lower()
-        return data
+            data["date"] = str(date.today())
+        return data[finalColNames]
