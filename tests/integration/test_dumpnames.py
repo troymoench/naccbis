@@ -9,7 +9,8 @@ from naccbis.scripts import DumpNames
 def create_temp_table(db_conn):
     DumpNames.load_temp_table(db_conn, pd.DataFrame())
     yield
-    db_conn.execute(text("DROP TABLE dump_names_temp;"))
+    with db_conn.begin():
+        db_conn.execute(text("DROP TABLE dump_names_temp;"))
 
 
 def test_nickname_analysis(db_conn, create_temp_table):
@@ -22,8 +23,6 @@ def test_nickname_analysis(db_conn, create_temp_table):
         "('Buckley', 'Mike', 'DOM', 2017, 'C'),"
         "('Buckley', 'Mike', 'DOM', 2018, 'C');"
     )
-    db_conn.execute(temp_inserts)
-
     nicknames_inserts = text(
         "INSERT INTO nicknames (name, nickname) VALUES "
         "('Michael', 'Micah'),"
@@ -31,7 +30,9 @@ def test_nickname_analysis(db_conn, create_temp_table):
         "('Michael', 'Micky'),"
         "('Michael', 'Mike');"
     )
-    db_conn.execute(nicknames_inserts)
+    with db_conn.begin():
+        db_conn.execute(temp_inserts)
+        db_conn.execute(nicknames_inserts)
 
     expected = pd.DataFrame(
         [
@@ -54,7 +55,8 @@ def test_levenshtein_analysis_last_name_1_first_name_0(db_conn, create_temp_tabl
         "('Baitinger', 'Sawyer', 'MAR', 2014, 'RHP'),"
         "('Batinger', 'Sawyer', 'MAR', 2015, 'RHP');"
     )
-    db_conn.execute(inserts)
+    with db_conn.begin():
+        db_conn.execute(inserts)
 
     expected = pd.DataFrame(
         [
@@ -158,7 +160,8 @@ def test_levenshtein_analysis_last_name_0_first_name_1(db_conn, create_temp_tabl
         "('Stirbis', 'Chayancze', 'BEN', 2016, ''),"
         "('Stirbis', 'Chayance', 'BEN', 2017, '');"
     )
-    db_conn.execute(inserts)
+    with db_conn.begin():
+        db_conn.execute(inserts)
 
     expected = pd.DataFrame(
         [
@@ -220,7 +223,8 @@ def test_duplicate_names_analysis(db_conn, create_temp_table):
         "('Carlos', 'Olavarria', 'CUC', 2014, 'SS'),"
         "('Carlos', 'Olavarria', 'CUC', 2015, 'OF');"
     )
-    db_conn.execute(inserts)
+    with db_conn.begin():
+        db_conn.execute(inserts)
 
     expected = pd.DataFrame(
         [

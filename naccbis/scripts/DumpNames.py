@@ -25,7 +25,8 @@ def load_temp_table(conn: Connection, data: pd.DataFrame) -> None:
         lname text, fname text, team text, season integer, pos text
     )
     """
-    conn.execute(text(sql))
+    with conn.begin():
+        conn.execute(text(sql))
     utils.db_load_data(data, "dump_names_temp", conn, if_exists="append", index=False)
 
 
