@@ -11,7 +11,7 @@ from sqlalchemy import (
     ForeignKeyConstraint,
 )
 from sqlalchemy.sql import func
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 # HACK: sqlalchemy-stubs should be used instead
 Base: Any = declarative_base()

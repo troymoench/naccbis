@@ -45,8 +45,8 @@ def create_db(db_url: str) -> None:
     pg_engine = create_engine(postgres_url, isolation_level="AUTOCOMMIT")
     print("Creating database")
     with pg_engine.connect() as conn:
-        conn.execute(f"DROP DATABASE IF EXISTS {TEST_DBNAME};")
-        conn.execute(f"CREATE DATABASE {TEST_DBNAME};")
+        conn.execute(text(f"DROP DATABASE IF EXISTS {TEST_DBNAME};"))
+        conn.execute(text(f"CREATE DATABASE {TEST_DBNAME};"))
 
     pg_engine.dispose()
 

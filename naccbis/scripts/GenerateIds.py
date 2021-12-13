@@ -13,6 +13,7 @@ from typing import List, Optional
 # Third party imports
 import click
 import pandas as pd
+from sqlalchemy import text
 
 # Local imports
 from naccbis.cleaning import CleanFunctions
@@ -193,7 +194,7 @@ def cli(load: bool, clear: bool, season: Optional[int], dir: Path) -> None:
     if load:
         if clear:
             print("Clearing database table")
-            conn.execute("DELETE FROM player_id")
+            conn.execute(text("DELETE FROM player_id"))
 
         print("Loading data into database")
         utils.db_load_data(data, "player_id", conn, if_exists="append", index=False)

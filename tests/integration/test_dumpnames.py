@@ -1,6 +1,7 @@
 import pandas as pd
 from pandas.testing import assert_frame_equal
 import pytest
+from sqlalchemy import text
 from naccbis.scripts import DumpNames
 
 
@@ -8,11 +9,11 @@ from naccbis.scripts import DumpNames
 def create_temp_table(db_conn):
     DumpNames.load_temp_table(db_conn, pd.DataFrame())
     yield
-    db_conn.execute("DROP TABLE dump_names_temp;")
+    db_conn.execute(text("DROP TABLE dump_names_temp;"))
 
 
 def test_nickname_analysis(db_conn, create_temp_table):
-    db_conn.execute(
+    temp_inserts = text(
         "INSERT INTO dump_names_temp (lname, fname, team, season, pos) VALUES "
         "('Bergstrom', 'Michael', 'MSOE', 2010, 'P'),"
         "('Bergstrom', 'Mike', 'MSOE', 2011, ''),"
@@ -21,13 +22,16 @@ def test_nickname_analysis(db_conn, create_temp_table):
         "('Buckley', 'Mike', 'DOM', 2017, 'C'),"
         "('Buckley', 'Mike', 'DOM', 2018, 'C');"
     )
-    db_conn.execute(
+    db_conn.execute(temp_inserts)
+
+    nicknames_inserts = text(
         "INSERT INTO nicknames (name, nickname) VALUES "
         "('Michael', 'Micah'),"
         "('Michael', 'Mick'),"
         "('Michael', 'Micky'),"
         "('Michael', 'Mike');"
     )
+    db_conn.execute(nicknames_inserts)
 
     expected = pd.DataFrame(
         [
@@ -42,7 +46,7 @@ def test_nickname_analysis(db_conn, create_temp_table):
 
 
 def test_levenshtein_analysis_last_name_1_first_name_0(db_conn, create_temp_table):
-    db_conn.execute(
+    inserts = text(
         "INSERT INTO dump_names_temp (lname, fname, team, season, pos) VALUES "
         "('Ikedia-Flynn', 'Kanoa','DOM', 2017, 'P'),"
         "('Ikeda-Flynn', 'Kanoa','DOM', 2018, 'P'),"
@@ -50,6 +54,7 @@ def test_levenshtein_analysis_last_name_1_first_name_0(db_conn, create_temp_tabl
         "('Baitinger', 'Sawyer', 'MAR', 2014, 'RHP'),"
         "('Batinger', 'Sawyer', 'MAR', 2015, 'RHP');"
     )
+    db_conn.execute(inserts)
 
     expected = pd.DataFrame(
         [
@@ -146,13 +151,14 @@ def test_levenshtein_analysis_last_name_1_first_name_0(db_conn, create_temp_tabl
 
 
 def test_levenshtein_analysis_last_name_0_first_name_1(db_conn, create_temp_table):
-    db_conn.execute(
+    inserts = text(
         "INSERT INTO dump_names_temp (lname, fname, team, season, pos) VALUES "
         "('Hart', 'Collin', 'AUR', 2014, 'P'),"
         "('Hart', 'Colin', 'AUR', 2015, 'P'),"
         "('Stirbis', 'Chayancze', 'BEN', 2016, ''),"
         "('Stirbis', 'Chayance', 'BEN', 2017, '');"
     )
+    db_conn.execute(inserts)
 
     expected = pd.DataFrame(
         [
@@ -203,7 +209,7 @@ def test_levenshtein_analysis_last_name_0_first_name_1(db_conn, create_temp_tabl
 
 
 def test_duplicate_names_analysis(db_conn, create_temp_table):
-    db_conn.execute(
+    inserts = text(
         "INSERT INTO dump_names_temp (fname, lname, team, season, pos) VALUES "
         "('Matt', 'Schroeder', 'MAR', 2010 , ''),"
         "('Matt', 'Schroeder', 'MAR', 2011, ''),"
@@ -214,6 +220,7 @@ def test_duplicate_names_analysis(db_conn, create_temp_table):
         "('Carlos', 'Olavarria', 'CUC', 2014, 'SS'),"
         "('Carlos', 'Olavarria', 'CUC', 2015, 'OF');"
     )
+    db_conn.execute(inserts)
 
     expected = pd.DataFrame(
         [
