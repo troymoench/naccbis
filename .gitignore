@@ -8,4 +8,5 @@ dist/
 .coverage
 .mypy_cache
 env
+venv
 .env
