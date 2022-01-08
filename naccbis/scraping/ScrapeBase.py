@@ -1,6 +1,6 @@
 """ This module provides the BaseScraper class """
 # Standard library imports
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from datetime import date
 import logging
 from pathlib import Path
@@ -16,7 +16,7 @@ from naccbis.common import utils
 from naccbis.common.splits import Split, GameLogSplit
 
 
-class BaseScraper(metaclass=ABCMeta):
+class BaseScraper(ABC):
 
     """This is the abstract base class for the scrapers.
 
@@ -81,7 +81,7 @@ class BaseScraper(metaclass=ABCMeta):
 
     @abstractmethod
     def run(self) -> None:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def info(self) -> None:
         """Print the scraper information to standard out
@@ -113,17 +113,15 @@ class BaseScraper(metaclass=ABCMeta):
 
     def _export_csv(self, table_name: str) -> None:
         """Helper method to export data to a csv file"""
+        if self._inseason:
+            filename = f"{table_name}{str(date.today())}.csv"
+        else:
+            filename = f"{table_name}{utils.year_to_season(self._year)}.csv"
         try:
-            if self._inseason:
-                filename = f"{table_name}{str(date.today())}.csv"
-                self._data.to_csv(self._csv_path / filename, index=False)
-            else:
-                filename = f"{table_name}{utils.year_to_season(self._year)}.csv"
-                self._data.to_csv(self._csv_path / filename, index=False)
+            self._data.to_csv(self._csv_path / filename, index=False)
         except Exception as e:
             logging.error("Unable to export to CSV")
             logging.error(e)
-            return
         else:
             logging.info("Successfully exported to CSV file")
 
