@@ -183,5 +183,5 @@ class GameLogETL:
 
     @staticmethod
     def extract_date(date_str: str, season: str) -> datetime.datetime:
-        date_str = "{} {}".format(date_str, season)
+        date_str = f"{date_str} {season}"
         return datetime.datetime.strptime(date_str, "%b %d %Y")

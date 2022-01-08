@@ -33,7 +33,7 @@ class TeamPitchingETL:
         self.data: pd.DataFrame
 
     def extract(self) -> None:
-        table = "raw_team_pitching_{}".format(self.split)
+        table = f"raw_team_pitching_{self.split}"
         if self.inseason:
             table += "_inseason"
         logging.info("Reading data from %s", table)

@@ -93,7 +93,7 @@ class TeamPitchingScraper(BaseScraper):
 
             for team in teamList:
                 logging.info("Fetching %s", team["team"])
-                url = "{}{}/{}".format(self.BASE_URL, self._year, team["url"])
+                url = f"{self.BASE_URL}{self._year}/{team['url']}"
                 teamSoup = ScrapeFunctions.get_soup(url)
                 logging.info("Looking for pitching table")
                 df = self._scrape(teamSoup)
@@ -103,7 +103,7 @@ class TeamPitchingScraper(BaseScraper):
 
         elif self._split == Split.CONFERENCE:
             logging.info("Fetching teams")
-            url = "{}{}/teams".format(self.BASE_URL, self._year)
+            url = f"{self.BASE_URL}{self._year}/teams"
             soup = ScrapeFunctions.get_soup(url)
             logging.info("Looking for pitching table")
             df = self._scrape(soup)

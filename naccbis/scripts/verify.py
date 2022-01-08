@@ -17,7 +17,7 @@ def get_all_table_names(conn):
 
 def table_count(conn, table):
     """Count the number of records in a given table"""
-    query = "SELECT count(*) FROM {}".format(table)
+    query = f"SELECT count(*) FROM {table}"
     count = pd.read_sql_query(query, conn)
     count["table"] = table
     return count

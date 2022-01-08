@@ -99,7 +99,7 @@ def create_id(fname: str, lname: str) -> str:
     if len(fname) > 2:
         fname = fname[0:2]
 
-    return "{}{}01".format(lname, fname)
+    return f"{lname}{fname}01"
 
 
 def add_n(player_id: str, n: int) -> str:
@@ -108,7 +108,7 @@ def add_n(player_id: str, n: int) -> str:
     """
     temp = int(player_id[-2:]) + int(n)
     num = str(temp).zfill(2)
-    return "{}{}".format(player_id[0 : len(player_id) - 2], num)
+    return f"{player_id[0 : len(player_id) - 2]}{num}"
 
 
 # ****************************

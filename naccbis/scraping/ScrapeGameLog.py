@@ -77,7 +77,7 @@ class GameLogScraper(BaseScraper):
         for team in teamList:
             logging.info("Fetching %s", team["team"])
 
-            url = "{}{}/{}".format(self.BASE_URL, self._year, team["url"])
+            url = f"{self.BASE_URL}{self._year}/{team['url']}"
             teamSoup = ScrapeFunctions.get_soup(url)
             logging.info("Looking for game log table")
             df = self._scrape(teamSoup)

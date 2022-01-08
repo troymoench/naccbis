@@ -70,7 +70,7 @@ class BaseScraper(metaclass=ABCMeta):
         self._year = year
         self._split = split
         if output not in self.VALID_OUTPUT:
-            raise ValueError("Invalid output: {}".format(output))
+            raise ValueError(f"Invalid output: {output}")
         self._output = output
         self._inseason = inseason
         self._verbose = verbose

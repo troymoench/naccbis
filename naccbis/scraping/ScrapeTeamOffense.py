@@ -53,7 +53,7 @@ class TeamOffenseScraper(BaseScraper):
         """Run the scraper"""
         logging.info("%s", self._name)
         logging.info("Fetching teams")
-        url = "{}{}/teams".format(self.BASE_URL, self._year)
+        url = f"{self.BASE_URL}{self._year}/teams"
         soup = ScrapeFunctions.get_soup(url)
         logging.info("Looking for hitting tables")
         df = self._scrape(soup)

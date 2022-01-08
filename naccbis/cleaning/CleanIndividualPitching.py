@@ -38,7 +38,7 @@ class IndividualPitchingETL:
         self.corrections: pd.DataFrame
 
     def extract(self) -> None:
-        table = "raw_pitchers_{}".format(self.split)
+        table = f"raw_pitchers_{self.split}"
         if self.inseason:
             table += "_inseason"
         logging.info("Reading data from %s", table)

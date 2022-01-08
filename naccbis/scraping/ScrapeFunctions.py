@@ -77,7 +77,7 @@ def find_table(soup_obj: BeautifulSoup, header_values: List[str]) -> List[int]:
             indices.append(i)
         else:
             missing_values = set(header_values) - set(columns)
-            logging.debug("Missing values in table {}: {}".format(i, missing_values))
+            logging.debug(f"Missing values in table {i}: {missing_values}")
     logging.debug("Found %d tables with matching headers", len(indices))
     return indices
 
@@ -132,7 +132,7 @@ def get_team_list(
     :param team_ids: Dictionary of team names and abbreviations
     :returns: A list of dictionaries that includes the team name, abbr, and URL
     """
-    soup = get_soup("{}{}/leaders".format(base_url, year))
+    soup = get_soup(f"{base_url}{year}/leaders")
 
     # search the page for the target element
     target = soup.find_all("h3", string="Player Stats by Team")[0].find_next_siblings(

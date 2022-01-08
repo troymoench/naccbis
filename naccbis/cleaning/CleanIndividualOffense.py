@@ -35,7 +35,7 @@ class IndividualOffenseETL:
         self.corrections: pd.DataFrame
 
     def extract(self) -> None:
-        table = "raw_batters_{}".format(self.split)
+        table = f"raw_batters_{self.split}"
         if self.inseason:
             table += "_inseason"
         logging.info("Reading data from %s", table)

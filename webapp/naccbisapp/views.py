@@ -145,9 +145,7 @@ class LeaderboardView(View):
         totals_df = totals.as_dataframe()
 
         # transform data
-        df["name"] = list(
-            map(lambda x, y: "{} {}".format(x, y), df["fname"], df["lname"])
-        )
+        df["name"] = list(map(lambda x, y: f"{x} {y}", df["fname"], df["lname"]))
         df = metrics.multi_season(df, totals_df, metrics.season_offensive_metrics_rar)
 
         # select columns based on stat view

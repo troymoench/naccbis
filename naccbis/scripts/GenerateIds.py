@@ -22,7 +22,7 @@ from naccbis.common.settings import Settings
 
 
 def make_full_name(fname: str, lname: str) -> str:
-    return "{} {}".format(fname, lname)
+    return f"{fname} {lname}"
 
 
 def update_id_conflicts(data: pd.DataFrame) -> pd.DataFrame:

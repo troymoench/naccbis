@@ -442,7 +442,7 @@ def season_offensive_metrics(data, totals_season):
     :returns: A DataFrame
     """
     if not isinstance(totals_season, pd.Series):
-        raise TypeError("Expected {}. Got {}.".format(pd.Series, type(totals_season)))
+        raise TypeError(f"Expected {pd.Series}. Got {type(totals_season)}.")
     temp = data.copy()
     temp["sbr"] = sbr(temp, totals_season)
     temp["wsb"] = wsb(temp, totals_season["lg_wsb"])
