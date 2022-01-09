@@ -134,7 +134,7 @@ def get_team_list(
     target = soup.find_all("h3", string="Player Stats by Team")
     target = target[0].find_next_siblings("ul")
     logging.debug("Found %d target elements", len(target))
-    if not len(target) == 1:    # pragma: no cover
+    if not len(target) == 1:  # pragma: no cover
         logging.critical("Could not find exactly one target element.")
         raise ValueError("Could not find exactly one target element")
 
