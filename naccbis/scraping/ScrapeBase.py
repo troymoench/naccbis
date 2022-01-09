@@ -81,7 +81,7 @@ class BaseScraper(ABC):
 
     @abstractmethod
     def run(self) -> None:
-        raise NotImplementedError  # pragma: no cover
+        raise NotImplementedError
 
     def info(self) -> None:
         """Print the scraper information to standard out

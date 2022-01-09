@@ -44,4 +44,4 @@ def cli():
 
 
 if __name__ == "__main__":
-    cli()  # pragma: no cover
+    cli()

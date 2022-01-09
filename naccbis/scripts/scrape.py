@@ -234,4 +234,4 @@ def inseason(stat: Tuple[int], split: str, output: str, verbose: bool) -> None:
 
 
 if __name__ == "__main__":
-    cli()  # pragma: no cover
+    cli()

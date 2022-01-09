@@ -205,4 +205,4 @@ def cli(load: bool, clear: bool, season: Optional[int], dir: Path) -> None:
 
 
 if __name__ == "__main__":
-    cli()  # pragma: no cover
+    cli()
