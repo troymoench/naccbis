@@ -125,7 +125,7 @@ class GameLogETL:
         split_score = score.split(",")
         result = split_score[0].strip()
         temp = split_score[1].split("-")
-        run_list = list(map(lambda x: int(x.strip()), temp))
+        run_list = [int(x.strip()) for x in temp]
 
         if result == "W":
             run_list.sort(reverse=True)

@@ -49,7 +49,7 @@ def update_id_conflicts(data: pd.DataFrame) -> pd.DataFrame:
                     map(CleanFunctions.add_n, item["player_id"], [i] * len(item))
                 )
 
-    if len(new_col) != len(new_col_idx):
+    if len(new_col) != len(new_col_idx):  # pragma: no cover
         print("Oops! Length of column doesn't match length of index")
         raise ValueError()
 

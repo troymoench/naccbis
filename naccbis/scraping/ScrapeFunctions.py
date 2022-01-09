@@ -15,9 +15,6 @@ import requests
 # Local imports
 
 
-# ********************************
-# ** General Scraping Functions **
-# ********************************
 def get_soup(url: str, backoff: int = 1) -> BeautifulSoup:
     """Create a BeautifulSoup object from a web page with the requested URL
 
@@ -110,7 +107,7 @@ def scrape_table(
         row_data = [x.text.strip() for x in row.find_all("td")]
 
         # workaround for incompatibility with pandas 23
-        if len(row_data) != len(headers):
+        if len(row_data) != len(headers):  # pragma: no cover
             print("Row length doesn't match header length. Skipping row.")
             logging.warning("Row length doesn't match header length. Skipping row.")
             continue
@@ -134,20 +131,16 @@ def get_team_list(
     """
     soup = get_soup(f"{base_url}{year}/leaders")
 
-    # search the page for the target element
-    target = soup.find_all("h3", string="Player Stats by Team")[0].find_next_siblings(
-        "ul"
-    )
+    target = soup.find_all("h3", string="Player Stats by Team")
+    target = target[0].find_next_siblings("ul")
     logging.debug("Found %d target elements", len(target))
-    if not len(target) == 1:
+    if not len(target) == 1:    # pragma: no cover
         logging.critical("Could not find exactly one target element.")
         raise ValueError("Could not find exactly one target element")
 
     # create a list of links that are children of the target element
     links = [link for link in target[0].find_all("a") if "href" in link.attrs]
 
-    # create list of dicts
-    # including team name, abbreviation, and url
     teamList = []
     for link in links:
         teamList.append(

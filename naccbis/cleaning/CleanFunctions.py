@@ -8,9 +8,6 @@ import pandas as pd
 # Local imports
 
 
-# ****************************
-# ***** Name Corrections *****
-# ****************************
 def split_fname(name: str) -> str:
     return name.split(" ")[0].strip()
 
@@ -25,12 +22,10 @@ def normalize_names(data: pd.DataFrame) -> pd.DataFrame:
     :param data: A DataFrame
     :returns: A DataFrame
     """
-    # split each name into first name and last name
     data["fname"] = data["name"].apply(split_fname)
     data["lname"] = data["name"].apply(split_lname)
 
-    # remove periods from first name
-    data["fname"] = [x.replace(".", "") for x in data["fname"]]
+    data["fname"] = data["fname"].str.replace(".", "", regex=False)
     return data
 
 
@@ -41,10 +36,8 @@ def apply_corrections(data: pd.DataFrame, corrections: pd.DataFrame) -> pd.DataF
     :param corrections: A DataFrame of the name corrections
     :returns: A DataFrame with the updated names
     """
-    # Return a copy of the DataFrame instead of modifying
     data = data.copy()
     corrections = corrections.copy()
-    # select only the columns we care about
     corrections = corrections[
         ["uc_fname", "uc_lname", "uc_team", "uc_season", "c_fname", "c_lname"]
     ]
@@ -77,11 +70,6 @@ def apply_corrections(data: pd.DataFrame, corrections: pd.DataFrame) -> pd.DataF
     return data
 
 
-# *******************************
-# ****** Assign Player ID's *****
-# *******************************
-
-
 def create_id(fname: str, lname: str) -> str:
     """Create a player ID from a first name and last name.
     String format: <first 5 characters of last name><first 2 characters of first name><01>
@@ -91,8 +79,9 @@ def create_id(fname: str, lname: str) -> str:
     NOTE: spaces, periods, and apostrophes are omitted
     """
     fname = fname.lower()
-    # remove spaces, periods, and apostrophes
-    lname = lname.lower().replace(" ", "").replace(".", "").replace("'", "")
+    lname = lname.lower()
+    for char in " .'":
+        lname = lname.replace(char, "")
 
     if len(lname) > 5:
         lname = lname[0:5]
@@ -106,14 +95,9 @@ def add_n(player_id: str, n: int) -> str:
     """Add an integer to a player id
     e.g. add_n("engelcu01", 2) -> "engelcu03"
     """
-    temp = int(player_id[-2:]) + int(n)
+    temp = int(player_id[-2:]) + n
     num = str(temp).zfill(2)
-    return f"{player_id[0 : len(player_id) - 2]}{num}"
-
-
-# ****************************
-# ****** Misc. Functions *****
-# ****************************
+    return f"{player_id[:-2]}{num}"
 
 
 def convert_ip(ip_str: str) -> float:
@@ -122,5 +106,5 @@ def convert_ip(ip_str: str) -> float:
     :param ip_str: String representation of innings pitched
     :returns: Float representation of innings pitched
     """
-    temp = ip_str.split(".")
-    return int(temp[0]) + int(temp[1]) * (1 / 3)
+    innings, outs = ip_str.split(".")
+    return int(innings) + int(outs) * (1 / 3)
