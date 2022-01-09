@@ -2,6 +2,7 @@
 some utility functions used in the scraping process.
 """
 # Standard library imports
+from dataclasses import dataclass
 import logging
 import re
 from time import sleep
@@ -13,6 +14,21 @@ import pandas as pd
 import requests
 
 # Local imports
+
+
+@dataclass
+class TeamScrapeUrl:
+    team: str
+    id: str
+    url: str
+
+    @classmethod
+    def from_link(cls, link: str, team_ids: Dict[str, str]):
+        return cls(
+            team=get_text(link),
+            id=team_ids[get_text(link)],
+            url=get_href(link),
+        )
 
 
 def get_soup(url: str, backoff: int = 1) -> BeautifulSoup:
@@ -121,7 +137,7 @@ def scrape_table(
 
 def get_team_list(
     base_url: str, year: str, team_ids: Dict[str, str]
-) -> List[Dict[str, str]]:
+) -> List[TeamScrapeUrl]:
     """Get the list of teams and their respective links from the leaders page.
 
     :param base_url: Base URL for the NACC baseball page
@@ -141,16 +157,7 @@ def get_team_list(
     # create a list of links that are children of the target element
     links = [link for link in target[0].find_all("a") if "href" in link.attrs]
 
-    teamList = []
-    for link in links:
-        teamList.append(
-            {
-                "team": get_text(link),
-                "id": team_ids[get_text(link)],
-                "url": get_href(link),
-            }
-        )
-    return teamList
+    return [TeamScrapeUrl.from_link(link, team_ids) for link in links]
 
 
 def skip_team(soup: BeautifulSoup) -> bool:

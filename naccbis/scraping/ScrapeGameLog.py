@@ -68,21 +68,21 @@ class GameLogScraper(BaseScraper):
         """Run the scraper"""
         logging.info("%s", self._name)
 
-        teamList = ScrapeFunctions.get_team_list(
+        team_urls = ScrapeFunctions.get_team_list(
             self.BASE_URL, self._year, self.TEAM_IDS
         )
-        logging.info("Found %d teams to scrape", len(teamList))
+        logging.info("Found %d teams to scrape", len(team_urls))
 
         # iterate over the teams
-        for team in teamList:
-            logging.info("Fetching %s", team["team"])
+        for team in team_urls:
+            logging.info("Fetching %s", team.team)
 
-            url = f"{self.BASE_URL}{self._year}/{team['url']}"
+            url = f"{self.BASE_URL}{self._year}/{team.url}"
             teamSoup = ScrapeFunctions.get_soup(url)
             logging.info("Looking for game log table")
             df = self._scrape(teamSoup)
             logging.info("Cleaning scraped data")
-            df = self._clean(df, team["team"])
+            df = self._clean(df, team.team)
 
             self._data = pd.concat([self._data, df], ignore_index=True)
         self._runnable = False

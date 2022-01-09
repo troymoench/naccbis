@@ -18,6 +18,7 @@ from naccbis.scraping import (
     TeamOffenseScraper,
     TeamPitchingScraper,
 )
+from naccbis.scraping.ScrapeFunctions import TeamScrapeUrl
 from naccbis.common.splits import Split, GameLogSplit
 
 
@@ -152,33 +153,29 @@ class TestScrapeFunctions:
     def test_get_team_list(self, mock_get_soup):
         year = "2017-18"
         expected = [
-            {"team": "Aurora", "id": "AUR", "url": "teams/aurora?view=lineup"},
-            {
-                "team": "Benedictine",
-                "id": "BEN",
-                "url": "teams/benedictineil?view=lineup",
-            },
-            {
-                "team": "Concordia Chicago",
-                "id": "CUC",
-                "url": "teams/concordiaill?view=lineup",
-            },
-            {
-                "team": "Concordia Wisconsin",
-                "id": "CUW",
-                "url": "teams/concordiawis?view=lineup",
-            },
-            {"team": "Dominican", "id": "DOM", "url": "teams/dominicanill?view=lineup"},
-            {"team": "Edgewood", "id": "EDG", "url": "teams/edgewood?view=lineup"},
-            {"team": "Lakeland", "id": "LAK", "url": "teams/lakeland?view=lineup"},
-            {"team": "MSOE", "id": "MSOE", "url": "teams/msoe?view=lineup"},
-            {"team": "Marian", "id": "MAR", "url": "teams/marianwis?view=lineup"},
-            {"team": "Rockford", "id": "ROCK", "url": "teams/rockford?view=lineup"},
-            {
-                "team": "Wisconsin Lutheran",
-                "id": "WLC",
-                "url": "teams/wislutheran?view=lineup",
-            },
+            TeamScrapeUrl(team="Aurora", id="AUR", url="teams/aurora?view=lineup"),
+            TeamScrapeUrl(
+                team="Benedictine", id="BEN", url="teams/benedictineil?view=lineup"
+            ),
+            TeamScrapeUrl(
+                team="Concordia Chicago", id="CUC", url="teams/concordiaill?view=lineup"
+            ),
+            TeamScrapeUrl(
+                team="Concordia Wisconsin",
+                id="CUW",
+                url="teams/concordiawis?view=lineup",
+            ),
+            TeamScrapeUrl(
+                team="Dominican", id="DOM", url="teams/dominicanill?view=lineup"
+            ),
+            TeamScrapeUrl(team="Edgewood", id="EDG", url="teams/edgewood?view=lineup"),
+            TeamScrapeUrl(team="Lakeland", id="LAK", url="teams/lakeland?view=lineup"),
+            TeamScrapeUrl(team="MSOE", id="MSOE", url="teams/msoe?view=lineup"),
+            TeamScrapeUrl(team="Marian", id="MAR", url="teams/marianwis?view=lineup"),
+            TeamScrapeUrl(team="Rockford", id="ROCK", url="teams/rockford?view=lineup"),
+            TeamScrapeUrl(
+                team="Wisconsin Lutheran", id="WLC", url="teams/wislutheran?view=lineup"
+            ),
         ]
         assert (
             ScrapeFunctions.get_team_list(self.BASE_URL, year, self.TEAM_IDS)
