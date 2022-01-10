@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from datetime import date
 import logging
 from pathlib import Path
-import sys
 from typing import Dict, Union, Optional
 
 # Third party imports
@@ -69,7 +68,7 @@ class BaseScraper(ABC):
         self._name = "Base Scraper"
         self._year = year
         self._split = split
-        if output not in self.VALID_OUTPUT:
+        if output not in self.VALID_OUTPUT:  # pragma: no cover
             raise ValueError(f"Invalid output: {output}")
         self._output = output
         self._inseason = inseason
@@ -91,7 +90,7 @@ class BaseScraper(ABC):
         print(self._name)
         print("Year:", self._year)
         print("Split:", self._split)
-        if self._verbose:
+        if self._verbose:  # pragma: no cover
             print("In-Season:", self._inseason)
             print("Output format:", self._output)
         print("--------------------------")
@@ -102,9 +101,10 @@ class BaseScraper(ABC):
         :returns: None
         """
         logging.info("Exporting data from %s", self._name)
-        if self._runnable:
-            print("Cannot export. Scraper has not been run yet. Use run() to do so.")
-            sys.exit(1)
+        if self._runnable:  # pragma: no cover
+            raise ValueError(
+                "Cannot export. Scraper has not been run yet. Use run() to do so."
+            )
         tableName = self.TABLES[str(self._split)]
         if self._output == "csv":
             self._export_csv(tableName)
@@ -120,8 +120,7 @@ class BaseScraper(ABC):
         try:
             self._data.to_csv(self._csv_path / filename, index=False)
         except Exception as e:
-            logging.error("Unable to export to CSV")
-            logging.error(e)
+            logging.error("Unable to export to CSV: %s", e)
         else:
             logging.info("Successfully exported to CSV file")
 
@@ -138,5 +137,5 @@ class BaseScraper(ABC):
             self._data, table_name, self._conn, if_exists="append", index=False
         )
 
-    def get_data(self) -> pd.DataFrame:
+    def get_data(self) -> pd.DataFrame:  # pragma: no cover
         return self._data
