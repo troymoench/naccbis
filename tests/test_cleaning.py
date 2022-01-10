@@ -50,6 +50,7 @@ class TestCleanFunctions:
             ("Garrett", "Balind", "balinga01"),
             ("Galen", "Balinski", "balinga01"),
             ("Patrick", "O'Malley", "omallpa01"),
+            ("TJ", "Floyd", "floydtj01")
         ],
     )
     def test_create_id(self, fname, lname, expected):

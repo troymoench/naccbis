@@ -66,3 +66,7 @@ class TestSplits:
     def test_split_to_str(self):
         split = splits.Split("conference")
         assert str(split) == "conference"
+
+    def test_gamelog_split_to_str(self):
+        split = splits.GameLogSplit("hitting")
+        assert str(split) == "hitting"

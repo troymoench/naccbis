@@ -28,8 +28,8 @@ def connect_db(db_url: Union[str, URL]) -> Connection:
     engine = create_engine(db_url)
     try:
         conn = engine.connect()
-    except SQLAlchemyError:
-        logging.error("Failed to connect to database")
+    except SQLAlchemyError as e:  # pragma: no cover
+        logging.error("Failed to connect to database: %s", e)
         raise
     return conn
 
@@ -38,11 +38,11 @@ def db_load_data(data: pd.DataFrame, table: str, conn: Connection, **kwargs) -> 
     """Load DataFrame into database table"""
     try:
         data.to_sql(table, conn, **kwargs)
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         logging.error("Unable to load data into %s table", table)
         logging.error(e)
     else:
-        logging.info("Successfully loaded %s records into %s table", len(data), table)
+        logging.info(f"Successfully loaded {len(data)} records into {table} table")
 
 
 def init_logging(level: str) -> None:
@@ -63,15 +63,13 @@ def parse_year(year: str) -> List[int]:
     :param year: The string representation of a year or range of years
     :returns: List of years (integers)
     """
-    # if no colon exists, single year
     if ":" not in year:
         return [int(year)]
     else:
         temp = [int(yr) for yr in year.split(":")]
         temp.sort()  # ascending
-        rng = list(range(temp[0], temp[1] + 1))
-        # rng.sort(reverse=True)  # descending
-        return rng
+        start_year, end_year = temp
+        return list(range(start_year, end_year + 1))
 
 
 def year_to_season(yr: str) -> int:
@@ -91,4 +89,4 @@ def season_to_year(season: int) -> str:
     :param season: Int
     :returns: String
     """
-    return str(season - 1) + "-" + str(season - 2000)
+    return f"{season - 1}-{season - 2000}"

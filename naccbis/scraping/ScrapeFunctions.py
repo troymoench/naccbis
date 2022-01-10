@@ -46,7 +46,7 @@ def get_soup(url: str, backoff: int = 1) -> BeautifulSoup:
     }
     try:
         request = requests.get(url, headers=headers)
-    except requests.exceptions.RequestException:
+    except requests.exceptions.RequestException:  # pragma: no cover
         logging.critical("Error: Unable to connect to", url)
         raise
     text = request.text

@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
 import pytest
+import requests
 
 # Local imports
 from naccbis.scraping import (
@@ -98,6 +99,24 @@ def mock_get_soup(monkeypatch):
     monkeypatch.setattr(ScrapeFunctions, "get_soup", mock_response)
 
 
+class MockResponse:
+    @property
+    def text(self):
+        return """
+        <html>
+        <h1>Hello World!</h1>
+        </html>
+        """
+
+
+@pytest.fixture
+def mock_requests_get(monkeypatch):
+    def mock_response(*args, **kwargs):
+        return MockResponse()
+
+    monkeypatch.setattr(requests, "get", mock_response)
+
+
 class TestScrapeFunctions:
     BASE_URL = "https://naccsports.org/sports/bsb/"
     TEAM_IDS = {
@@ -182,7 +201,16 @@ class TestScrapeFunctions:
             == expected
         )
 
-    def test_skip_team(self):
+    def test_get_soup(self, mock_requests_get):
+        html = """
+        <html>
+        <h1>Hello World!</h1>
+        </html>
+        """
+        expected = BeautifulSoup(html, "html.parser")
+        assert ScrapeFunctions.get_soup("https://fake.com", 0) == expected
+
+    def test_skip_team_is_true(self):
         html = """
         <tr class="totals">
         <td colspan="5">
@@ -192,6 +220,17 @@ class TestScrapeFunctions:
         """
         soup = BeautifulSoup(html, "html.parser")
         assert ScrapeFunctions.skip_team(soup)
+
+    def test_skip_team_is_false(self):
+        html = """
+        <tr class="totals">
+        <td colspan="5">
+            5
+            </td>
+        </tr>
+        """
+        soup = BeautifulSoup(html, "html.parser")
+        assert not ScrapeFunctions.skip_team(soup)
 
 
 def test_cant_instantiate_base_scraper():
