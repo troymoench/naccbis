@@ -127,8 +127,7 @@ class BaseScraper(ABC):
     def _export_db(self, table_name: str) -> None:
         """Helper method to export data to a database"""
         if not self._conn:
-            logging.error("Not connected to database. Cannot export data!")
-            return
+            raise RuntimeError("Not connected to database. Cannot export data!")
 
         if self._inseason:
             table_name += "_inseason"

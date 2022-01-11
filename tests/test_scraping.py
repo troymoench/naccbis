@@ -233,22 +233,28 @@ class TestScrapeFunctions:
         assert not ScrapeFunctions.skip_team(soup)
 
 
-def test_cant_instantiate_base_scraper():
-    with pytest.raises(TypeError):
-        BaseScraper("2018", Split("overall"), "csv")
+class TestBaseScraper:
+    def test_cant_instantiate_base_scraper(self):
+        with pytest.raises(TypeError):
+            BaseScraper("2018", Split("overall"), "csv")
 
+    def test_init_scrapers(self):
+        scrapers = [
+            GameLogScraper("2018", GameLogSplit("hitting"), "csv"),
+            IndividualOffenseScraper("2018", Split("overall"), "csv"),
+            IndividualPitchingScraper("2018", Split("overall"), "csv"),
+            TeamFieldingScraper("2018", Split("overall"), "csv"),
+            TeamOffenseScraper("2018", Split("overall"), "csv"),
+            TeamPitchingScraper("2018", Split("overall"), "csv"),
+        ]
+        for scraper in scrapers:
+            assert isinstance(scraper, BaseScraper)
 
-def test_init_scrapers():
-    scrapers = [
-        GameLogScraper("2018", GameLogSplit("hitting"), "csv"),
-        IndividualOffenseScraper("2018", Split("overall"), "csv"),
-        IndividualPitchingScraper("2018", Split("overall"), "csv"),
-        TeamFieldingScraper("2018", Split("overall"), "csv"),
-        TeamOffenseScraper("2018", Split("overall"), "csv"),
-        TeamPitchingScraper("2018", Split("overall"), "csv"),
-    ]
-    for scraper in scrapers:
-        assert isinstance(scraper, BaseScraper)
+    def test_base_scraper_export_db_not_connected(self):
+        scraper = IndividualOffenseScraper("2018", Split("overall"), "sql", conn=None)
+        scraper._runnable = False
+        with pytest.raises(RuntimeError):
+            scraper.export()
 
 
 class TestIndividualOffenseScraper:
