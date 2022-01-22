@@ -16,7 +16,7 @@ env:
   global:
   - PGPORT=5433
   - PGUSER=travis
-  - NACCBIS_DB_URL=postgresql://$PGUSER@:$PGPORT/naccbisdb
+  # - NACCBIS_DB_URL=postgresql://$PGUSER@:$PGPORT/naccbisdb
   - SQLALCHEMY_WARN_20=1 # see https://docs.sqlalchemy.org/en/14/changelog/migration_14.html#deprecation-20-mode
 install:
   - pip install -r requirements-dev.txt
