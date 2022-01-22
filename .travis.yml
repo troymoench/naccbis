@@ -22,8 +22,8 @@ install:
   - pip install -r requirements-dev.txt
   - pip install -r requirements.txt
 before_script:
-  - psql -c "create database naccbisdb;"
-  - psql naccbisdb -c "select version()"
+  - psql -c "create database naccbisdb_test;"
+  - psql naccbisdb_test -c "select version()"
 script:
   # lint
   - bash scripts/lint.sh
