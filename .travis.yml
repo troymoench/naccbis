@@ -30,5 +30,5 @@ script:
   # test
   - echo $PGPORT
   - echo $PGUSER
-  - pytest --cov --cov-report term
+  - pytest -vs --cov --cov-report term
 after_success: codecov --required

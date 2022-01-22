@@ -30,6 +30,7 @@ def create_db(db_url: str) -> None:
         database="postgres",
         query=url.query,
     )
+    print(postgres_url)
     pg_engine = create_engine(postgres_url, isolation_level="AUTOCOMMIT")
     print("Creating database")
     with pg_engine.begin() as conn:
