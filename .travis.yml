@@ -16,8 +16,7 @@ env:
   global:
   - PGPORT=5433
   - PGUSER=travis
-  - PGHOST=""
-  # - NACCBIS_DB_URL=postgresql://$PGUSER@:$PGPORT/naccbisdb
+  # - NACCBIS_DB_URL=postgresql://$PGUSER@:$PGPORT/naccbisdb_test
   - SQLALCHEMY_WARN_20=1 # see https://docs.sqlalchemy.org/en/14/changelog/migration_14.html#deprecation-20-mode
 install:
   - pip install -r requirements-dev.txt
@@ -29,7 +28,5 @@ script:
   # lint
   - bash scripts/lint.sh
   # test
-  - echo $PGPORT
-  - echo $PGUSER
-  - pytest -vs --cov --cov-report term
+  - pytest -v --cov --cov-report term
 after_success: codecov --required

@@ -4,7 +4,7 @@ from naccbis.common.settings import Settings
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL, make_url, Connection
 
-NACCBIS_DB_URL = "postgresql://localhost/naccbisdb_test"
+NACCBIS_DB_URL = "postgresql:///naccbisdb_test"
 SCHEMA_FILE = "db/schema_dump_2021_09_14.sql"
 
 

@@ -4,7 +4,7 @@ from naccbis.api.main import app, get_db
 from naccbis.api.database import create_session
 from naccbis.common.settings import Settings
 
-NACCBIS_DB_URL = "postgresql://localhost/naccbisdb_test"
+NACCBIS_DB_URL = "postgresql:///naccbisdb_test"
 
 test_settings = Settings(app_name="naccbis-tests", db_url=NACCBIS_DB_URL)
 TestingSessionLocal = create_session(test_settings)
