@@ -28,5 +28,7 @@ script:
   # lint
   - bash scripts/lint.sh
   # test
+  - echo $PGPORT
+  - echo $PGUSER
   - pytest --cov --cov-report term
 after_success: codecov --required
