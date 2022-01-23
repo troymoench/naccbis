@@ -116,5 +116,4 @@ def read_game_log(
     split: str = "overall",
     db: Session = Depends(get_db),
 ):
-    df = queries.get_game_log(db, team, season, game_date, home)
-    return [row for row in df.itertuples(index=False)]
+    return queries.get_game_log(db, team, season, game_date, home)

@@ -41,7 +41,7 @@ def get_batters(
     if team:
         q = q.filter(table.team == team)
     q = q.filter(table.pa >= min_pa)
-    return pd.read_sql_query(q.statement, q.session.bind)
+    return pd.read_sql_query(q.statement, q.session.connection())
 
 
 def get_pitchers(
@@ -62,7 +62,7 @@ def get_pitchers(
     if team:
         q = q.filter(table.team == team)
     q = q.filter(table.ip >= min_ip)
-    return pd.read_sql_query(q.statement, q.session.bind)
+    return pd.read_sql_query(q.statement, q.session.connection())
 
 
 def get_player_offense(db: Session, player_id: str):
@@ -74,7 +74,7 @@ def get_player_offense(db: Session, player_id: str):
         .order_by(BattersOverall.season)
     )
 
-    return pd.read_sql_query(q.statement, q.session.bind)
+    return pd.read_sql_query(q.statement, q.session.connection())
 
 
 def get_player_career_offense(db: Session, player_id: str):
@@ -108,7 +108,7 @@ def get_player_career_offense(db: Session, player_id: str):
         .filter(PlayerId.player_id == player_id)
     )
 
-    df = pd.read_sql_query(q.statement, q.session.bind)
+    df = pd.read_sql_query(q.statement, q.session.connection())
     return metrics.basic_offensive_metrics(df)
 
 
@@ -121,7 +121,7 @@ def get_player_pitching(db: Session, player_id: str):
         .order_by(PitchersOverall.season)
     )
 
-    return pd.read_sql_query(q.statement, q.session.bind)
+    return pd.read_sql_query(q.statement, q.session.connection())
 
 
 def get_player_career_pitching(db: Session, player_id: str):
@@ -157,7 +157,7 @@ def get_player_career_pitching(db: Session, player_id: str):
         .filter(PlayerId.player_id == player_id)
     )
 
-    df = pd.read_sql_query(q.statement, q.session.bind)
+    df = pd.read_sql_query(q.statement, q.session.connection())
     return metrics.basic_pitching_metrics(df)
 
 
@@ -178,7 +178,7 @@ def get_team_offense(
     if team:
         q = q.filter(table.name == team)
     q = q.order_by(table.season)
-    return pd.read_sql_query(q.statement, q.session.bind)
+    return pd.read_sql_query(q.statement, q.session.connection())
 
 
 def get_team_pitching(
@@ -198,7 +198,7 @@ def get_team_pitching(
     if team:
         q = q.filter(table.name == team)
     q = q.order_by(table.season)
-    return pd.read_sql_query(q.statement, q.session.bind)
+    return pd.read_sql_query(q.statement, q.session.connection())
 
 
 def get_league_offense(
@@ -215,7 +215,7 @@ def get_league_offense(
     if season:
         q = q.filter(table.season == season)
     q = q.order_by(table.season)
-    return pd.read_sql_query(q.statement, q.session.bind)
+    return pd.read_sql_query(q.statement, q.session.connection())
 
 
 def get_league_pitching(
@@ -232,7 +232,7 @@ def get_league_pitching(
     if season:
         q = q.filter(table.season == season)
     q = q.order_by(table.season)
-    return pd.read_sql_query(q.statement, q.session.bind)
+    return pd.read_sql_query(q.statement, q.session.connection())
 
 
 def get_game_log(
@@ -253,4 +253,4 @@ def get_game_log(
     if home:
         q = q.filter(GameLog.home == home)
     q = q.order_by(GameLog.season, GameLog.team, GameLog.game_num)
-    return pd.read_sql_query(q.statement, q.session.bind)
+    return q.all()
