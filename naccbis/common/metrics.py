@@ -273,7 +273,7 @@ def woba_weights(data, target):
     """
     data = data.copy()
     data["x1b"] = data["h"] - data["x2b"] - data["x3b"] - data["hr"]
-    lw = data.loc[:, "lw_hbp":"lw_out"]
+    lw = data.loc[:, "lw_hbp":"lw_out"]  # type: ignore
 
     # subtract the value of the out
     lw = (lw.T - lw["lw_out"]).T

@@ -234,10 +234,6 @@ class TestScrapeFunctions:
 
 
 class TestBaseScraper:
-    def test_cant_instantiate_base_scraper(self):
-        with pytest.raises(TypeError):
-            BaseScraper("2018", Split("overall"), "csv")
-
     def test_init_scrapers(self):
         scrapers = [
             GameLogScraper("2018", GameLogSplit("hitting"), "csv"),
