@@ -5,6 +5,7 @@ from pathlib import Path
 
 # Third party imports
 import pandas as pd
+from sqlalchemy.engine import Connection
 
 # Local imports
 from . import CleanFunctions
@@ -22,7 +23,7 @@ class TeamPitchingETL:
         year: int,
         split: Split,
         load_db: bool,
-        conn: object,
+        conn: Connection,
         inseason: bool = False,
     ) -> None:
         self.year = year

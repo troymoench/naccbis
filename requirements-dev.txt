@@ -8,3 +8,4 @@ mypy
 black
 wheel
 types-requests
+# sqlalchemy2-stubs

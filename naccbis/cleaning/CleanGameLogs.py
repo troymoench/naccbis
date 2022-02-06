@@ -8,6 +8,7 @@ from typing import List
 
 # Third party imports
 import pandas as pd
+from sqlalchemy.engine import Connection
 
 # Local imports
 from naccbis.common import utils
@@ -33,7 +34,7 @@ class GameLogETL:
     CSV_DIR = Path("csv/")
 
     def __init__(
-        self, year: int, load_db: bool, conn: object, inseason: bool = False
+        self, year: int, load_db: bool, conn: Connection, inseason: bool = False
     ) -> None:
         self.year = year
         self.load_db = load_db

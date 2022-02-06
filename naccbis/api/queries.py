@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional
+from typing import Optional, Union, Type
 import pandas as pd
 from sqlalchemy import func
 from sqlalchemy.orm import Session, aliased
@@ -30,6 +30,7 @@ def get_batters(
     split: str = "overall",
     min_pa: int = 0,
 ):
+    table: Union[Type[BattersOverall], Type[BattersConference]]
     if split == "overall":
         table = BattersOverall
     else:
@@ -51,6 +52,7 @@ def get_pitchers(
     split: str = "overall",
     min_ip: int = 0,
 ):
+    table: Union[Type[PitchersOverall], Type[PitchersConference]]
     if split == "overall":
         table = PitchersOverall
     else:
@@ -167,6 +169,7 @@ def get_team_offense(
     team: Optional[str] = None,
     split: str = "overall",
 ):
+    table: Union[Type[TeamOffenseOverall], Type[TeamOffenseConference]]
     if split == "overall":
         table = TeamOffenseOverall
     else:
@@ -187,6 +190,7 @@ def get_team_pitching(
     team: Optional[str] = None,
     split: str = "overall",
 ):
+    table: Union[Type[TeamPitchingOverall], Type[TeamPitchingConference]]
     if split == "overall":
         table = TeamPitchingOverall
     else:
@@ -206,6 +210,7 @@ def get_league_offense(
     season: Optional[int] = None,
     split: str = "overall",
 ):
+    table: Union[Type[LeagueOffenseOverall], Type[LeagueOffenseConference]]
     if split == "overall":
         table = LeagueOffenseOverall
     else:
@@ -223,6 +228,7 @@ def get_league_pitching(
     season: Optional[int] = None,
     split: str = "overall",
 ):
+    table: Union[Type[LeaguePitchingOverall], Type[LeaguePitchingConference]]
     if split == "overall":
         table = LeaguePitchingOverall
     else:

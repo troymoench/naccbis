@@ -4,11 +4,10 @@ from naccbis.common import utils
 
 
 @pytest.mark.integration
-def test_connect_db(db_url: str):
+def test_connect_db(db_url: str) -> None:
     with utils.connect_db(db_url) as conn:
         assert not conn.closed
         result = conn.execute(text("select version()")).fetchone()
-        assert len(result) == 1
         print(result)
     assert conn.closed
 

@@ -9,6 +9,7 @@ from pathlib import Path
 
 # Third party imports
 import pandas as pd
+from sqlalchemy.engine import Connection
 
 # Local imports
 from naccbis.common import utils, metrics
@@ -20,7 +21,9 @@ class LeagueOffenseETL:
 
     CSV_DIR = Path("csv/")
 
-    def __init__(self, year: int, split: Split, load_db: bool, conn: object) -> None:
+    def __init__(
+        self, year: int, split: Split, load_db: bool, conn: Connection
+    ) -> None:
         self.year = year
         self.split = split
         self.load_db = load_db
@@ -159,7 +162,9 @@ class LeaguePitchingETL:
 
     CSV_DIR = Path("csv/")
 
-    def __init__(self, year: int, split: Split, load_db: bool, conn: object) -> None:
+    def __init__(
+        self, year: int, split: Split, load_db: bool, conn: Connection
+    ) -> None:
         self.year = year
         self.split = split
         self.load_db = load_db

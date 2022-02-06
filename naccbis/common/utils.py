@@ -1,7 +1,7 @@
 """ This module provides utility functions """
 # Standard library imports
 import logging
-from typing import List, Union
+from typing import List, Union, Any
 
 # Third party imports
 import pandas as pd
@@ -34,7 +34,9 @@ def connect_db(db_url: Union[str, URL]) -> Connection:
     return conn
 
 
-def db_load_data(data: pd.DataFrame, table: str, conn: Connection, **kwargs) -> None:
+def db_load_data(
+    data: pd.DataFrame, table: str, conn: Connection, **kwargs: Any
+) -> None:
     """Load DataFrame into database table"""
     try:
         data.to_sql(table, conn, **kwargs)

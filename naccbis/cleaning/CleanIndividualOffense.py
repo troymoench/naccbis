@@ -6,6 +6,7 @@ from pathlib import Path
 # Third party imports
 import numpy as np
 import pandas as pd
+from sqlalchemy.engine import Connection
 
 # Local imports
 from . import CleanFunctions
@@ -23,7 +24,7 @@ class IndividualOffenseETL:
         year: int,
         split: Split,
         load_db: bool,
-        conn: object,
+        conn: Connection,
         inseason: bool = False,
     ) -> None:
         self.year = year

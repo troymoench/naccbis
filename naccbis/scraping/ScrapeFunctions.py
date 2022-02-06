@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import logging
 import re
 from time import sleep
-from typing import Dict, List
+from typing import Dict, List, TypeVar, Type
 
 # Third party imports
 from bs4 import BeautifulSoup, element
@@ -16,6 +16,9 @@ import requests
 # Local imports
 
 
+T = TypeVar("T", bound="TeamScrapeUrl")
+
+
 @dataclass
 class TeamScrapeUrl:
     team: str
@@ -23,7 +26,7 @@ class TeamScrapeUrl:
     url: str
 
     @classmethod
-    def from_link(cls, link: str, team_ids: Dict[str, str]):
+    def from_link(cls: Type[T], link: str, team_ids: Dict[str, str]) -> T:
         return cls(
             team=get_text(link),
             id=team_ids[get_text(link)],

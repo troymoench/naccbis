@@ -5,6 +5,7 @@ from typing import List, Tuple
 
 # Third party imports
 import click
+from sqlalchemy.engine import Connection
 
 # Local imports
 from naccbis.cleaning import (
@@ -61,7 +62,7 @@ def cli():
 
 
 def run_etls(
-    etl_nums: List[int], year: int, splits: List[Split], load_db: bool, conn: object
+    etl_nums: List[int], year: int, splits: List[Split], load_db: bool, conn: Connection
 ) -> None:
     """Run ETL's for a given year
 
@@ -117,7 +118,6 @@ def final(
     """Run ETLs for the final subcommand
 
     :param args: Arguments for the ETLs
-    :param conn: Database connection object
     """
     config = Settings(app_name="clean")
     utils.init_logging(config.log_level)

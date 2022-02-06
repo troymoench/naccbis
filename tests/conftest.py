@@ -1,3 +1,5 @@
+from typing import Iterator
+
 import pytest
 from naccbis.common.settings import Settings
 
@@ -50,7 +52,7 @@ def create_db(db_url: str) -> None:
 
 @pytest.mark.usefixtures("create_db")
 @pytest.fixture(scope="session")
-def db_conn(db_url: str) -> Connection:
+def db_conn(db_url: str) -> Iterator[Connection]:
     engine = create_engine(db_url)
     conn = engine.connect()
     yield conn

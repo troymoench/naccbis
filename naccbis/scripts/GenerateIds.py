@@ -14,6 +14,7 @@ from typing import List, Optional
 import click
 import pandas as pd
 from sqlalchemy import text
+from sqlalchemy.engine import Connection
 
 # Local imports
 from naccbis.cleaning import CleanFunctions
@@ -58,7 +59,7 @@ def update_id_conflicts(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def get_duplicates(conn: object) -> pd.DataFrame:
+def get_duplicates(conn: Connection) -> pd.DataFrame:
     """Retrieve duplicate names from the database
 
     :param conn: Database connection object
