@@ -7,7 +7,7 @@ from naccbis import __version__
 @click.group(help=__doc__)
 @click.version_option(version=__version__, message="naccbis %(version)s")
 def cli():
-    pass
+    pass  # pragma: no cover
 
 
 cli.add_command(scrape.cli, name="scrape")

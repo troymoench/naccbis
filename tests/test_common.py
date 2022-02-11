@@ -7,11 +7,6 @@ import pytest
 from naccbis.common import utils, models, splits  # noqa
 
 
-@pytest.fixture
-def accepted_stats():
-    return list(range(1, 8))
-
-
 class TestUtils:
     @pytest.mark.parametrize(
         "year, expected", [("2017", [2017]), ("2016:2018", [2016, 2017, 2018])]
