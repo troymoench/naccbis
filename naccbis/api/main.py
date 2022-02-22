@@ -1,5 +1,5 @@
 from datetime import date
-from typing import List, Optional
+from typing import List, Optional, Iterator
 
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
@@ -14,7 +14,7 @@ app = FastAPI(version=__version__)
 
 
 # Dependency
-def get_db():
+def get_db() -> Iterator[Session]:
     db = SessionLocal()
     try:
         yield db

@@ -1,6 +1,7 @@
+from typing import Iterator
 from fastapi.testclient import TestClient
 import pytest
-from sqlalchemy import delete
+from sqlalchemy.orm import Session
 from naccbis.api.main import app, get_db
 from naccbis.api.database import create_session
 from naccbis.common.models import GameLog
@@ -12,42 +13,44 @@ test_settings = Settings(app_name="naccbis-tests", db_url=NACCBIS_DB_URL)
 TestingSessionLocal = create_session(test_settings)
 
 
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
+@pytest.fixture
+def db(db_conn) -> Iterator[Session]:
+    """Create a session that does a rollback after each test"""
+    db_conn.begin()
+    session = TestingSessionLocal(bind=db_conn)
+    yield session
+    session.rollback()
+    session.close()
 
 
 @pytest.fixture
-def client():
-    return TestClient(app)
+def client(db: Session) -> Iterator[TestClient]:
+    def override_get_db():
+        try:
+            yield db
+        finally:
+            db.close()
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    with TestClient(app) as test_client:
+        yield test_client
 
 
-@pytest.fixture
-def db():
-    with TestingSessionLocal() as session:
-        yield session
-
-
-def test_ping(client):
+def test_ping(client: TestClient):
     response = client.get("/ping")
     assert response.status_code == 200
     assert response.json() == "pong"
 
 
 @pytest.mark.xfail
-def test_player(client):
+def test_player(client: TestClient):
     response = client.get("/player/engelcu01")
     assert response.status_code == 200
     print(response.json())
 
 
-def test_game_log(client, db):
+def test_game_log(client: TestClient, db: Session):
     game_log1 = GameLog(
         game_num=25,
         date="2018-04-21",
@@ -76,7 +79,7 @@ def test_game_log(client, db):
     db.commit()
     response = client.get(
         "/game_log/",
-        params={"team": "Wisconsin Lutheran", "season": 2018},
+        params={"team": "Wisconsin Lutheran", "season": "2018"},
     )
     assert response.status_code == 200
     assert response.json() == [
@@ -93,5 +96,3 @@ def test_game_log(client, db):
             "conference": True,
         }
     ]
-    db.execute(delete(GameLog))
-    db.commit()
