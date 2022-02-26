@@ -1,7 +1,7 @@
 """ This module provides utility functions """
 # Standard library imports
 import logging
-from typing import List, Union, Any
+from typing import Union, Any
 
 # Third party imports
 import pandas as pd
@@ -59,7 +59,7 @@ def init_logging(level: str) -> None:
     logging.getLogger("sqlalchemy.pool").setLevel("INFO")
 
 
-def parse_year(year: str) -> List[int]:
+def parse_year(year: str) -> list[int]:
     """Parse a string of year(s), e.g. 2017, 2015:2017
 
     :param year: The string representation of a year or range of years

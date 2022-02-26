@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import logging
 import re
 from time import sleep
-from typing import Dict, List, TypeVar, Type
+from typing import TypeVar, Type
 
 # Third party imports
 from bs4 import BeautifulSoup, element
@@ -26,7 +26,7 @@ class TeamScrapeUrl:
     url: str
 
     @classmethod
-    def from_link(cls: Type[T], link: str, team_ids: Dict[str, str]) -> T:
+    def from_link(cls: Type[T], link: str, team_ids: dict[str, str]) -> T:
         return cls(
             team=get_text(link),
             id=team_ids[get_text(link)],
@@ -74,7 +74,7 @@ def get_href(html_tag: element.Tag) -> str:
     return html_tag.attrs["href"]
 
 
-def find_table(soup_obj: BeautifulSoup, header_values: List[str]) -> List[int]:
+def find_table(soup_obj: BeautifulSoup, header_values: list[str]) -> list[int]:
     """Find HTML tables that contain the specified header values.
     Note that header value matching is case insensitive.
 
@@ -139,8 +139,8 @@ def scrape_table(
 
 
 def get_team_list(
-    base_url: str, year: str, team_ids: Dict[str, str]
-) -> List[TeamScrapeUrl]:
+    base_url: str, year: str, team_ids: dict[str, str]
+) -> list[TeamScrapeUrl]:
     """Get the list of teams and their respective links from the leaders page.
 
     :param base_url: Base URL for the NACC baseball page

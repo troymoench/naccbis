@@ -19,5 +19,5 @@ setup(
             "naccbis = naccbis.scripts.cli:cli",
         ]
     },
-    python_requires=">=3.6",
+    python_requires=">=3.9",
 )

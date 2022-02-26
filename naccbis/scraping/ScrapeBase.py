@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import date
 import logging
 from pathlib import Path
-from typing import Dict, Union, Optional
+from typing import Union, Optional
 
 # Third party imports
 import pandas as pd
@@ -46,7 +46,7 @@ class BaseScraper(ABC):
         "Rockford": "ROCK",
         "Wisconsin Lutheran": "WLC",
     }
-    TABLES: Dict[str, str] = {}
+    TABLES: dict[str, str] = {}
     VALID_OUTPUT = ["csv", "sql"]
 
     def __init__(

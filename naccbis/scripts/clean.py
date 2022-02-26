@@ -1,7 +1,6 @@
 """ This script is the data cleaning controller """
 # Standard library imports
 import logging
-from typing import List, Tuple
 
 # Third party imports
 import click
@@ -62,7 +61,7 @@ def cli():
 
 
 def run_etls(
-    etl_nums: List[int], year: int, splits: List[Split], load_db: bool, conn: Connection
+    etl_nums: list[int], year: int, splits: list[Split], load_db: bool, conn: Connection
 ) -> None:
     """Run ETL's for a given year
 
@@ -113,7 +112,7 @@ def run_etls(
     "-v", "--verbose", is_flag=True, help="Print extra information to standard out"
 )
 def final(
-    year: List[int], stat: Tuple[int], split: str, load: bool, verbose: bool
+    year: list[int], stat: tuple[int], split: str, load: bool, verbose: bool
 ) -> None:
     """Run ETLs for the final subcommand
 

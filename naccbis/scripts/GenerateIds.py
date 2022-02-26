@@ -8,7 +8,7 @@
 """
 # Standard library imports
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 # Third party imports
 import click
@@ -34,8 +34,8 @@ def update_id_conflicts(data: pd.DataFrame) -> pd.DataFrame:
     """
     data = data.copy()
 
-    new_col: List[str] = []
-    new_col_idx: List[int] = []
+    new_col: list[str] = []
+    new_col_idx: list[int] = []
     for _, group in data.groupby("player_id"):
         if group["full_name"].nunique() != 1:
             # print(group)

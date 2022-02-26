@@ -2,7 +2,7 @@
 # Standard library imports
 from datetime import date
 import logging
-from typing import List, Dict, Sequence, Type, Tuple, Union
+from typing import Sequence, Type, Union
 
 # Third party imports
 import click
@@ -69,7 +69,7 @@ def cli():
 
 
 def run_scrapers(
-    scraper_nums: List[int],
+    scraper_nums: list[int],
     year: str,
     splits: Sequence[Union[Split, GameLogSplit]],
     output: str,
@@ -86,7 +86,7 @@ def run_scrapers(
     :param inseason: Scraping during the season?
     :param verbose: Print extra information to standard out?
     """
-    scrapers: Dict[int, Type[BaseScraper]]
+    scrapers: dict[int, Type[BaseScraper]]
     scrapers = {
         1: IndividualOffenseScraper,
         2: IndividualPitchingScraper,
@@ -146,7 +146,7 @@ def run_scrapers(
     "-v", "--verbose", is_flag=True, help="Print extra information to standard out"
 )
 def final(
-    year: List[int], stat: Tuple[int], split: str, output: str, verbose: bool
+    year: list[int], stat: tuple[int], split: str, output: str, verbose: bool
 ) -> None:
     """Scrape end of the year final stats
 
@@ -208,7 +208,7 @@ def final(
 @click.option(
     "-v", "--verbose", is_flag=True, help="Print extra information to standard out"
 )
-def inseason(stat: Tuple[int], split: str, output: str, verbose: bool) -> None:
+def inseason(stat: tuple[int], split: str, output: str, verbose: bool) -> None:
     """Run scrapers for the inseason subcommand
 
     :param args: Arguments for the scrapers

@@ -4,7 +4,6 @@ import datetime
 import logging
 from pathlib import Path
 import re
-from typing import List
 
 # Third party imports
 import pandas as pd
@@ -116,7 +115,7 @@ class GameLogETL:
         self.load()
 
     @staticmethod
-    def extract_runs(score: str) -> List[int]:
+    def extract_runs(score: str) -> list[int]:
         """Extract the runs scored and runs against from the score
 
         :param score: The score
@@ -168,7 +167,7 @@ class GameLogETL:
         return re.sub(r"\b[Aa][Tt]\b|\b[Vv][Ss][.]*", "", opponent).strip()
 
     @staticmethod
-    def extract_conference(opponent: str, season: int, teams: List[str]) -> bool:
+    def extract_conference(opponent: str, season: int, teams: list[str]) -> bool:
         """Determine if the opponent is conference or non-conference"""
         # TODO: Get list of conference teams from database
 

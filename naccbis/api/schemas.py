@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional, List
+from typing import Optional
 from math import isnan
 
 from pydantic import BaseModel as PydanticBaseModel, validator
@@ -434,10 +434,10 @@ class LeaguePitchingSchema(BaseModel):
 
 
 class PlayerSchema(BaseModel):
-    offense: List[BattersSchema] = []
-    offense_career: List[OffenseSchema] = []
-    pitching: List[PitchersSchema] = []
-    pitching_career: List[PitchingSchema] = []
+    offense: list[BattersSchema] = []
+    offense_career: list[OffenseSchema] = []
+    pitching: list[PitchersSchema] = []
+    pitching_career: list[PitchingSchema] = []
 
 
 class GameLogSchema(BaseModel):

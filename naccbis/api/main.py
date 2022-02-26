@@ -1,5 +1,5 @@
 from datetime import date
-from typing import List, Optional, Iterator
+from typing import Optional, Iterator
 
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
@@ -27,7 +27,7 @@ def ping():
     return "pong"
 
 
-@app.get("/batters/", response_model=List[schemas.BattersSchema])
+@app.get("/batters/", response_model=list[schemas.BattersSchema])
 def read_batters(
     season: Optional[int] = None,
     team: Optional[str] = None,
@@ -41,7 +41,7 @@ def read_batters(
     return [row for row in df.itertuples(index=False)]
 
 
-@app.get("/pitchers/", response_model=List[schemas.PitchersSchema])
+@app.get("/pitchers/", response_model=list[schemas.PitchersSchema])
 def read_pitchers(
     season: Optional[int] = None,
     team: Optional[str] = None,
@@ -52,7 +52,7 @@ def read_pitchers(
     return queries.get_pitchers(db, season, team, split, min_ip)
 
 
-@app.get("/team_offense", response_model=List[schemas.TeamOffenseSchema])
+@app.get("/team_offense", response_model=list[schemas.TeamOffenseSchema])
 def read_team_offense(
     season: Optional[int] = None,
     team: Optional[str] = None,
@@ -65,7 +65,7 @@ def read_team_offense(
     return [row for row in df.itertuples(index=False)]
 
 
-@app.get("/team_pitching", response_model=List[schemas.TeamPitchingSchema])
+@app.get("/team_pitching", response_model=list[schemas.TeamPitchingSchema])
 def read_team_pitching(
     season: Optional[int] = None,
     team: Optional[str] = None,
@@ -76,7 +76,7 @@ def read_team_pitching(
     return [row for row in df.itertuples(index=False)]
 
 
-@app.get("/league_offense", response_model=List[schemas.LeagueOffenseSchema])
+@app.get("/league_offense", response_model=list[schemas.LeagueOffenseSchema])
 def read_league_offense(
     season: Optional[int] = None, split: str = "overall", db: Session = Depends(get_db)
 ):
@@ -84,7 +84,7 @@ def read_league_offense(
     return [row for row in df.itertuples(index=False)]
 
 
-@app.get("/league_pitching", response_model=List[schemas.LeaguePitchingSchema])
+@app.get("/league_pitching", response_model=list[schemas.LeaguePitchingSchema])
 def read_league_pitching(
     season: Optional[int] = None, split: str = "overall", db: Session = Depends(get_db)
 ):
@@ -107,7 +107,7 @@ def read_player(player_id: str, db: Session = Depends(get_db)):
     }
 
 
-@app.get("/game_log/", response_model=List[schemas.GameLogSchema])
+@app.get("/game_log/", response_model=list[schemas.GameLogSchema])
 def read_game_log(
     team: Optional[str] = None,
     season: Optional[int] = None,
