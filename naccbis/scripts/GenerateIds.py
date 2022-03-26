@@ -6,17 +6,14 @@
 3. generate player ids
 4. load transformed data into database
 """
-# Standard library imports
 from pathlib import Path
 from typing import Optional
 
-# Third party imports
 import click
 import pandas as pd
 from sqlalchemy import text
 from sqlalchemy.engine import Connection
 
-# Local imports
 from naccbis.cleaning import CleanFunctions
 from naccbis.common import utils
 from naccbis.common.settings import Settings

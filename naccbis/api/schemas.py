@@ -1,8 +1,9 @@
 from datetime import date
-from typing import Optional
 from math import isnan
+from typing import Optional
 
-from pydantic import BaseModel as PydanticBaseModel, validator
+from pydantic import BaseModel as PydanticBaseModel
+from pydantic import validator
 
 
 class BaseModel(PydanticBaseModel):

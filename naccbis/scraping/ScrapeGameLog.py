@@ -1,20 +1,18 @@
-# Standard library imports
-from datetime import date
 import logging
+from datetime import date
 from typing import Optional
 from urllib.parse import urljoin
 
-# Third party imports
-from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
+from bs4 import BeautifulSoup
 from sqlalchemy.engine import Connection
 
-# Local imports
-from . import ScrapeFunctions
-from .ScrapeBase import BaseScraper
 from naccbis.common import utils
 from naccbis.common.splits import GameLogSplit
+
+from . import ScrapeFunctions
+from .ScrapeBase import BaseScraper
 
 
 class GameLogScraper(BaseScraper):

@@ -1,6 +1,7 @@
 """ This script is used to verify data integrity in the database """
 import click
 import pandas as pd
+
 from naccbis.common import utils
 from naccbis.common.settings import Settings
 

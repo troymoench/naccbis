@@ -4,16 +4,13 @@ These inconsistencies include, but are not limited to:
 2. Name changes
 3. Nicknames
 """
-# Standard library imports
 from pathlib import Path
 
-# Third party imports
 import click
 import pandas as pd
 from sqlalchemy import text
 from sqlalchemy.engine import Connection
 
-# Local imports
 from naccbis.cleaning import CleanFunctions
 from naccbis.common import utils
 from naccbis.common.settings import Settings

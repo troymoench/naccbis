@@ -1,6 +1,7 @@
-from click.testing import CliRunner
 import pytest
-from naccbis.scripts import cli, clean, DumpNames, GenerateIds, scrape, verify
+from click.testing import CliRunner
+
+from naccbis.scripts import DumpNames, GenerateIds, clean, cli, scrape, verify
 
 
 @pytest.fixture

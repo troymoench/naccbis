@@ -1,10 +1,9 @@
 """ This module provides unit tests for common """
-# Standard library imports
-# Third party imports
+
+
 import pytest
 
-# Local imports
-from naccbis.common import utils, models, splits  # noqa
+from naccbis.common import models, splits, utils  # noqa
 
 
 class TestUtils:

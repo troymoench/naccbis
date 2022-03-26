@@ -1,14 +1,14 @@
 """ This script is the scraping controller """
-# Standard library imports
-from datetime import date
 import logging
-from typing import Sequence, Type, Union
+from datetime import date
+from typing import Sequence, Union
 
-# Third party imports
 import click
 from sqlalchemy.engine.base import Connection
 
-# Local imports
+from naccbis.common import utils
+from naccbis.common.settings import Settings
+from naccbis.common.splits import GameLogSplit, Split
 from naccbis.scraping import (
     BaseScraper,
     GameLogScraper,
@@ -18,10 +18,6 @@ from naccbis.scraping import (
     TeamOffenseScraper,
     TeamPitchingScraper,
 )
-from naccbis.common import utils
-from naccbis.common.splits import GameLogSplit, Split
-from naccbis.common.settings import Settings
-
 
 PARSER_EPILOG = """\b
 Examples:

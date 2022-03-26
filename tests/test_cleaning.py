@@ -1,25 +1,23 @@
 """ This module provides data cleaning unit tests """
-# Standard library imports
+
 import datetime
 
-# Third party imports
 import pandas as pd
-from pandas.testing import assert_frame_equal
 import pytest
+from pandas.testing import assert_frame_equal
 
-# Local imports
 from naccbis.cleaning import (
     CleanFunctions,
     GameLogETL,
     IndividualOffenseETL,
     IndividualPitchingETL,
-    TeamOffenseETL,
-    TeamPitchingETL,
     LeagueOffenseETL,
     LeaguePitchingETL,
+    TeamOffenseETL,
+    TeamPitchingETL,
 )
-from naccbis.scripts import clean, DumpNames, GenerateIds  # noqa
 from naccbis.common.splits import Split
+from naccbis.scripts import DumpNames, GenerateIds, clean  # noqa
 
 
 class TestCleanFunctions:

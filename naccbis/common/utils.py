@@ -1,13 +1,10 @@
 """ This module provides utility functions """
-# Standard library imports
 import logging
-from typing import Union, Any
+from typing import Any, Union
 
-# Third party imports
 import pandas as pd
-from sqlalchemy import create_engine
-from sqlalchemy import event
-from sqlalchemy.engine import Engine, Connection
+from sqlalchemy import create_engine, event
+from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.engine.url import URL
 from sqlalchemy.exc import SQLAlchemyError
 

@@ -9,4 +9,5 @@ black
 wheel
 types-requests
 pyupgrade
+isort
 # sqlalchemy2-stubs

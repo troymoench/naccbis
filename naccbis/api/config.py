@@ -1,4 +1,5 @@
 from functools import lru_cache
+
 from naccbis.common.settings import Settings
 
 

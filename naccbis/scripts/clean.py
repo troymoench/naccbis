@@ -1,25 +1,21 @@
 """ This script is the data cleaning controller """
-# Standard library imports
 import logging
 
-# Third party imports
 import click
 from sqlalchemy.engine import Connection
 
-# Local imports
 from naccbis.cleaning import (
     GameLogETL,
     IndividualOffenseETL,
     IndividualPitchingETL,
-    TeamOffenseETL,
-    TeamPitchingETL,
     LeagueOffenseETL,
     LeaguePitchingETL,
+    TeamOffenseETL,
+    TeamPitchingETL,
 )
 from naccbis.common import utils
-from naccbis.common.splits import Split
 from naccbis.common.settings import Settings
-
+from naccbis.common.splits import Split
 
 FINAL_PARSER_DESCRIPTION = """
 Clean final stats.

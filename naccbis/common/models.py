@@ -1,17 +1,18 @@
 """ Database models """
 from typing import Any
+
 from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Numeric,
     Boolean,
+    Column,
     Date,
     DateTime,
     ForeignKeyConstraint,
+    Integer,
+    Numeric,
+    String,
 )
-from sqlalchemy.sql import func
 from sqlalchemy.orm import declarative_base
+from sqlalchemy.sql import func
 
 # HACK: sqlalchemy-stubs should be used instead
 Base: Any = declarative_base()

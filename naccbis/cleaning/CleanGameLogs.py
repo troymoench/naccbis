@@ -1,15 +1,12 @@
 """ This script is used to clean game log data and load into the database """
-# Standard library imports
 import datetime
 import logging
-from pathlib import Path
 import re
+from pathlib import Path
 
-# Third party imports
 import pandas as pd
 from sqlalchemy.engine import Connection
 
-# Local imports
 from naccbis.common import utils
 
 

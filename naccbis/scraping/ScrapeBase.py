@@ -1,18 +1,15 @@
 """ This module provides the BaseScraper class """
-# Standard library imports
+import logging
 from abc import ABC, abstractmethod
 from datetime import date
-import logging
 from pathlib import Path
-from typing import Union, Optional
+from typing import Optional, Union
 
-# Third party imports
 import pandas as pd
 from sqlalchemy.engine import Connection
 
-# Local imports
 from naccbis.common import utils
-from naccbis.common.splits import Split, GameLogSplit
+from naccbis.common.splits import GameLogSplit, Split
 
 
 class BaseScraper(ABC):

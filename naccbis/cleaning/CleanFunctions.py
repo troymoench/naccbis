@@ -1,11 +1,7 @@
 """ This module provides functions used in the data cleaning process. """
-# Standard library imports
 import logging
 
-# Third party imports
 import pandas as pd
-
-# Local imports
 
 
 def split_fname(name: str) -> str:

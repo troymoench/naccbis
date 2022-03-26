@@ -1,5 +1,6 @@
 import pytest
 from sqlalchemy import text
+
 from naccbis.common import utils
 
 

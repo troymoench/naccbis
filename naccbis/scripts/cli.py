@@ -1,7 +1,9 @@
 """ NACCBIS Command Line Interface """
 import click
-from . import scrape, clean, DumpNames, GenerateIds, verify
+
 from naccbis import __version__
+
+from . import DumpNames, GenerateIds, clean, scrape, verify
 
 
 @click.group(help=__doc__)

@@ -1,26 +1,25 @@
 """ This module provides scraping unit tests """
-# Standard library imports
-# Third party imports
-from bs4 import BeautifulSoup
+
+
 import numpy as np
 import pandas as pd
-from pandas.testing import assert_frame_equal
 import pytest
 import requests
+from bs4 import BeautifulSoup
+from pandas.testing import assert_frame_equal
 
-# Local imports
+from naccbis.common.splits import GameLogSplit, Split
 from naccbis.scraping import (
-    ScrapeFunctions,
     BaseScraper,
     GameLogScraper,
     IndividualOffenseScraper,
     IndividualPitchingScraper,
+    ScrapeFunctions,
     TeamFieldingScraper,
     TeamOffenseScraper,
     TeamPitchingScraper,
 )
 from naccbis.scraping.ScrapeFunctions import TeamScrapeUrl
-from naccbis.common.splits import Split, GameLogSplit
 
 
 @pytest.fixture

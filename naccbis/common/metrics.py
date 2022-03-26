@@ -1,10 +1,6 @@
 """ This module provides metrics and related functions """
-# Standard library imports
-# Third party imports
 import numpy as np
 import pandas as pd
-
-# Local imports
 
 
 def avg(data):

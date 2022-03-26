@@ -1,10 +1,10 @@
 from typing import Iterator
 
 import pytest
-from naccbis.common.settings import Settings
-
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import URL, make_url, Connection
+from sqlalchemy.engine import URL, Connection, make_url
+
+from naccbis.common.settings import Settings
 
 NACCBIS_DB_URL = "postgresql:///naccbisdb_test"
 SCHEMA_FILE = "db/schema_dump_2021_09_14.sql"

@@ -3,16 +3,13 @@
 This script is used to calculate league totals for offense and pitching
 and load into database
 """
-# Standard library imports
 import logging
 from pathlib import Path
 
-# Third party imports
 import pandas as pd
 from sqlalchemy.engine import Connection
 
-# Local imports
-from naccbis.common import utils, metrics
+from naccbis.common import metrics, utils
 from naccbis.common.splits import Split
 
 

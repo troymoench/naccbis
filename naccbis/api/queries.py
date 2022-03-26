@@ -1,26 +1,27 @@
 from datetime import date
-from typing import Optional, Union, Type
+from typing import Optional, Union
+
 import pandas as pd
 from sqlalchemy import func
 from sqlalchemy.orm import Session, aliased
 
-from naccbis.common.models import (
-    BattersOverall,
-    BattersConference,
-    PitchersOverall,
-    PitchersConference,
-    PlayerId,
-    TeamOffenseOverall,
-    TeamOffenseConference,
-    TeamPitchingOverall,
-    TeamPitchingConference,
-    LeagueOffenseOverall,
-    LeagueOffenseConference,
-    LeaguePitchingOverall,
-    LeaguePitchingConference,
-    GameLog,
-)
 from naccbis.common import metrics
+from naccbis.common.models import (
+    BattersConference,
+    BattersOverall,
+    GameLog,
+    LeagueOffenseConference,
+    LeagueOffenseOverall,
+    LeaguePitchingConference,
+    LeaguePitchingOverall,
+    PitchersConference,
+    PitchersOverall,
+    PlayerId,
+    TeamOffenseConference,
+    TeamOffenseOverall,
+    TeamPitchingConference,
+    TeamPitchingOverall,
+)
 
 
 def get_batters(

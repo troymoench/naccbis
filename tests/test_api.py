@@ -1,9 +1,11 @@
 from typing import Iterator
-from fastapi.testclient import TestClient
+
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from naccbis.api.main import app, get_db
+
 from naccbis.api.database import create_session
+from naccbis.api.main import app, get_db
 from naccbis.common.models import GameLog
 from naccbis.common.settings import Settings
 

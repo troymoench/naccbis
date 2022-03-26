@@ -1,20 +1,15 @@
 """ This module provides general scraping functions as well as
 some utility functions used in the scraping process.
 """
-# Standard library imports
-from dataclasses import dataclass
 import logging
 import re
+from dataclasses import dataclass
 from time import sleep
-from typing import TypeVar, Type
+from typing import TypeVar
 
-# Third party imports
-from bs4 import BeautifulSoup, element
 import pandas as pd
 import requests
-
-# Local imports
-
+from bs4 import BeautifulSoup, element
 
 T = TypeVar("T", bound="TeamScrapeUrl")
 

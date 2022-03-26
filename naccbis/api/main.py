@@ -1,14 +1,14 @@
 from datetime import date
-from typing import Optional, Iterator
+from typing import Iterator, Optional
 
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
 
-from . import queries, schemas
-from .database import SessionLocal
 from naccbis import __version__
 from naccbis.common import metrics
 
+from . import queries, schemas
+from .database import SessionLocal
 
 app = FastAPI(version=__version__)
 
