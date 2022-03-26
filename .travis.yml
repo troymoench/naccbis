@@ -28,6 +28,8 @@ before_script:
 script:
   # lint
   - bash scripts/lint.sh
+  # format
+    bash scripts/format.sh
   # test
   - pytest -v --cov --cov-report term
 after_success: codecov --required

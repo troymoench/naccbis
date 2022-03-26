@@ -26,7 +26,7 @@ class TeamScrapeUrl:
     url: str
 
     @classmethod
-    def from_link(cls: Type[T], link: str, team_ids: dict[str, str]) -> T:
+    def from_link(cls: type[T], link: str, team_ids: dict[str, str]) -> T:
         return cls(
             team=get_text(link),
             id=team_ids[get_text(link)],

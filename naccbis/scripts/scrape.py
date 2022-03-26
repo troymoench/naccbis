@@ -86,7 +86,7 @@ def run_scrapers(
     :param inseason: Scraping during the season?
     :param verbose: Print extra information to standard out?
     """
-    scrapers: dict[int, Type[BaseScraper]]
+    scrapers: dict[int, type[BaseScraper]]
     scrapers = {
         1: IndividualOffenseScraper,
         2: IndividualPitchingScraper,

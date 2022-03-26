@@ -30,7 +30,7 @@ def get_batters(
     split: str = "overall",
     min_pa: int = 0,
 ):
-    table: Union[Type[BattersOverall], Type[BattersConference]]
+    table: Union[type[BattersOverall], type[BattersConference]]
     if split == "overall":
         table = BattersOverall
     else:
@@ -52,7 +52,7 @@ def get_pitchers(
     split: str = "overall",
     min_ip: int = 0,
 ):
-    table: Union[Type[PitchersOverall], Type[PitchersConference]]
+    table: Union[type[PitchersOverall], type[PitchersConference]]
     if split == "overall":
         table = PitchersOverall
     else:
@@ -169,7 +169,7 @@ def get_team_offense(
     team: Optional[str] = None,
     split: str = "overall",
 ):
-    table: Union[Type[TeamOffenseOverall], Type[TeamOffenseConference]]
+    table: Union[type[TeamOffenseOverall], type[TeamOffenseConference]]
     if split == "overall":
         table = TeamOffenseOverall
     else:
@@ -190,7 +190,7 @@ def get_team_pitching(
     team: Optional[str] = None,
     split: str = "overall",
 ):
-    table: Union[Type[TeamPitchingOverall], Type[TeamPitchingConference]]
+    table: Union[type[TeamPitchingOverall], type[TeamPitchingConference]]
     if split == "overall":
         table = TeamPitchingOverall
     else:
@@ -210,7 +210,7 @@ def get_league_offense(
     season: Optional[int] = None,
     split: str = "overall",
 ):
-    table: Union[Type[LeagueOffenseOverall], Type[LeagueOffenseConference]]
+    table: Union[type[LeagueOffenseOverall], type[LeagueOffenseConference]]
     if split == "overall":
         table = LeagueOffenseOverall
     else:
@@ -228,7 +228,7 @@ def get_league_pitching(
     season: Optional[int] = None,
     split: str = "overall",
 ):
-    table: Union[Type[LeaguePitchingOverall], Type[LeaguePitchingConference]]
+    table: Union[type[LeaguePitchingOverall], type[LeaguePitchingConference]]
     if split == "overall":
         table = LeaguePitchingOverall
     else:
