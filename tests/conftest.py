@@ -2,7 +2,7 @@ from typing import Iterator
 
 import pytest
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import URL, Connection, make_url
+from sqlalchemy.engine import Connection, make_url
 
 from naccbis.common.settings import Settings
 
@@ -23,15 +23,7 @@ def db_url(config: Settings) -> str:
 @pytest.fixture(scope="session", autouse=True)
 def create_db(db_url: str) -> None:
     url = make_url(db_url)
-    postgres_url = URL.create(
-        drivername=url.drivername,
-        username=url.username,
-        password=url.password,
-        host=url.host,
-        port=url.port,
-        database="postgres",
-        query=url.query,
-    )
+    postgres_url = url.set(database="postgres")
     print(postgres_url)
     pg_engine = create_engine(postgres_url, isolation_level="AUTOCOMMIT")
     print("Creating database")
