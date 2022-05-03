@@ -34,9 +34,8 @@ def create_db(db_url: str) -> None:
     pg_engine.dispose()
 
     engine = create_engine(db_url)
-    conn = engine.connect()
     print("Creating tables")
-    with conn.begin():
+    with engine.begin() as conn:
         with open(SCHEMA_FILE) as f:
             conn.execute(text(f.read()))
     conn.close()
