@@ -165,7 +165,7 @@ class PitchersOverall(Base):
     g = Column(Integer)
     gs = Column(Integer)
     w = Column(Integer)
-    l = Column(Integer)
+    l = Column(Integer)  # noqa: E741
     sv = Column(Integer)
     cg = Column(Integer)
     sho = Column(Integer)
@@ -230,7 +230,7 @@ class PitchersConference(Base):
     g = Column(Integer)
     gs = Column(Integer)
     w = Column(Integer)
-    l = Column(Integer)
+    l = Column(Integer)  # noqa: E741
     sv = Column(Integer)
     cg = Column(Integer)
     ip = Column(Numeric)
@@ -347,7 +347,7 @@ class TeamPitchingOverall(Base):
     season = Column(Integer, primary_key=True)
     g = Column(Integer)
     w = Column(Integer)
-    l = Column(Integer)
+    l = Column(Integer)  # noqa: E741
     sv = Column(Integer)
     cg = Column(Integer)
     sho = Column(Integer)
@@ -548,7 +548,7 @@ class LeaguePitchingOverall(Base):
     season = Column(Integer, primary_key=True)
     g = Column(Integer)
     w = Column(Integer)
-    l = Column(Integer)
+    l = Column(Integer)  # noqa: E741
     sv = Column(Integer)
     cg = Column(Integer)
     sho = Column(Integer)
@@ -749,7 +749,7 @@ class RawPitchersOverall(Base):
     g = Column(Integer)
     gs = Column(Integer)
     w = Column(Integer)
-    l = Column(Integer)
+    l = Column(Integer)  # noqa: E741
     sv = Column(Integer)
     cg = Column(Integer)
     sho = Column(Integer)
@@ -785,7 +785,7 @@ class RawPitchersConference(Base):
     g = Column(Integer)
     gs = Column(Integer)
     w = Column(Integer)
-    l = Column(Integer)
+    l = Column(Integer)  # noqa: E741
     sv = Column(Integer)
     cg = Column(Integer)
     ip = Column(String(20))
@@ -863,7 +863,7 @@ class RawGameLogPitching(Base):
     opponent = Column(String)
     score = Column(String(10))
     w = Column(Integer)
-    l = Column(Integer)
+    l = Column(Integer)  # noqa: E741
     sv = Column(Integer)
     ip = Column(Numeric)
     h = Column(Integer)

@@ -3,6 +3,7 @@ pytest
 pytest-cov
 codecov
 flake8
+flake8-bugbear
 sphinx
 mypy
 black
