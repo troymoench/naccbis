@@ -1,5 +1,6 @@
 # Northern Athletics Collegiate Conference Baseball Information System
 
+[![Tests](https://github.com/troymoench/naccbis/actions/workflows/test.yml/badge.svg)](https://github.com/troymoench/naccbis/actions)
 [![Build Status](https://app.travis-ci.com/troymoench/naccbis.svg?branch=master)](https://app.travis-ci.com/troymoench/naccbis)
 [![codecov](https://codecov.io/gh/troymoench/naccbis/branch/master/graph/badge.svg)](https://codecov.io/gh/troymoench/naccbis)
 
