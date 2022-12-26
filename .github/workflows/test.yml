@@ -42,3 +42,5 @@ jobs:
           # PGPORT: 5432
           PGUSER: postgres
           PGPASSWORD: postgres
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v2
