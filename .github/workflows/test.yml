@@ -37,7 +37,7 @@ jobs:
         run: pytest -v --cov --cov-report term
         env:
           # The hostname used to communicate with the PostgreSQL service container
-          # PGHOST: localhost
+          PGHOST: localhost
           # The default PostgreSQL port
           # PGPORT: 5432
           PGUSER: postgres
