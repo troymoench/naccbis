@@ -7,8 +7,8 @@ from .config import get_settings
 
 
 def create_session(settings: Settings):
-    SQLALCHEMY_DATABASE_URL = settings.get_db_url()
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    database_url = settings.get_db_url()
+    engine = create_engine(database_url)
     return sessionmaker(engine, autocommit=False, autoflush=False)
 
 

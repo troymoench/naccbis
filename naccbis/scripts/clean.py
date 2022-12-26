@@ -81,8 +81,8 @@ def run_etls(
 
     # GameLogs don't have any splits
     if 5 in etl_nums:
-        gameLogETL = GameLogETL(year, load_db, conn)
-        gameLogETL.run()
+        game_log_etl = GameLogETL(year, load_db, conn)
+        game_log_etl.run()
 
 
 @cli.command(help=FINAL_PARSER_DESCRIPTION)

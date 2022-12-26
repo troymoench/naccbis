@@ -91,11 +91,11 @@ class IndividualPitchingScraper(BaseScraper):
             logging.info("Fetching %s", team.team)
 
             url = f"{self.BASE_URL}{self._year}/{team.url}"
-            teamSoup = ScrapeFunctions.get_soup(url)
-            if ScrapeFunctions.skip_team(teamSoup):
+            team_soup = ScrapeFunctions.get_soup(url)
+            if ScrapeFunctions.skip_team(team_soup):
                 continue
             logging.info("Looking for pitching tables")
-            df = self._scrape(teamSoup)
+            df = self._scrape(team_soup)
             logging.info("Cleaning scraped data")
             df = self._clean(df, team.id)
 
@@ -105,8 +105,8 @@ class IndividualPitchingScraper(BaseScraper):
     def _scrape_overall(self, team_soup: BeautifulSoup) -> pd.DataFrame:
         index = 0
         # find index of pitching table
-        tableNum1 = ScrapeFunctions.find_table(team_soup, self.PITCHING_COLS)[index]
-        pitching = ScrapeFunctions.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
+        table_num1 = ScrapeFunctions.find_table(team_soup, self.PITCHING_COLS)[index]
+        pitching = ScrapeFunctions.scrape_table(team_soup, table_num1 + 1, skip_rows=2)
 
         tags = team_soup.find_all("a", string="Coach's View")
         if len(tags) != 1:
@@ -116,9 +116,9 @@ class IndividualPitchingScraper(BaseScraper):
         url = tags[0].get("href")
         url = urljoin(self.BASE_URL, url)
         coach_soup = ScrapeFunctions.get_soup(url)
-        tableNum2 = ScrapeFunctions.find_table(coach_soup, self.COACHES_VIEW_COLS)[0]
+        table_num2 = ScrapeFunctions.find_table(coach_soup, self.COACHES_VIEW_COLS)[0]
         coach_view = ScrapeFunctions.scrape_table(
-            coach_soup, tableNum2 + 1, first_row=3, skip_rows=3
+            coach_soup, table_num2 + 1, first_row=3, skip_rows=3
         )
 
         coach_view["Player"] = coach_view["Player"].str.rstrip(".")
@@ -129,8 +129,10 @@ class IndividualPitchingScraper(BaseScraper):
     def _scrape_conference(self, team_soup: BeautifulSoup) -> pd.DataFrame:
         index = 1
         # find index of pitching table
-        tableNum1 = ScrapeFunctions.find_table(team_soup, self.PITCHING_COLS)[index]
-        conference = ScrapeFunctions.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
+        table_num1 = ScrapeFunctions.find_table(team_soup, self.PITCHING_COLS)[index]
+        conference = ScrapeFunctions.scrape_table(
+            team_soup, table_num1 + 1, skip_rows=2
+        )
 
         # may want to normalize the column names eg, lower(), gp to g
         return conference
@@ -145,7 +147,7 @@ class IndividualPitchingScraper(BaseScraper):
             return self._scrape_conference(team_soup)
 
     def _clean_overall(self, data: pd.DataFrame, team_id: str) -> pd.DataFrame:
-        unnecessaryCols = [
+        unnecessary_cols = [
             "app",
             "gs",
             "w",
@@ -161,9 +163,9 @@ class IndividualPitchingScraper(BaseScraper):
             "hr",
             "era",
         ]
-        data.drop(columns=unnecessaryCols, inplace=True)
+        data.drop(columns=unnecessary_cols, inplace=True)
         data.columns = data.columns.to_series().str.lower()
-        renameCols = {
+        rename_cols = {
             "no.": "no",
             "app": "g",
             "k": "so",
@@ -174,9 +176,9 @@ class IndividualPitchingScraper(BaseScraper):
             "sha": "sh",
             "b/avg": "avg",
         }
-        data.rename(columns=renameCols, inplace=True)
+        data.rename(columns=rename_cols, inplace=True)
 
-        intCols = [
+        int_cols = [
             "no",
             "yr",
             "g",
@@ -202,8 +204,8 @@ class IndividualPitchingScraper(BaseScraper):
             "sf",
             "sh",
         ]
-        floatCols = ["era", "avg", "so_9"]
-        finalColNames = [
+        float_cols = ["era", "avg", "so_9"]
+        final_col_names = [
             "no",
             "name",
             "team",
@@ -238,7 +240,7 @@ class IndividualPitchingScraper(BaseScraper):
         ]
 
         if self._inseason:
-            finalColNames = [
+            final_col_names = [
                 "no",
                 "name",
                 "team",
@@ -273,9 +275,9 @@ class IndividualPitchingScraper(BaseScraper):
                 "so_9",
             ]
 
-        data[intCols] = data[intCols].replace("-", "0")
-        data[floatCols] = data[floatCols].replace("-", "0.0")
-        data[floatCols] = data[floatCols].replace("INF", np.nan)
+        data[int_cols] = data[int_cols].replace("-", "0")
+        data[float_cols] = data[float_cols].replace("-", "0.0")
+        data[float_cols] = data[float_cols].replace("INF", np.nan)
 
         data["team"] = team_id
         data["season"] = str(utils.year_to_season(self._year))
@@ -283,11 +285,11 @@ class IndividualPitchingScraper(BaseScraper):
             data["date"] = str(date.today())
         data["yr"] = data["yr"].str.rstrip(".")
         data["pos"] = data["pos"].replace("", np.nan)
-        return data[finalColNames]
+        return data[final_col_names]
 
     def _clean_conference(self, data: pd.DataFrame, team_id: str) -> pd.DataFrame:
         data.columns = data.columns.to_series().str.lower()
-        renameCols = {
+        rename_cols = {
             "no.": "no",
             "app": "g",
             "k": "so",
@@ -298,8 +300,8 @@ class IndividualPitchingScraper(BaseScraper):
             "sha": "sh",
             "b/avg": "avg",
         }
-        data.rename(columns=renameCols, inplace=True)
-        intCols = [
+        data.rename(columns=rename_cols, inplace=True)
+        int_cols = [
             "no",
             "g",
             "gs",
@@ -314,8 +316,8 @@ class IndividualPitchingScraper(BaseScraper):
             "so",
             "hr",
         ]
-        floatCols = ["so_9", "era"]
-        finalColNames = [
+        float_cols = ["so_9", "era"]
+        final_col_names = [
             "no",
             "name",
             "team",
@@ -340,7 +342,7 @@ class IndividualPitchingScraper(BaseScraper):
         ]
 
         if self._inseason:
-            finalColNames = [
+            final_col_names = [
                 "no",
                 "name",
                 "team",
@@ -364,11 +366,11 @@ class IndividualPitchingScraper(BaseScraper):
                 "hr",
                 "era",
             ]
-        data.rename(columns=renameCols, inplace=True)
+        data.rename(columns=rename_cols, inplace=True)
 
-        data[intCols] = data[intCols].replace("-", "0")
-        data[floatCols] = data[floatCols].replace("-", np.nan)
-        data[floatCols] = data[floatCols].replace("INF", np.nan)
+        data[int_cols] = data[int_cols].replace("-", "0")
+        data[float_cols] = data[float_cols].replace("-", np.nan)
+        data[float_cols] = data[float_cols].replace("INF", np.nan)
 
         data["team"] = team_id
         data["season"] = str(utils.year_to_season(self._year))
@@ -376,7 +378,7 @@ class IndividualPitchingScraper(BaseScraper):
             data["date"] = str(date.today())
         data["yr"] = data["yr"].str.rstrip(".")
         data["pos"] = data["pos"].replace("", np.nan)
-        return data[finalColNames]
+        return data[final_col_names]
 
     def _clean(self, data: pd.DataFrame, team_id: str) -> pd.DataFrame:
         data = data.copy()

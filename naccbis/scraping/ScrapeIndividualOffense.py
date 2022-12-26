@@ -71,11 +71,11 @@ class IndividualOffenseScraper(BaseScraper):
             logging.info("Fetching %s", team.team)
 
             url = f"{self.BASE_URL}{self._year}/{team.url}"
-            teamSoup = ScrapeFunctions.get_soup(url)
-            if ScrapeFunctions.skip_team(teamSoup):
+            team_soup = ScrapeFunctions.get_soup(url)
+            if ScrapeFunctions.skip_team(team_soup):
                 continue
             logging.info("Looking for hitting tables")
-            df = self._scrape(teamSoup)
+            df = self._scrape(team_soup)
             logging.info("Cleaning scraped data")
             df = self._clean(df, team.id)
             self._data = pd.concat([self._data, df], ignore_index=True)
@@ -95,17 +95,17 @@ class IndividualOffenseScraper(BaseScraper):
             index = 1
 
         # find index of hitting table
-        tableNum1 = ScrapeFunctions.find_table(team_soup, self.HITTING_COLS)[index]
-        hitting = ScrapeFunctions.scrape_table(team_soup, tableNum1 + 1, skip_rows=2)
+        table_num1 = ScrapeFunctions.find_table(team_soup, self.HITTING_COLS)[index]
+        hitting = ScrapeFunctions.scrape_table(team_soup, table_num1 + 1, skip_rows=2)
         # find index of extended_hitting table
-        tableNum2 = ScrapeFunctions.find_table(team_soup, self.EXTENDED_HITTING_COLS)[
+        table_num2 = ScrapeFunctions.find_table(team_soup, self.EXTENDED_HITTING_COLS)[
             index
         ]
-        extendedHitting = ScrapeFunctions.scrape_table(
-            team_soup, tableNum2 + 1, skip_rows=2
+        extended_hitting = ScrapeFunctions.scrape_table(
+            team_soup, table_num2 + 1, skip_rows=2
         )
 
-        return pd.merge(hitting, extendedHitting, on=["No.", "Name", "Yr", "Pos", "g"])
+        return pd.merge(hitting, extended_hitting, on=["No.", "Name", "Yr", "Pos", "g"])
 
     def _clean(self, data: pd.DataFrame, team_id: str) -> pd.DataFrame:
         # add TeamId, Season
@@ -114,7 +114,7 @@ class IndividualOffenseScraper(BaseScraper):
         # disallowed column names: no., 2b, 3b, go/fo
         data = data.copy()
         data.columns = data.columns.to_series().str.lower()
-        renameCols = {
+        rename_cols = {
             "no.": "no",
             "k": "so",
             "go/fo": "go_fo",
@@ -122,9 +122,9 @@ class IndividualOffenseScraper(BaseScraper):
             "3b": "x3b",
             "hdp": "gdp",
         }
-        data.rename(columns=renameCols, inplace=True)
+        data.rename(columns=rename_cols, inplace=True)
 
-        intCols = [
+        int_cols = [
             "no",
             "g",
             "ab",
@@ -148,8 +148,8 @@ class IndividualOffenseScraper(BaseScraper):
             "fo",
             "pa",
         ]
-        floatCols = ["avg", "obp", "slg", "go_fo"]
-        finalColNames = [
+        float_cols = ["avg", "obp", "slg", "go_fo"]
+        final_col_names = [
             "no",
             "name",
             "team",
@@ -183,7 +183,7 @@ class IndividualOffenseScraper(BaseScraper):
             "go_fo",
         ]
         if self._inseason:
-            finalColNames = [
+            final_col_names = [
                 "no",
                 "name",
                 "team",
@@ -218,8 +218,8 @@ class IndividualOffenseScraper(BaseScraper):
                 "go_fo",
             ]
 
-        data[intCols] = data[intCols].replace("-", "0")
-        data[floatCols] = data[floatCols].replace("-", np.nan)
+        data[int_cols] = data[int_cols].replace("-", "0")
+        data[float_cols] = data[float_cols].replace("-", np.nan)
 
         data["team"] = team_id
         data["season"] = str(utils.year_to_season(self._year))
@@ -227,4 +227,4 @@ class IndividualOffenseScraper(BaseScraper):
             data["date"] = str(date.today())
         data["yr"] = data["yr"].str.rstrip(".")
         data["pos"] = data["pos"].replace("", np.nan)
-        return data[finalColNames]
+        return data[final_col_names]

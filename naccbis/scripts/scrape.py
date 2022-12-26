@@ -94,22 +94,22 @@ def run_scrapers(
     for split in splits:
         for num in scraper_nums:
             if num in scrapers.keys():
-                runScraper = scrapers[num](
+                run_scraper = scrapers[num](
                     year, split, output, inseason, verbose, conn=conn
                 )
-                runScraper.info()
-                runScraper.run()
-                runScraper.export()
+                run_scraper.info()
+                run_scraper.run()
+                run_scraper.export()
 
     # Game logs have special splits
     if 6 in scraper_nums:
         for split in list(GameLogSplit):
-            gameLogScraper = GameLogScraper(
+            run_scraper = GameLogScraper(
                 year, split, output, inseason, verbose, conn=conn
             )
-            gameLogScraper.info()
-            gameLogScraper.run()
-            gameLogScraper.export()
+            run_scraper.info()
+            run_scraper.run()
+            run_scraper.export()
 
 
 @cli.command(help=FINAL_PARSER_DESCRIPTION)

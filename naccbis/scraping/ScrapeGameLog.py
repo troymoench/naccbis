@@ -76,9 +76,9 @@ class GameLogScraper(BaseScraper):
             logging.info("Fetching %s", team.team)
 
             url = f"{self.BASE_URL}{self._year}/{team.url}"
-            teamSoup = ScrapeFunctions.get_soup(url)
+            team_soup = ScrapeFunctions.get_soup(url)
             logging.info("Looking for game log table")
-            df = self._scrape(teamSoup)
+            df = self._scrape(team_soup)
             logging.info("Cleaning scraped data")
             df = self._clean(df, team.team)
 
@@ -98,39 +98,39 @@ class GameLogScraper(BaseScraper):
         game_soup = ScrapeFunctions.get_soup(url)
 
         if self._split == GameLogSplit.HITTING:
-            tableNum1 = ScrapeFunctions.find_table(game_soup, self.HITTING_COLS)[0]
+            table_num1 = ScrapeFunctions.find_table(game_soup, self.HITTING_COLS)[0]
             hitting = ScrapeFunctions.scrape_table(
-                game_soup, tableNum1 + 1, first_row=2, skip_rows=0
+                game_soup, table_num1 + 1, first_row=2, skip_rows=0
             )
 
-            tableNum2 = ScrapeFunctions.find_table(
+            table_num2 = ScrapeFunctions.find_table(
                 game_soup, self.EXTENDED_HITTING_COLS
             )[0]
-            extendedHitting = ScrapeFunctions.scrape_table(
-                game_soup, tableNum2 + 1, first_row=2, skip_rows=0
+            extended_hitting = ScrapeFunctions.scrape_table(
+                game_soup, table_num2 + 1, first_row=2, skip_rows=0
             )
 
             # may want to normalize the column names before merging, eg, lower()
-            return pd.merge(hitting, extendedHitting, on=["Date", "Opponent", "Score"])
+            return pd.merge(hitting, extended_hitting, on=["Date", "Opponent", "Score"])
 
         elif self._split == GameLogSplit.PITCHING:
-            tableNum1 = ScrapeFunctions.find_table(game_soup, self.PITCHING_COLS)[0]
+            table_num1 = ScrapeFunctions.find_table(game_soup, self.PITCHING_COLS)[0]
             pitching = ScrapeFunctions.scrape_table(
-                game_soup, tableNum1 + 1, first_row=2, skip_rows=0
+                game_soup, table_num1 + 1, first_row=2, skip_rows=0
             )
 
             return pitching
         elif self._split == GameLogSplit.FIELDING:
-            tableNum1 = ScrapeFunctions.find_table(game_soup, self.FIELDING_COLS)[0]
+            table_num1 = ScrapeFunctions.find_table(game_soup, self.FIELDING_COLS)[0]
             fielding = ScrapeFunctions.scrape_table(
-                game_soup, tableNum1 + 1, first_row=2, skip_rows=0
+                game_soup, table_num1 + 1, first_row=2, skip_rows=0
             )
 
             return fielding
 
     def _clean(self, data: pd.DataFrame, team: str) -> pd.DataFrame:
         if self._split == GameLogSplit.HITTING:
-            intCols = [
+            int_cols = [
                 "ab",
                 "r",
                 "h",
@@ -152,8 +152,8 @@ class GameLogScraper(BaseScraper):
                 "fo",
                 "pa",
             ]
-            floatCols = ["go_fo"]
-            renameCols = {
+            float_cols = ["go_fo"]
+            rename_cols = {
                 "2b": "x2b",
                 "3b": "x3b",
                 "k": "so",
@@ -162,20 +162,20 @@ class GameLogScraper(BaseScraper):
             }
 
         elif self._split == GameLogSplit.PITCHING:
-            intCols = ["w", "l", "sv", "h", "r", "er", "bb", "so", "hr"]
-            floatCols = ["era"]
-            renameCols = {"k": "so"}
+            int_cols = ["w", "l", "sv", "h", "r", "er", "bb", "so", "hr"]
+            float_cols = ["era"]
+            rename_cols = {"k": "so"}
 
         elif self._split == GameLogSplit.FIELDING:
-            intCols = ["tc", "po", "a", "e", "dp", "sba", "cs", "pb", "ci"]
-            floatCols = ["fpct", "cspct"]
-            renameCols = {"rcs": "cs", "rcs%": "cspct"}
+            int_cols = ["tc", "po", "a", "e", "dp", "sba", "cs", "pb", "ci"]
+            float_cols = ["fpct", "cspct"]
+            rename_cols = {"rcs": "cs", "rcs%": "cspct"}
 
-        data.rename(columns=renameCols, inplace=True)
+        data.rename(columns=rename_cols, inplace=True)
 
-        data[intCols] = data[intCols].replace("-", "0")
-        data[floatCols] = data[floatCols].replace("-", np.nan)
-        data[floatCols] = data[floatCols].replace("INF", np.nan)
+        data[int_cols] = data[int_cols].replace("-", "0")
+        data[float_cols] = data[float_cols].replace("-", np.nan)
+        data[float_cols] = data[float_cols].replace("INF", np.nan)
 
         # replace tabs
         data["Opponent"] = [x.replace("\t", "") for x in data["Opponent"]]
@@ -195,19 +195,19 @@ class GameLogScraper(BaseScraper):
         data["game_num"] = list(range(1, len(data) + 1))
         data["game_num"] = data["game_num"].apply(str)
 
-        finalColNames = data.axes[1].tolist()
-        finalColNames.remove("Season")
-        finalColNames.remove("Name")
+        final_col_names = data.axes[1].tolist()
+        final_col_names.remove("Season")
+        final_col_names.remove("Name")
         if self._inseason:
-            finalColNames.remove("scrape_date")
+            final_col_names.remove("scrape_date")
 
-        finalColNames.insert(1, "Season")
-        finalColNames.insert(2, "Name")
+        final_col_names.insert(1, "Season")
+        final_col_names.insert(2, "Name")
         if self._inseason:
-            finalColNames.insert(0, "scrape_date")
+            final_col_names.insert(0, "scrape_date")
 
-        finalColNames.remove("game_num")
-        finalColNames.insert(0, "game_num")
-        data = data[finalColNames]
+        final_col_names.remove("game_num")
+        final_col_names.insert(0, "game_num")
+        data = data[final_col_names]
         data.columns = data.columns.to_series().str.lower()
         return data

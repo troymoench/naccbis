@@ -102,11 +102,11 @@ class BaseScraper(ABC):
             raise ValueError(
                 "Cannot export. Scraper has not been run yet. Use run() to do so."
             )
-        tableName = self.TABLES[str(self._split)]
+        table_name = self.TABLES[str(self._split)]
         if self._output == "csv":
-            self._export_csv(tableName)
+            self._export_csv(table_name)
         elif self._output == "sql":
-            self._export_db(tableName)
+            self._export_db(table_name)
 
     def _export_csv(self, table_name: str) -> None:
         """Helper method to export data to a csv file"""

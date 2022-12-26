@@ -66,18 +66,18 @@ class TeamFieldingScraper(BaseScraper):
             index = 1
 
         # find index of fielding table
-        tableNum1 = ScrapeFunctions.find_table(soup, self.FIELDING_COLS)[index]
-        fielding = ScrapeFunctions.scrape_table(soup, tableNum1 + 1, skip_rows=0)
+        table_num1 = ScrapeFunctions.find_table(soup, self.FIELDING_COLS)[index]
+        fielding = ScrapeFunctions.scrape_table(soup, table_num1 + 1, skip_rows=0)
 
         # may want to normalize the column names eg, lower(), gp to g
         return fielding
 
     def _clean(self, data: pd.DataFrame) -> pd.DataFrame:
-        unnecessaryCols = ["Rk"]
-        renameCols = {"gp": "g", "rcs": "cs", "rcs%": "cspct"}
-        intCols = ["g", "tc", "po", "a", "e", "dp", "sba", "cs", "pb", "ci"]
-        floatCols = ["fpct", "cspct"]
-        finalColNames = [
+        unnecessary_cols = ["Rk"]
+        rename_cols = {"gp": "g", "rcs": "cs", "rcs%": "cspct"}
+        int_cols = ["g", "tc", "po", "a", "e", "dp", "sba", "cs", "pb", "ci"]
+        float_cols = ["fpct", "cspct"]
+        final_col_names = [
             "Name",
             "Season",
             "g",
@@ -94,7 +94,7 @@ class TeamFieldingScraper(BaseScraper):
             "ci",
         ]
         if self._inseason:
-            finalColNames = [
+            final_col_names = [
                 "Name",
                 "Season",
                 "Date",
@@ -112,17 +112,17 @@ class TeamFieldingScraper(BaseScraper):
                 "ci",
             ]
 
-        data.drop(columns=unnecessaryCols, inplace=True)
-        data.rename(columns=renameCols, inplace=True)
+        data.drop(columns=unnecessary_cols, inplace=True)
+        data.rename(columns=rename_cols, inplace=True)
 
-        data[intCols] = data[intCols].replace("-", "0")
-        data[floatCols] = data[floatCols].replace("-", np.nan)
-        data[floatCols] = data[floatCols].replace("INF", np.nan)
+        data[int_cols] = data[int_cols].replace("-", "0")
+        data[float_cols] = data[float_cols].replace("-", np.nan)
+        data[float_cols] = data[float_cols].replace("INF", np.nan)
 
         data["Season"] = str(utils.year_to_season(self._year))
         if self._inseason:
             data["Date"] = str(date.today())
 
-        data = data[finalColNames]
+        data = data[final_col_names]
         data.columns = data.columns.to_series().str.lower()
         return data

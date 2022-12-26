@@ -68,20 +68,22 @@ class TeamOffenseScraper(BaseScraper):
             index = 1
 
         # find index of hitting table
-        tableNum1 = ScrapeFunctions.find_table(soup, self.HITTING_COLS)[index]
-        hitting = ScrapeFunctions.scrape_table(soup, tableNum1 + 1, skip_rows=0)
+        table_num1 = ScrapeFunctions.find_table(soup, self.HITTING_COLS)[index]
+        hitting = ScrapeFunctions.scrape_table(soup, table_num1 + 1, skip_rows=0)
         # find index of extended_hitting table
-        tableNum2 = ScrapeFunctions.find_table(soup, self.EXTENDED_HITTING_COLS)[index]
-        extendedHitting = ScrapeFunctions.scrape_table(soup, tableNum2 + 1, skip_rows=0)
+        table_num2 = ScrapeFunctions.find_table(soup, self.EXTENDED_HITTING_COLS)[index]
+        extended_hitting = ScrapeFunctions.scrape_table(
+            soup, table_num2 + 1, skip_rows=0
+        )
 
         # may want to normalize the column names before merging, eg, lower(), gp to g
-        return pd.merge(hitting, extendedHitting, on=["Rk", "Name", "gp"])
+        return pd.merge(hitting, extended_hitting, on=["Rk", "Name", "gp"])
 
     def _clean(self, data: pd.DataFrame) -> pd.DataFrame:
         data.columns = data.columns.to_series().str.lower()
-        unnecessaryCols = ["rk"]
-        data.drop(columns=unnecessaryCols, inplace=True)
-        renameCols = {
+        unnecessary_cols = ["rk"]
+        data.drop(columns=unnecessary_cols, inplace=True)
+        rename_cols = {
             "no.": "no",
             "k": "so",
             "go/fo": "go_fo",
@@ -90,9 +92,9 @@ class TeamOffenseScraper(BaseScraper):
             "hdp": "gdp",
             "gp": "g",
         }
-        data.rename(columns=renameCols, inplace=True)
+        data.rename(columns=rename_cols, inplace=True)
 
-        intCols = [
+        int_cols = [
             "g",
             "ab",
             "r",
@@ -115,8 +117,8 @@ class TeamOffenseScraper(BaseScraper):
             "fo",
             "pa",
         ]
-        floatCols = ["avg", "obp", "slg", "go_fo"]
-        finalColNames = [
+        float_cols = ["avg", "obp", "slg", "go_fo"]
+        final_col_names = [
             "name",
             "season",
             "g",
@@ -146,7 +148,7 @@ class TeamOffenseScraper(BaseScraper):
             "go_fo",
         ]
         if self._inseason:
-            finalColNames = [
+            final_col_names = [
                 "name",
                 "season",
                 "date",
@@ -177,10 +179,10 @@ class TeamOffenseScraper(BaseScraper):
                 "go_fo",
             ]
 
-        data[intCols] = data[intCols].replace("-", "0")
-        data[floatCols] = data[floatCols].replace("-", np.nan)
+        data[int_cols] = data[int_cols].replace("-", "0")
+        data[float_cols] = data[float_cols].replace("-", np.nan)
 
         data["season"] = str(utils.year_to_season(self._year))
         if self._inseason:
             data["date"] = str(date.today())
-        return data[finalColNames]
+        return data[final_col_names]

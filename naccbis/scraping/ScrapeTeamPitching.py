@@ -92,9 +92,9 @@ class TeamPitchingScraper(BaseScraper):
             for team in team_urls:
                 logging.info("Fetching %s", team.team)
                 url = f"{self.BASE_URL}{self._year}/{team.url}"
-                teamSoup = ScrapeFunctions.get_soup(url)
+                team_soup = ScrapeFunctions.get_soup(url)
                 logging.info("Looking for pitching table")
-                df = self._scrape(teamSoup)
+                df = self._scrape(team_soup)
                 logging.info("Cleaning scraped data")
                 df = self._clean(df, team.team)
                 self._data = pd.concat([self._data, df], ignore_index=True)
@@ -112,8 +112,8 @@ class TeamPitchingScraper(BaseScraper):
 
     def _scrape_overall(self, team_soup: BeautifulSoup) -> pd.DataFrame:
         # find index of pitching table
-        tableNum1 = ScrapeFunctions.find_table(team_soup, self.PITCHING_COLS)[0]
-        pitching = ScrapeFunctions.scrape_table(team_soup, tableNum1 + 1, skip_rows=1)
+        table_num1 = ScrapeFunctions.find_table(team_soup, self.PITCHING_COLS)[0]
+        pitching = ScrapeFunctions.scrape_table(team_soup, table_num1 + 1, skip_rows=1)
         # select the totals row
         pitching = pitching[(pitching.Name == "Totals") | (pitching.Name == "Total")]
         pitching = pitching.reset_index(drop=True)
@@ -131,9 +131,9 @@ class TeamPitchingScraper(BaseScraper):
         url = tags[0].get("href")
         url = urljoin(self.BASE_URL, url)
         coach_soup = ScrapeFunctions.get_soup(url)
-        tableNum2 = ScrapeFunctions.find_table(coach_soup, self.COACHES_VIEW_COLS)[0]
+        table_num2 = ScrapeFunctions.find_table(coach_soup, self.COACHES_VIEW_COLS)[0]
         coach_view = ScrapeFunctions.scrape_table(
-            coach_soup, tableNum2 + 1, first_row=3, skip_rows=1
+            coach_soup, table_num2 + 1, first_row=3, skip_rows=1
         )
 
         if "Player" in coach_view.columns:
@@ -155,8 +155,10 @@ class TeamPitchingScraper(BaseScraper):
     def _scrape_conference(self, team_soup: BeautifulSoup) -> pd.DataFrame:
         index = 1
 
-        tableNum1 = ScrapeFunctions.find_table(team_soup, self.CONFERENCE_COLS)[index]
-        conference = ScrapeFunctions.scrape_table(team_soup, tableNum1 + 1, skip_rows=0)
+        table_num1 = ScrapeFunctions.find_table(team_soup, self.CONFERENCE_COLS)[index]
+        conference = ScrapeFunctions.scrape_table(
+            team_soup, table_num1 + 1, skip_rows=0
+        )
 
         # may want to normalize the column names eg, lower(), gp to g
         return conference
@@ -171,7 +173,7 @@ class TeamPitchingScraper(BaseScraper):
             return self._scrape_conference(team_soup)
 
     def _clean_overall(self, data: pd.DataFrame, team: str) -> pd.DataFrame:
-        unnecessaryCols = [
+        unnecessary_cols = [
             "No.",
             "Name",
             "Pos",
@@ -192,7 +194,7 @@ class TeamPitchingScraper(BaseScraper):
             "hr",
             "era",
         ]
-        intCols = [
+        int_cols = [
             "G",
             "W",
             "L",
@@ -215,8 +217,8 @@ class TeamPitchingScraper(BaseScraper):
             "SF",
             "SH",
         ]
-        floatCols = ["ERA", "AVG", "SO_9"]
-        renameCols = {
+        float_cols = ["ERA", "AVG", "SO_9"]
+        rename_cols = {
             "APP": "G",
             "2B": "x2B",
             "3B": "x3B",
@@ -225,7 +227,7 @@ class TeamPitchingScraper(BaseScraper):
             "SHA": "SH",
             "k/9": "SO_9",
         }
-        finalColNames = [
+        final_col_names = [
             "Name",
             "Season",
             "G",
@@ -254,7 +256,7 @@ class TeamPitchingScraper(BaseScraper):
             "SO_9",
         ]
         if self._inseason:
-            finalColNames = [
+            final_col_names = [
                 "Name",
                 "Season",
                 "Date",
@@ -284,27 +286,27 @@ class TeamPitchingScraper(BaseScraper):
                 "SO_9",
             ]
 
-        data.drop(columns=unnecessaryCols, inplace=True)
-        data.rename(columns=renameCols, inplace=True)
+        data.drop(columns=unnecessary_cols, inplace=True)
+        data.rename(columns=rename_cols, inplace=True)
 
-        data[intCols] = data[intCols].replace("-", "0")
-        data[floatCols] = data[floatCols].replace("-", np.nan)
-        data[floatCols] = data[floatCols].replace("INF", np.nan)
+        data[int_cols] = data[int_cols].replace("-", "0")
+        data[float_cols] = data[float_cols].replace("-", np.nan)
+        data[float_cols] = data[float_cols].replace("INF", np.nan)
 
         data["Name"] = team
         data["Season"] = str(utils.year_to_season(self._year))
         if self._inseason:
             data["Date"] = str(date.today())
-        data = data[finalColNames]
+        data = data[final_col_names]
         data.columns = data.columns.to_series().str.lower()
         return data
 
     def _clean_conference(self, data: pd.DataFrame, team: str) -> pd.DataFrame:
-        unnecessaryCols = ["Rk"]
-        renameCols = {"gp": "g", "k": "so", "k/9": "so_9"}
-        intCols = ["g", "h", "r", "er", "bb", "so", "hr"]
-        floatCols = ["so_9", "era"]
-        finalColNames = [
+        unnecessary_cols = ["Rk"]
+        rename_cols = {"gp": "g", "k": "so", "k/9": "so_9"}
+        int_cols = ["g", "h", "r", "er", "bb", "so", "hr"]
+        float_cols = ["so_9", "era"]
+        final_col_names = [
             "Name",
             "Season",
             "g",
@@ -319,7 +321,7 @@ class TeamPitchingScraper(BaseScraper):
             "era",
         ]
         if self._inseason:
-            finalColNames = [
+            final_col_names = [
                 "Name",
                 "Season",
                 "Date",
@@ -335,18 +337,18 @@ class TeamPitchingScraper(BaseScraper):
                 "era",
             ]
 
-        data = data.drop(columns=unnecessaryCols)
-        data = data.rename(columns=renameCols)
+        data = data.drop(columns=unnecessary_cols)
+        data = data.rename(columns=rename_cols)
 
-        data[intCols] = data[intCols].replace("-", "0")
-        data[floatCols] = data[floatCols].replace("-", np.nan)
-        data[floatCols] = data[floatCols].replace("INF", np.nan)
+        data[int_cols] = data[int_cols].replace("-", "0")
+        data[float_cols] = data[float_cols].replace("-", np.nan)
+        data[float_cols] = data[float_cols].replace("INF", np.nan)
 
         data["Season"] = str(utils.year_to_season(self._year))
         if self._inseason:
             data["Date"] = str(date.today())
 
-        data = data[finalColNames]
+        data = data[final_col_names]
         data.columns = data.columns.to_series().str.lower()
         return data
 

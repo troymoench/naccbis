@@ -8,7 +8,7 @@ from pydantic import validator
 
 class BaseModel(PydanticBaseModel):
     @validator("*")
-    def change_nan_to_none(cls, v, values, field):
+    def change_nan_to_none(cls, v, values, field):  # noqa: N805
         # pydantic doesn't like pandas NaN
         if field.outer_type_ is float and isnan(v):
             return None

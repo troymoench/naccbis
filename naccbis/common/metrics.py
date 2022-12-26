@@ -226,7 +226,7 @@ def linear_weights_incr(data, incr=0.00000001):
     cols = ["bb", "hbp", "ab", "h", "x2b", "x3b", "hr", "sb", "cs", "sf", "sh", "gdp"]
     v_input = data[cols]
 
-    M_incr = pd.DataFrame(
+    m_incr = pd.DataFrame(
         [
             [0, incr, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # hbp
             [incr, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # bb
@@ -252,13 +252,13 @@ def linear_weights_incr(data, incr=0.00000001):
         columns=cols,
     )
 
-    M_input = M_incr + v_input
+    m_input = m_incr + v_input
     bmult = bsr_bmult(data)
     baseruns = bsr(data, bmult=bmult)
 
     # NOTE: The following are equivalent:
-    # [(bsr(row, bmult) - baseruns) * (1 / incr) for _, row in M_input.iterrows()])
-    return M_input.apply(lambda row: (bsr(row, bmult) - baseruns) * (1 / incr), axis=1)
+    # [(bsr(row, bmult) - baseruns) * (1 / incr) for _, row in m_input.iterrows()])
+    return m_input.apply(lambda row: (bsr(row, bmult) - baseruns) * (1 / incr), axis=1)
 
 
 def woba_weights(data, target):
