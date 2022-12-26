@@ -33,3 +33,12 @@ jobs:
           python -m pip install -r requirements-dev.txt
       - name: Lint
         run: bash scripts/lint.sh
+      - name: Test
+        run: pytest -v --cov --cov-report term
+        env:
+          # The hostname used to communicate with the PostgreSQL service container
+          # PGHOST: localhost
+          # The default PostgreSQL port
+          # PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: postgres
