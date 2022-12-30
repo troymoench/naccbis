@@ -181,7 +181,6 @@ class TestGenerateIds:
             ("Ackerman", "Kamren", "BEN", 2017, "ackerka01", "Kamren Ackerman"),
             ("Miller", "Ryan", "BEN", 2017, "millery01", "Ryan Miller"),
             ("Miller", "Ryan", "BEN", 2018, "millery01", "Ryan Miller"),
-            # ('Miller', 'Ryan', 'BEN', 2019, 'millery01', 'Ryan Miller'),
             ("Miller", "Ryan", "MSOE", 2015, "millery01", "Ryan Miller"),
             ("Miller", "Ryan", "MSOE", 2016, "millery01", "Ryan Miller"),
             ("Schroeder", "Matt", "CUW", 2012, "schroma01", "Matt Schroeder"),
@@ -199,7 +198,6 @@ class TestGenerateIds:
             ("Ackerman", "Kamren", "BEN", 2017, "ackerka01", "Kamren Ackerman"),
             ("Miller", "Ryan", "BEN", 2017, "millery02", "Ryan Miller"),
             ("Miller", "Ryan", "BEN", 2018, "millery02", "Ryan Miller"),
-            # ('Miller', 'Ryan', 'BEN', 2019, 'millery02', 'Ryan Miller'),
             ("Miller", "Ryan", "MSOE", 2015, "millery01", "Ryan Miller"),
             ("Miller", "Ryan", "MSOE", 2016, "millery01", "Ryan Miller"),
             ("Schroeder", "Matt", "CUW", 2012, "schroma02", "Matt Schroeder"),
@@ -244,7 +242,6 @@ class TestGenerateIds:
         )
 
     def test_update_duplicates(self):
-        # print([row for row in foo.itertuples(False, None)])
         assert_frame_equal(
             GenerateIds.update_duplicates(self.dupes_raw, self.duplicates),
             self.dupes_expected,
@@ -359,7 +356,6 @@ class TestCleanGameLogs:
 
 class TestLeagueTotals:
     def test_select_bench_players(self):
-        # print([tuple(x) for x in data.loc[:, "fname":"pa"].values])
 
         team = pd.DataFrame(
             [

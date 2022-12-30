@@ -48,7 +48,6 @@ class TestUtils:
 
 class TestSplits:
     def test_split_overall(self):
-        # split = splits.Split.OVERALL
         split = splits.Split("overall")
         assert split.name == "OVERALL"
         assert split.value == "overall"

@@ -132,9 +132,9 @@ def final(
     logging.info("Cleaning completed")
 
 
-# @cli.command(help=INSEASON_PARSER_DESCRIPTION)
-# def inseason() -> None:
-#     raise NotImplementedError("Inseason ETL is not supported yet")
+@cli.command(help=INSEASON_PARSER_DESCRIPTION)
+def inseason() -> None:
+    raise NotImplementedError("Inseason ETL is not supported yet")
 
 
 if __name__ == "__main__":
