@@ -222,12 +222,12 @@ class LeaguePitchingETL:
             totals = self.team_data[cols].groupby("season").sum()
             conference = self.split == Split.CONFERENCE
             totals = metrics.basic_pitching_metrics(totals, conference)
-            # totals["fip_constant"] = metrics.fip_constant(totals)  # noqa: E800
-            # totals["fip"] = metrics.fip(totals, totals["fip_constant"])  # noqa: E800
+            # totals["fip_constant"] = metrics.fip_constant(totals)  # noqa: E800, ERA001
+            # totals["fip"] = metrics.fip(totals, totals["fip_constant"])  # noqa: E800, ERA001
             totals["raa"] = metrics.raa(totals, totals["ra_9"])
-            # totals["fipraa"] = metrics.fipraa(totals, totals["fip"])  # noqa: E800
+            # totals["fipraa"] = metrics.fipraa(totals, totals["fip"])  # noqa: E800, ERA001
             totals["era_minus"] = metrics.era_minus(totals, totals["era"])
-            # totals["fip_minus"] = metrics.fip_minus(totals, totals["fip"])  # noqa: E800
+            # totals["fip_minus"] = metrics.fip_minus(totals, totals["fip"])  # noqa: E800, ERA001
 
         self.totals = totals
 

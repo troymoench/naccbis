@@ -248,7 +248,7 @@ class PitchersSchema(BaseModel):
     g: int
     gs: int
     w: int
-    l: int
+    l: int  # noqa: E741
     sv: int
     cg: int
     sho: Optional[int]
@@ -293,7 +293,7 @@ class PitchingSchema(BaseModel):
     g: int
     gs: int
     w: int
-    l: int
+    l: int  # noqa: E741
     sv: int
     cg: int
     sho: Optional[int]
@@ -336,7 +336,7 @@ class TeamPitchingSchema(BaseModel):
     season: int
     g: int
     w: Optional[int]
-    l: Optional[int]
+    l: Optional[int]  # noqa: E741
     sv: Optional[int]
     cg: Optional[int]
     sho: Optional[int]
@@ -381,7 +381,7 @@ class LeaguePitchingSchema(BaseModel):
     season: int
     g: int
     w: Optional[int]
-    l: Optional[int]
+    l: Optional[int]  # noqa: E741
     sv: Optional[int]
     cg: Optional[int]
     sho: Optional[int]

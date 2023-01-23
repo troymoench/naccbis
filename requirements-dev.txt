@@ -13,4 +13,5 @@ wheel
 types-requests
 pyupgrade
 isort
+ruff
 # sqlalchemy2-stubs
