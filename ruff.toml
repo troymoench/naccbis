@@ -1,14 +1,20 @@
 target-version = "py39"
 line-length = 88
 
-# Enable Pyflakes, pycodestyle, McCabe, flake8-bugbear, isort, pep8-naming, pyupgrade, flake8-eradicate
-select = ["F", "E", "W", "C90" , "B", "I", "N", "UP", "ERA"]
+select = [
+    "E",   # pycodestyle
+    "F",   # Pyflakes
+    "W",   # pycodestyle
+    "C90", # McCabe
+    "B",   # flake8-bugbear
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "ERA", # flake8-eradicate
+]
 
 ignore = [
-    # line length (handled mostly by Black)
-    "E501",
-    # whitespace before ':'
-    # "E203",
-    # do not perform function calls in argument defaults (for FastAPI)
-    "B008",
+    "E501",   # line length (handled mostly by Black)
+    # "E203", # whitespace before ':'
+    "B008",   # do not perform function calls in argument defaults (for FastAPI)
 ]
